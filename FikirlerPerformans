@@ -1,0 +1,25 @@
+10 dakaa boyunca cevaplar cachedan verilir
+baska sitelerden bir anda cek
+yahoo finance zaten gecikmeli veri getiriyor
+google sheetsde, bir kollona hisse kodlari diger kolona da formul ile googel finance formulu var, formul var. sol taratan hisse adini al sagdaki formulun icine koy o formul google financeden getiriyor.
+google sheetsde sayfayi scrap etme var, 
+
+
+
+design pattern sorting algoritmalari vb 
+
+javascript kutuphanelerini oku
+--en iyi kodlari nasil yaparim ada
+
+once kendin yap sonra kodu oku
+
+
+
+1.Rate limited should be used!
+2.More than available core process should not be used, its in your case is 8.
+3.You can use a scrapping api that allows you to make a large number of requests.
+4.Create a pool of worker threads, and schedule tasks between them. This way we can limit the number of concurrent
+requests without blocking the main thread.
+5.Use short term caching!
+
+

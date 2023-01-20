@@ -1,13 +1,15 @@
 
 export const scrappingKeysAndElements = {
+"CurrentPrice":'[data-field="regularMarketPrice"]',
+"PreMarketPrice":'[data-field="preMarketPrice"]',
+"Dividend": '[class="LineClamp(2) Va(m) Tov(e)"]',
 "PreviousClose":'[data-test="PREV_CLOSE-value"]',
 "Open":'[data-test="OPEN-value"]',
 "Bid":'[data-test="BID-value"]',
 "Ask":'[data-test="ASK-value"]',
 "DaysRange":'[data-test="DAYS_RANGE-value"]',
 "Volume":'[data-test="TD_VOLUME-value"]',
-"52WeekRange":'[data-test=FIFTY_TWO_WK_RANGE-value"]',
-"Volume":'[data-test=TD_VOLUME-value"]',
+"52WeekRange":'[data-test="FIFTY_TWO_WK_RANGE-value"]',
 "AvgVolume":'[data-test="AVERAGE_VOLUME_3MONTH-value"]',
 "MarketCap":'[data-test="MARKET_CAP-value"]',
 "Beta(5YMonthly)":'[data-test="BETA_5Y-value"]',
