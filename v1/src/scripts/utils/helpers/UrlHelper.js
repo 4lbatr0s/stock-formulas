@@ -26,6 +26,10 @@ class UrlHelper{
         }
         return url;
     };
+    
+    getYahooBatchUrl(symbols){
+        return `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`
+    }
 }
 
 export default new UrlHelper();

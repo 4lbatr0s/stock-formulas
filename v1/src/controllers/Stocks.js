@@ -24,6 +24,24 @@ class StockController {
             return next(new ApiError(error?.message, error?.statusCode));          
         }
     }
+
+    async getMultipleStockInfoFromYahooBatchAPI(req,res,next){
+        try {
+            const result = await StockService.getMultipleStockInfoFromYahooBatchAPI(req.query?.symbols);
+            return res.status(httpStatus.OK).send(result);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));          
+        }
+    }
+    
+    async getSP500(req,res,next){
+        try {
+            const result = await StockService.getSP500();
+            return res.status(httpStatus.OK).send(result);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));          
+        }
+    }
 }
 
 export default new StockController();
