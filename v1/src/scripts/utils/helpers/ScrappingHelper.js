@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import scrappingKeysAndElements from "../constants/ScrappingConstants.js";
+import ScriptHelper from "../helper.js";
 import ApiHelper from "./ApiHelper.js";
 class ScrappingHelper {
     constructor() {}
@@ -27,6 +28,23 @@ class ScrappingHelper {
             console.log(error);
         }
     };
+
+    //INFO: when you use, {} in the map, you need to use return!
+    getMultipleStockInfos = async (symbols)=>{
+        console.log(symbols);
+        const symbolArray = ScriptHelper.clearStockSymbols(symbols);
+        try {
+            const stockInfos = await Promise.all(symbolArray.map(async (symbol)=> {
+                const singularStockInfo = await this.getStockInfo(symbol);
+                return {
+                    symbol:singularStockInfo
+                };
+            }))
+            return stockInfos; 
+        } catch (error) {
+            console.log(error);   
+        }
+    }
 }
 
 

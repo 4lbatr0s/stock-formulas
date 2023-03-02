@@ -11,6 +11,15 @@ class StockService extends BaseService{
             next(new ApiError(error?.message, error?.statusCode));
         }
     };
+
+    async getMultipleStockInfo(symbols, next){ 'AAPL,GOOG,MSFT'
+        try {
+            const result = await ScrappingHelper.getMultipleStockInfos(symbols);
+            return result;
+        } catch (error) {
+            next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
     // async getMultipleStockInfo(symbols){
     //     const result = await ScrappingHelper.getMultipleStockInfoAsync(symbols);
     //     return result;

@@ -26,6 +26,15 @@ class Helper{
     createPassword(){
         return uuid.v4().split("-")[0] || `usr-${new Date().getTime()}`;
     }
+    clearStockSymbols(symbols){
+        let cleanSymbols = symbols.trim();
+        if(symbols.startsWith(","))
+            cleanSymbols.slice(0,1);
+        if(symbols.endsWith(","))
+            cleanSymbols = cleanSymbols.substring(0, cleanSymbols.length-1);
+        cleanSymbols = cleanSymbols.split(",");
+        return cleanSymbols;
+    }
 }
 
 export default new Helper();
