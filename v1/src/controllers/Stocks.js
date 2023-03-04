@@ -4,7 +4,6 @@ import path from 'path';
 import ApiError from '../errors/ApiError.js';
 import StockService from '../services/Stocks.js'; 
 import Caching from '../scripts/utils/constants/Caching.js';
-import redisConfig from "../config/caching/redisConfig.js";
 
 const __filename = fileURLToPath(import.meta.url);//get all name
 const __dirname = path.dirname(__filename); //get dir name from it.
@@ -48,18 +47,8 @@ class StockController{
 
     async getSP500Concurrent(req,res,next){
         try {
-            const redisClient = await redisConfig();
             const result = await StockService.getSP500Concurrent();
-            await redisClient.set(Caching.SP_500, JSON.stringify(result), {
-                EXP:180, //expires in 180 seconds.
-                NX:true, //set a key value that does not exist in Redis
-            });
-            return res.status(httpStatus.OK).send(
-                {
-                    fromCache:false,
-                    data:result
-                }
-            );
+            return res.status(httpStatus.OK).send(result);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));          
         }
