@@ -1,5 +1,6 @@
 import ApiError from "../errors/ApiError.js";
 import stockSymbols from "../scripts/utils/constants/StockSymbols.js";
+import ScriptHelper from "../scripts/utils/helper.js";
 import ApiHelper from "../scripts/utils/helpers/ApiHelper.js";
 import ScrappingHelper from "../scripts/utils/helpers/ScrappingHelper.js";
 import UrlHelper from "../scripts/utils/helpers/UrlHelper.js";
@@ -42,18 +43,21 @@ class StockService extends BaseService{
             next(new ApiError(error?.message, error?.statusCode));
         }
     }
-    // async getMultipleStockInfo(symbols){
-    //     const result = await ScrappingHelper.getMultipleStockInfoAsync(symbols);
-    //     return result;
-    // }
-    // async getSP500(){
-    //     const result = await ScrappingHelper.getMultipleStockInfoRateLimitedAsync(stockSymbols);
-    //     return result;
-    // }
-    // async getAlphaVantageBatch(symbols){
-    //     const result = await ScrappingHelper.getBatchStockAlphaVantage(symbols);
-    //     return result;
-    // }
+
+    async getSP500Concurrent(next){
+        const symbols = stockSymbols.join(',');
+        const chunks = ScriptHelper.chunkArray(symbols, 125);
+        try {
+            const responses = await Promise.all(
+                chunks.map((chunk)=> ApiHelper.getStockInfoAsync(UrlHelper.getYahooBatchUrl(chunk)))
+            );
+            const result =  responses.map((res)=> res.quoteResponse.result).flat();
+            return result;
+        } catch (error) {
+            next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
+
 }
 
 

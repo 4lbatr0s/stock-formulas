@@ -26,6 +26,7 @@ class Helper{
     createPassword(){
         return uuid.v4().split("-")[0] || `usr-${new Date().getTime()}`;
     }
+
     clearStockSymbols(symbols){
         let cleanSymbols = symbols.trim();
         if(symbols.startsWith(","))
@@ -35,6 +36,18 @@ class Helper{
         cleanSymbols = cleanSymbols.split(",");
         return cleanSymbols;
     }
+
+
+    chunkArray(arr, chunkSize) {
+        if(typeof arr === "string"){
+            arr = arr.split(",");
+        }
+        const chunks = [];
+        for (let i = 0; i < arr.length; i += chunkSize) {
+          chunks.push(arr.slice(i, i + chunkSize));
+        } 
+        return chunks;
+      }
 }
 
 export default new Helper();

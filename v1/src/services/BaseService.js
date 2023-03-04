@@ -1,4 +1,11 @@
+import redisConfig from "../config/caching/redisConfig.js";
+
+const redisClient = await redisConfig();
+
 class BaseService{
+    constructor(){
+        this.redisClient = redisClient;
+    }
     async findAll(where){
         return await this.model.find(where || {}); //TIP: with where, we can use filters for lists(bring with user id etc..)
     }

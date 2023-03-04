@@ -30,6 +30,9 @@ class UrlHelper{
     getYahooBatchUrl(symbols){
         return `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`
     }
+    getYahooFinancialDataUrl(symbols){
+        return `https://query2.finance.yahoo.com/v10/finance/quoteSummary?modules=financialData&symbols=${symbols}`
+    }
 }
 
 export default new UrlHelper();
