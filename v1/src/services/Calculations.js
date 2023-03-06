@@ -45,6 +45,28 @@ class Calculations{
         return sortedpriceToEarningRates;        
     }
 
+    getPriceToBookRates(stockJsonArray){
+        const priceToBookRates={};
+        for (let i = 0; i < stockJsonArray.length; i++) {
+            const element = stockJsonArray[i];
+            const priceToBookRate = CalculationHelper.priceToBookRate(element);
+            const stockName=element?.symbol;
+            priceToBookRates[stockName]=priceToBookRate;
+        }
+        const sortedpriceToBookRates = Object.entries(priceToBookRates)
+        .filter((value)=> value[1])//not null or '' or NaN
+        .sort((a,b)=> a[1]-b[1]) //sort ascending.
+        // fs.writeFile('priceToBookRate.json', JSON.stringify(sortedpriceToBookRates), (err)=> {
+        //     if(err){
+        //         console.log(err);
+        //     } else { 
+        //         console.log('File written successfully');
+        //     }
+        // });
+        return sortedpriceToBookRates;        
+    }
+
+
     /**
      * 
      * @param {*} stockJsonArray an object array contains stock information we get from api. 
@@ -53,9 +75,11 @@ class Calculations{
     getCalculations(stockJsonArray){
         const sortedpriceToEarningRates = this.getPriceToEarningRates(stockJsonArray);
         const sortedGrahamNumbers = this.getGrahamNumbers(stockJsonArray);
+        const sortedPriceToBookRates = this.getPriceToBookRates(stockJsonArray);
         const calculations={ 
             priceToEarningRates:sortedpriceToEarningRates,
-            grahamNumbers:sortedGrahamNumbers
+            grahamNumbers:sortedGrahamNumbers,
+            priceToBookRates:sortedPriceToBookRates
         }
         return calculations;
     }
