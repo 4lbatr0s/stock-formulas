@@ -6,8 +6,12 @@ import ScrappingHelper from '../scripts/utils/helpers/ScrappingHelper.js';
 import UrlHelper from '../scripts/utils/helpers/UrlHelper.js';
 import BaseService from './BaseService.js';
 import redisConfig from '../config/caching/redisConfig.js';
-import CalculationService from './CalculationService.js';
+import CalculationService from './Calculations.js';
 import Caching from '../scripts/utils/constants/Caching.js';
+import StockHelper from '../scripts/utils/helpers/StockHelper.js';
+
+
+
 class StockService extends BaseService {
     async getStockInfo(symbol, next) {
         try {
@@ -65,12 +69,14 @@ class StockService extends BaseService {
             const result = responses
                 .map((res) => res.quoteResponse.result)
                 .flat();
-            const grahamNumbers = CalculationService.getGrahamNumbers(result);
+            const calculations = CalculationService.getCalculations(result);
+            const sortedStocks = StockHelper.sortStocksByValues(result, calculations);
+            await redisClient.set('SORTED_STOCKS', JSON.stringify(sortedStocks));
             await redisClient.set(Caching.SP_500, JSON.stringify(result), {
                 EXP: 180, //expires in 180 seconds.
                 NX: true, //set a key value that does not exist in Redis
             });
-            await redisClient.set(Caching.CALCULATIONS.GRAHAM_NUMBERS, JSON.stringify(grahamNumbers));
+            // await redisClient.set(Caching.CALCULATIONS.GRAHAM_NUMBERS, JSON.stringify(calculations.grahamNumbers));
             return {
                 fromCache: false,
                 data: result,
