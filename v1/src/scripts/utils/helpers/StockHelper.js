@@ -39,7 +39,7 @@ class StockHelper {
         const stockValuesSortedByGraham = this.sortStocksByGrahamNumber(stockValues, calculations.grahamNumbers);
         const stockValuesSortedByPriceToEarningRates = this.sortStocksByPriceToEarningRates(stockValues, calculations.priceToEarningRates);
         const sortedStocks={ 
-            stockValuesSortedByGraham:stockValuesSortedByGraham,
+            graham:stockValuesSortedByGraham,
             stockValuesSortedByPriceToEarningRates:stockValuesSortedByPriceToEarningRates
         };
         return sortedStocks;

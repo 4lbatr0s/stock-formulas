@@ -53,6 +53,16 @@ class StockController{
             return next(new ApiError(error?.message, error?.statusCode));          
         }
     }
+
+    async getRates(req,res,next){
+        try {
+            const result = await StockService.getRates(req);
+            return res.status(httpStatus.OK).send(result);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));          
+        }
+    }
+
 }
 
 export default new StockController();

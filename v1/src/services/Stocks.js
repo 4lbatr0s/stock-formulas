@@ -72,7 +72,7 @@ class StockService extends BaseService {
                 calculations
             );
             await redisClient.set(
-                'SORTED_STOCKS',
+                Caching.SORTED_STOCKS,
                 JSON.stringify(sortedStocks),
                 {
                     EXP: 180,
@@ -90,6 +90,21 @@ class StockService extends BaseService {
             };
         } catch (error) {
             next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
+
+    async getRates(req){
+        try {
+            const rateParam = req?.params.rateType;
+            const sortedResults = await this.getSP500Concurrent();
+            const allSortedStocks = JSON.parse(await redisClient.get(Caching.SORTED_STOCKS));
+            const requestedRates = allSortedStocks[rateParam];
+            return {
+                fromCache:false,
+                data:requestedRates
+            }
+        } catch (error) {
+            throw new ApiError(error?.message, error?.statusCode);
         }
     }
 }

@@ -1,7 +1,9 @@
 import CalculationHelper from '../scripts/utils/helpers/CalculationHelper.js';
 import fs from 'fs';
+import Caching from '../scripts/utils/constants/Caching.js';
 class Calculations {
-    constructor() {}
+    constructor() {
+    }
 
     getGrahamNumbers(stockJsonArray) {
         const grahamNumbers = {};
@@ -85,7 +87,7 @@ class Calculations {
         const debtToEquities = {};
         for (let i = 0; i < stockJsonArray.length; i++) {
             const element = stockJsonArray[i];
-            const debtToEquity = CalculationHelper.debtToEquitiesRate(element);
+            const debtToEquity = CalculationHelper.debtToEquity(element);
             const stockName = element?.symbol;
             debtToEquities[stockName] = debtToEquity;
         }
