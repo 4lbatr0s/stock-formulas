@@ -96,7 +96,7 @@ class StockService extends BaseService {
     async getRates(req){
         try {
             const rateParam = req?.params.rateType;
-            const sortedResults = await this.getSP500Concurrent();
+            await this.getSP500Concurrent();
             const allSortedStocks = JSON.parse(await redisClient.get(Caching.SORTED_STOCKS));
             const requestedRates = allSortedStocks[rateParam];
             return {

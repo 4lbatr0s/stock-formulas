@@ -9,6 +9,6 @@ router.get("/multiple", StocksController.getMultipleStockInfo);
 router.get("/multiple/yahoo-batch", StocksController.getMultipleStockInfoFromYahooBatchAPI);
 router.get("/multiple/sp500", StocksController.getSP500);
 router.get("/multiple/sp500-concurrent", redisCaching, StocksController.getSP500Concurrent);
-router.get("/multiple/rates/:rateType", redisCaching, StocksController.getRates);
+router. get("/multiple/rates/:rateType", redisCaching, StocksController.getRates);
 
 export default router;

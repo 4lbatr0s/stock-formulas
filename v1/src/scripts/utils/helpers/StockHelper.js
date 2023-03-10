@@ -1,5 +1,34 @@
+import Caching from '../constants/Caching.js';
+
 class StockHelper {
     constructor() {}
+
+    filterStockValues(stockValues, filter) {
+        const filteredStockValues = stockValues.filter((stockObj) => {
+            return filter.some((array) => array[0] === stockObj?.symbol);
+        });
+
+        return filteredStockValues;
+    }
+
+    sortStockValues(stockValues, sortingParameter) {
+        switch (sortingParameter) {
+            case Caching.CALCULATIONS.GRAHAM_NUMBERS:
+                return stockValues.sort(
+                    (a, b) => a.grahamNumber - b.grahamNumber
+                );
+            case Caching.CALCULATIONS.PRICE_TO_EARNING_RATES:
+                return stockValues.sort(
+                    (a, b) => a.priceToEarningRate - b.priceToEarningRate
+                );
+            case Caching.CALCULATIONS.PRICE_TO_BOOK_RATES:
+                return stockValues.sort(
+                    (a, b) => a.priceToBookRate - b.priceToBookRate
+                );
+            default:
+                break;
+        }
+    }
 
     /**
      *
@@ -7,11 +36,20 @@ class StockHelper {
      * @param {Array} grahamNumbers graham numbers per each stock we calculate.
      */
     sortStocksByGrahamNumber(stockValues, grahamNumbers) {
-        const filteredStockValues = stockValues.filter((stockObj) => {
-            return grahamNumbers.some((array) => array[0] === stockObj?.symbol);
-        });
+        // const filteredStockValues = stockValues.filter((stockObj) => {
+        //     return grahamNumbers.some((array) => array[0] === stockObj?.symbol);
+        // });
 
-        return filteredStockValues;
+        // return filteredStockValues;
+        const filteredStockValues = this.filterStockValues(
+            stockValues,
+            grahamNumbers
+        );
+        const result = this.sortStockValues(
+            filteredStockValues,
+            Caching.CALCULATIONS.GRAHAM_NUMBERS
+        );
+        return result;
     }
 
     /**
@@ -20,8 +58,42 @@ class StockHelper {
      * @param {Array} priceToEarningRates price/earning rate values per stock we calculate.
      */
     sortStocksByPriceToEarningRates(stockValues, priceToEarningRates) {
+        const filteredStockValues = this.filterStockValues(
+            stockValues,
+            priceToEarningRates
+        );
+        const result = this.sortStockValues(
+            filteredStockValues,
+            Caching.CALCULATIONS.PRICE_TO_EARNING_RATES
+        );
+        return result;
+    }
+
+    /**
+     *
+     * @param {Array} stockValues values we get from api
+     * @param {Array} priceToBookRates price/book rate values per stock we calculate.
+     */
+    sortStocksByPriceToBookRates(stockValues, priceToBookRates) {
+        const filteredStockValues = this.filterStockValues(
+            stockValues,
+            priceToBookRates
+        );
+        const result = this.sortStockValues(
+            filteredStockValues,
+            Caching.CALCULATIONS.PRICE_TO_BOOK_RATES
+        );
+        return result;
+    }
+
+    /**
+     *
+     * @param {Array} stockValues values we get from api
+     * @param {Array} returnOnEquities return on equity values per stock we calculate.
+     */
+    sortStocksByReturnOnEquities(stockValues, returnOnEquities) {
         const filteredStockValues = stockValues.filter((stockObj) => {
-            return priceToEarningRates.some(
+            return returnOnEquities.some(
                 (array) => array[0] === stockObj?.symbol
             );
         });
@@ -30,22 +102,80 @@ class StockHelper {
     }
 
     /**
-     * 
-     * @param {Array} stockValues stock values we get from api 
-     * @param {Object} calculations arrays of values per each stock choosing formulas we get from the Calculation Service.
-     * @returns 
+     *
+     * @param {Array} stockValues values we get from api
+     * @param {Array} priceToSales price/sale value per stock we calculate.
      */
-    sortStocksByValues(stockValues, calculations){
-        const stockValuesSortedByGraham = this.sortStocksByGrahamNumber(stockValues, calculations.grahamNumbers);
-        const stockValuesSortedByPriceToEarningRates = this.sortStocksByPriceToEarningRates(stockValues, calculations.priceToEarningRates);
-        const sortedStocks={ 
-            graham:stockValuesSortedByGraham,
-            stockValuesSortedByPriceToEarningRates:stockValuesSortedByPriceToEarningRates
+    sortStocksByPricesToSales(stockValues, priceToSales) {
+        const filteredStockValues = stockValues.filter((stockObj) => {
+            return priceToSales.some((array) => array[0] === stockObj?.symbol);
+        });
+
+        return filteredStockValues;
+    }
+
+    /**
+     *
+     * @param {Array} stockValues values we get from api
+     * @param {Array} debtToEquities debt/equity value per stock we calculate.
+     */
+    sortStocksByDebtToEquities(stockValues, debtToEquities) {
+        const filteredStockValues = stockValues.filter((stockObj) => {
+            return debtToEquities.some(
+                (array) => array[0] === stockObj?.symbol
+            );
+        });
+
+        return filteredStockValues;
+    }
+
+    /**
+     *
+     * @param {Array} stockValues stock values we get from api
+     * @param {Object} calculations arrays of values per each stock choosing formulas we get from the Calculation Service.
+     * @returns
+     */
+    sortStocksByValues(stockValues, calculations) {
+        const stockValuesSortedByGraham = this.sortStocksByGrahamNumber(
+            stockValues,
+            calculations.grahamNumbers
+        );
+        const stockValuesSortedByPriceToEarningRates =
+            this.sortStocksByPriceToEarningRates(
+                stockValues,
+                calculations.priceToEarningRates
+            );
+        const stockValuesSortedByPriceToBookRates =
+            this.sortStocksByPriceToBookRates(
+                stockValues,
+                calculations.priceToBookRates
+            );
+        const stockValuesSortedByReturnOnEquities =
+            this.sortStocksByReturnOnEquities(
+                stockValues,
+                calculations.returnOnEquityRates
+            );
+        const stockValuesSortedByPriceToSales = this.sortStocksByPricesToSales(
+            stockValues,
+            calculations.priceToSales
+        );
+        const stockValuesSortedByDebtToEquities =
+            this.sortStocksByDebtToEquities(
+                stockValues,
+                calculations.debtToEquities
+            );
+
+        const sortedStocks = {
+            graham: stockValuesSortedByGraham,
+            priceToEarningRates: stockValuesSortedByPriceToEarningRates,
+            priceToBookRates: stockValuesSortedByPriceToBookRates,
+            returnOnEquityRates: stockValuesSortedByReturnOnEquities,
+            priceToSalesRates: stockValuesSortedByPriceToSales,
+            debtToEquities: stockValuesSortedByDebtToEquities,
         };
         return sortedStocks;
     }
 
-    storeAllSortingsInRedis(...sorts) {}
 }
 
 export default new StockHelper();

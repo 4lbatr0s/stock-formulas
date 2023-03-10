@@ -4,7 +4,7 @@ import Caching from '../scripts/utils/constants/Caching.js';
 class Calculations {
     constructor() {
     }
-
+    //TODO: We don't need the sortings here anymore, we just need the values.
     getGrahamNumbers(stockJsonArray) {
         const grahamNumbers = {};
         for (let i = 0; i < stockJsonArray.length; i++) {

@@ -5,6 +5,19 @@ class CalculationHelper {
      * @param {Object} stockJson JSON object of the stock we want make calculation from.
      * @returns Graham number of the stock
      */
+
+    // TODO: Refactor and abstraction.
+    calculateTheFormula(stockJson, formula){
+        switch (key) {
+            case value:
+                
+                break;
+        
+            default:
+                break;
+        }
+    }
+
     grahamNumber(stockJson) {
         const epsTrailingExistsAndNumber =
             stockJson?.epsTrailingTwelveMonths &&
@@ -12,9 +25,11 @@ class CalculationHelper {
         const bookValueExistAndNumber =
             stockJson?.bookValue && typeof stockJson.bookValue === 'number';
         if (!epsTrailingExistsAndNumber || !bookValueExistAndNumber) return '';
-        return Math.sqrt(
+        const result =Math.sqrt(
             stockJson.epsTrailingTwelveMonths * stockJson.bookValue * 22.5
         );
+        stockJson.grahamNumber = result;  
+        return result;
     }
     /**
      *
@@ -30,9 +45,12 @@ class CalculationHelper {
             typeof stockJson.regularMarketPrice === 'number';
         if (!epsTrailingExistsAndNumber || !regularMarketPriceExistsAndNumber)
             return '';
-        return Math.fround(
+
+        const result = Math.fround(
             stockJson.regularMarketPrice / stockJson.epsTrailingTwelveMonths
         );
+        stockJson.priceToEarningRate = result;
+        return result;
     }
     /**
      *
@@ -47,7 +65,9 @@ class CalculationHelper {
             typeof stockJson.regularMarketPrice === 'number';
         if (!bookValueExistAndNumber || !regularMarketPriceExistsAndNumber)
             return '';
-        return Math.fround(stockJson.regularMarketPrice / stockJson.bookValue);
+        const result = Math.fround(stockJson.regularMarketPrice / stockJson.bookValue);
+        stockJson.priceToBookRate = result;
+        return result;
     }
     /**
      *
@@ -65,7 +85,9 @@ class CalculationHelper {
             !shareHoldersEquityExistsAndNumber
         )
             return '';
-        return Math.fround(stockJson.netIncome / stockJson.bookValue);
+        const result = Math.fround(stockJson.netIncome / stockJson.bookValue);
+        stockJson.returnOnEquity = result;
+        return result;
     }
 
     /**
@@ -75,13 +97,15 @@ class CalculationHelper {
      */
     priceToSalesRate(stockJson) {
         const marketCapExistsAndNumber =
-            stockJson?.marketCap && typeof stockJson.marketCap === 'number';
+                stockJson?.marketCap && typeof stockJson.marketCap === 'number';
         const totalRevenueExistsAndNumber =
             stockJson?.shareHoldersEquity &&
             typeof stockJson.shareHoldersEquity === 'number';
         if (!marketCapExistsAndNumber || !totalRevenueExistsAndNumber)
             return '';
-        return Math.fround(stockJson.marketCap / stockJson.totalRevenue);
+        const result = Math.fround(stockJson.marketCap / stockJson.totalRevenue);
+        stockJson.priceToSalesRate = result;
+        return result;
     }
 
     /**
@@ -97,7 +121,9 @@ class CalculationHelper {
             typeof stockJson.shareHoldersEquity === 'number';
         if (!totalDebtExistsAndNumber || !shareHoldersEquity)
             return '';
-        return Math.fround(stockJson.totalDebt / stockJson.shareHoldersEquity);
+        const result= Math.fround(stockJson.totalDebt / stockJson.shareHoldersEquity);
+        stockJson.debtToEquity=result;
+        return result;
     }
 }
 
