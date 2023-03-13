@@ -12,3 +12,4 @@ router.get("/multiple/sp500-concurrent", redisCaching, StocksController.getSP500
 router. get("/multiple/rates/:rateType", redisCaching, StocksController.getRates);
 
 export default router;
+

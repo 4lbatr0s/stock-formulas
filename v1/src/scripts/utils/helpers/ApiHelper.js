@@ -1,5 +1,6 @@
 import { publicRequest } from "./AxiosHelper.js";
 
+
 class ApiHelper {
     constructor() {}
     getStockInfoAsync = async (pathname) => {

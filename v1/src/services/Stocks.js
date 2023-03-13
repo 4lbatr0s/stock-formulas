@@ -73,16 +73,10 @@ class StockService extends BaseService {
             );
             await redisClient.set(
                 Caching.SORTED_STOCKS,
-                JSON.stringify(sortedStocks),
-                {
-                    EXP: 180,
-                    NX: true,
-                }
+                JSON.stringify(sortedStocks),'EX',15
             );
-            await redisClient.set(Caching.SP_500, JSON.stringify(result), {
-                EXP: 180, //expires in 180 seconds.
-                NX: true, //set a key value that does not exist in Redis
-            });
+            const expireTime = Math.floor(Date.now() / 1000) + 10; // current timestamp + 180 seconds
+            await redisClient.set(Caching.SP_500, JSON.stringify(result), 'EX',15);
             // await redisClient.set(Caching.CALCULATIONS.GRAHAM_NUMBERS, JSON.stringify(calculations.grahamNumbers));
             return {
                 fromCache: false,
