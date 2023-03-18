@@ -30,6 +30,16 @@ class StockController {
     }
   }
 
+  async getMultipleStockInfoFromFinnhub(req, res, next) {
+    try {
+      const result = await StockService.getMultipleStockInfoFromFinnhub(req.query?.symbols);
+      return res.status(httpStatus.OK).send(result);
+    } catch (error) {
+      return next(new ApiError(error?.message, error?.statusCode));
+    }
+  }
+
+
   async getSP500(req, res, next) {
     try {
       const result = await StockService.getSP500();

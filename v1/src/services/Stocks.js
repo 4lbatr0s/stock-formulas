@@ -1,14 +1,9 @@
 import ApiError from '../errors/ApiError.js';
 import stockSymbols from '../scripts/utils/constants/StockSymbols.js';
-import ScriptHelper from '../scripts/utils/helper.js';
 import ApiHelper from '../scripts/utils/helpers/ApiHelper.js';
 import ScrappingHelper from '../scripts/utils/helpers/ScrappingHelper.js';
 import UrlHelper from '../scripts/utils/helpers/UrlHelper.js';
 import BaseService from './BaseService.js';
-import redisClient from '../config/caching/redisConfig.js';
-import CalculationService from './Calculations.js';
-import Caching from '../scripts/utils/constants/Caching.js';
-import StockHelper from '../scripts/utils/helpers/StockHelper.js';
 
 class StockService extends BaseService {
     async getStockInfo(symbol, next) {
@@ -32,13 +27,14 @@ class StockService extends BaseService {
     async getMultipleStockInfoFromYahooBatchAPI(symbols, next) {
         try {
             const result = await ApiHelper.getStockInfoAsync(
-                UrlHelper.getYahooBatchUrl(symbols)
+                UrlHelper.getYahooFinancialDataUrl(symbols)
             );
             return result;
         } catch (error) {
             next(new ApiError(error?.message, error?.statusCode));
         }
     }
+
 
     async getSP500(next) {
         const symbols = stockSymbols.join(',');
@@ -101,6 +97,19 @@ class StockService extends BaseService {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
+
+
+    async getMultipleStockInfoFromFinnhub(symbols, next) {
+        try {
+            const result = await ApiHelper.getStockInfoAsync(
+                UrlHelper.getFinnHubMultipleStocksUrl(symbols)
+            );
+            return result;
+        } catch (error) {
+            next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
+
 }
 
 export default new StockService();

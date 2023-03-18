@@ -28,10 +28,14 @@ class UrlHelper{
     };
     
     getYahooBatchUrl(symbols){
-        return `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`
+        return `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`;
     }
-    getYahooFinancialDataUrl(symbols){
-        return `https://query2.finance.yahoo.com/v10/finance/quoteSummary?modules=financialData&symbols=${symbols}`
+    getYahooFinancialDataUrl(symbols) {
+        return `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${symbols}?modules=financialData`
+      }
+      
+    getFinnHubMultipleStocksUrl(symbols){
+        return `https://finnhub.io/api/v1/quote?symbol=${symbols}&token=${process.env.FINNHUB_API_KEY}`;
     }
 }
 
