@@ -32,7 +32,7 @@ class StockController {
 
   async getMultipleStockInfoFromFinnhub(req, res, next) {
     try {
-      const result = await StockService.getMultipleStockInfoFromFinnhub(req.query?.symbols);
+      const result = await StockService.getMultipleStockInfoFromFinnhub(req.params?.stockSymbol);
       return res.status(httpStatus.OK).send(result);
     } catch (error) {
       return next(new ApiError(error?.message, error?.statusCode));
@@ -61,6 +61,15 @@ class StockController {
   async getRates(req, res, next) {
     try {
       const result = await StockService.getRates(req);
+      return res.status(httpStatus.OK).send(result);
+    } catch (error) {
+      return next(new ApiError(error?.message, error?.statusCode));
+    }
+  }
+
+  async messageBroker(req,res,next){
+    try {
+      const result = await StockService.messageBroker();
       return res.status(httpStatus.OK).send(result);
     } catch (error) {
       return next(new ApiError(error?.message, error?.statusCode));

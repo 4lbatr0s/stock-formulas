@@ -4,7 +4,7 @@ import ApiHelper from '../scripts/utils/helpers/ApiHelper.js';
 import ScrappingHelper from '../scripts/utils/helpers/ScrappingHelper.js';
 import UrlHelper from '../scripts/utils/helpers/UrlHelper.js';
 import BaseService from './BaseService.js';
-
+import RabbitMQBase from '../scripts/messageBrokers/rabbitMQ/RabbitMQBase.js';
 class StockService extends BaseService {
     async getStockInfo(symbol, next) {
         try {
@@ -99,7 +99,7 @@ class StockService extends BaseService {
     }
 
 
-    async getMultipleStockInfoFromFinnhub(symbols, next) {
+    async getSingleStockInfoFromFinnhub(symbols, next) {
         try {
             const result = await ApiHelper.getStockInfoAsync(
                 UrlHelper.getFinnHubMultipleStocksUrl(symbols)
@@ -109,6 +109,16 @@ class StockService extends BaseService {
             next(new ApiError(error?.message, error?.statusCode));
         }
     }
+    async messageBroker(next) {
+        try {
+            await RabbitMQBase.CallThirtyStockPerSeconds();
+            const result = await RabbitMQBase.consumeFinnhubMessages();
+            return result;
+        } catch (error) {
+            next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
+
 
 }
 
