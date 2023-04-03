@@ -91,18 +91,15 @@ class StockHelper {
      * @param {Array} stockValues values we get from api
      * @param {Array} returnOnEquities return on equity values per stock we calculate.
      */
-    sortStocksByReturnOnEquities(stockValues, returnOnEquities) {
-        const filteredStockValues = stockValues.filter((stockObj) => {
-            return returnOnEquities.some(
-                (array) => array[0] === stockObj?.symbol
-            );
-        });
+    sortStocksByReturnOnEquities(stockValues) {
+        const filteredStockValues = stockValues
+        .filter((stockObj)=>  stockObj?.returnOnEquity);
+        const sortedStockValues = filteredStockValues.sort((a,b)=>  a.returnOnEquity.raw-b.returnOnEquity.raw);
 
-        return filteredStockValues;
+        return sortedStockValues; 
     }
 
     /**
-     *
      * @param {Array} stockValues values we get from api
      * @param {Array} priceToSales price/sale value per stock we calculate.
      */
@@ -115,19 +112,28 @@ class StockHelper {
     }
 
     /**
-     *
      * @param {Array} stockValues values we get from api
      * @param {Array} debtToEquities debt/equity value per stock we calculate.
      */
-    sortStocksByDebtToEquities(stockValues, debtToEquities) {
-        const filteredStockValues = stockValues.filter((stockObj) => {
-            return debtToEquities.some(
-                (array) => array[0] === stockObj?.symbol
-            );
-        });
+    sortStocksByDebtToEquities(stockValues) {
+        const filteredStockValues = stockValues
+        .filter((stockObj)=>  stockObj?.debtToEquity);
+        const sortedStockValues = filteredStockValues.sort((a,b)=>  a.debtToEquity.raw-b.debtToEquity.raw);
 
-        return filteredStockValues;
+        return sortedStockValues; 
     }
+
+    /**
+     * @param {Array} stockValues values we get from api
+     * @param {Array} debtToEquities debt/equity value per stock we calculate.
+     */
+    sortStocksByEbitda(stockValues) {
+        const filteredStockValues = stockValues
+        .filter((stockObj)=>  stockObj?.ebitda)
+        const sortedStockValues = filteredStockValues.sort((a,b)=>  a.ebitda.raw-b.ebitda.raw);
+        return sortedStockValues; 
+    }
+
 
     /**
      *
@@ -150,28 +156,28 @@ class StockHelper {
                 stockValues,
                 calculations.priceToBookRates
             );
-        const stockValuesSortedByReturnOnEquities =
-            this.sortStocksByReturnOnEquities(
-                stockValues,
-                calculations.returnOnEquityRates
-            );
-        const stockValuesSortedByPriceToSales = this.sortStocksByPricesToSales(
-            stockValues,
-            calculations.priceToSales
-        );
-        const stockValuesSortedByDebtToEquities =
-            this.sortStocksByDebtToEquities(
-                stockValues,
-                calculations.debtToEquities
-            );
+        // const stockValuesSortedByReturnOnEquities =
+        //     this.sortStocksByReturnOnEquities(
+        //         stockValues,
+        //         calculations.returnOnEquityRates
+        //     );
+        // const stockValuesSortedByPriceToSales = this.sortStocksByPricesToSales(
+        //     stockValues,
+        //     calculations.priceToSales
+        // );
+        // const stockValuesSortedByDebtToEquities =
+        //     this.sortStocksByDebtToEquities(
+        //         stockValues,
+        //         calculations.debtToEquities
+        //     );
 
         const sortedStocks = {
             graham: stockValuesSortedByGraham,
             priceToEarningRates: stockValuesSortedByPriceToEarningRates,
             priceToBookRates: stockValuesSortedByPriceToBookRates,
-            returnOnEquityRates: stockValuesSortedByReturnOnEquities,
-            priceToSalesRates: stockValuesSortedByPriceToSales,
-            debtToEquities: stockValuesSortedByDebtToEquities,
+            returnOnEquityRates: '',
+            priceToSalesRates: '',
+            debtToEquities: '',
         };
         return sortedStocks;
     }

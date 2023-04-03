@@ -106,16 +106,16 @@ class Calculations {
         const sortedpriceToEarningRates = this.getPriceToEarningRates(stockJsonArray);
         const sortedGrahamNumbers = this.getGrahamNumbers(stockJsonArray);
         const sortedPriceToBookRates = this.getPriceToBookRates(stockJsonArray);
-        const sortedreturnOnEquties = this.getReturnOnEquities(stockJsonArray);
-        const sortedPriceToSales = this.getPriceToSales(stockJsonArray);
-        const sortedDebtToEquities = this.getDebtToEquityRates(stockJsonArray);
+        // const sortedreturnOnEquties = this.getReturnOnEquities(stockJsonArray);
+        // const sortedPriceToSales = this.getPriceToSales(stockJsonArray);
+        // const sortedDebtToEquities = this.getDebtToEquityRates(stockJsonArray);
         const calculations = {
             priceToEarningRates: sortedpriceToEarningRates,
             grahamNumbers: sortedGrahamNumbers,
             priceToBookRates: sortedPriceToBookRates,
-            returnOnEquityRates: sortedreturnOnEquties,
-            priceToSales: sortedPriceToSales,
-            debtToEquities: sortedDebtToEquities,
+            returnOnEquityRates:'',
+            priceToSales: '',
+            debtToEquities: '',
         };
         return calculations;
     }
