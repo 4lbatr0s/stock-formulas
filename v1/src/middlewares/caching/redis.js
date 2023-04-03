@@ -8,7 +8,7 @@ async function cacheData(req,res,next){
     let rateType = req.params?.rateType || Caching.SP_500;
      try {
         const cachedResults = await CachingHelper.getStockSortings(rateType);
-        if(cachedResults){
+        if(cachedResults && cachedResults !==''){
             return res.status(httpStatus.OK).send({
                 fromCache:true,
                 data:cachedResults

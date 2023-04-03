@@ -1,7 +1,10 @@
-import { load } from "cheerio";
-import scrappingKeysAndElements from "../constants/ScrappingConstants.js";
-import ScriptHelper from "../helper.js";
-import ApiHelper from "./ApiHelper.js";
+import { load } from 'cheerio';
+import scrappingKeysAndElements from '../constants/ScrappingConstants.js';
+import ScriptHelper from '../helper.js';
+import ApiHelper from './ApiHelper.js';
+import UrlHelper from './UrlHelper.js';
+import cheerio from 'cheerio';
+import { publicRequest } from './AxiosHelper.js';
 class ScrappingHelper {
     constructor() {}
 
@@ -30,22 +33,66 @@ class ScrappingHelper {
     };
 
     //INFO: when you use, {} in the map, you need to use return!
-    getMultipleStockInfos = async (symbols)=>{
+    getMultipleStockInfos = async (symbols) => {
         console.log(symbols);
         const symbolArray = ScriptHelper.clearStockSymbols(symbols);
         try {
-            const stockInfos = await Promise.all(symbolArray.map(async (symbol)=> {
-                const singularStockInfo = await this.getStockInfo(symbol);
-                return {
-                    symbol:singularStockInfo
-                };
-            }))
-            return stockInfos; 
+            const stockInfos = await Promise.all(
+                symbolArray.map(async (symbol) => {
+                    const singularStockInfo = await this.getStockInfo(symbol);
+                    return {
+                        symbol: singularStockInfo,
+                    };
+                })
+            );
+            return stockInfos;
         } catch (error) {
-            console.log(error);   
+            console.log(error);
+        }
+    };
+
+    async scrapSP500Symbols() {
+        try {
+            const response = await publicRequest(
+                UrlHelper.scrapSP500SymbolsURL()
+            );
+            const $ = cheerio.load(response.data);
+            const table = $('table.table-hover.table-borderless.table-sm');
+            const tbody = table.children('tbody');
+            const symbols = [];
+            tbody.find('tr').each((i, tr) => {
+                const td3 = $(tr).children('td:nth-child(3)');
+                const symbol = td3.text().trim();
+                symbols.push(symbol);
+            });
+            return symbols.slice(0, -4);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async scrapBIST100Symbols() {
+        try {
+            const response = await publicRequest.get(
+                UrlHelper.scrapBist100SymbolsURL()
+            );
+            const $ = cheerio.load(response.data);
+            const stockSymbols = [];
+
+            $('div.detL div.box.box10 table').each((index, element) => {
+                const tbody = $(element).find('tbody');
+                $(tbody)
+                    .find('tr:nth-child(n+2) td.currency a b')
+                    .each((i, e) => {
+                        stockSymbols.push($(e).text());
+                    });
+            });
+
+            return stockSymbols;
+        } catch (error) {
+            console.error(error);
         }
     }
 }
-
 
 export default new ScrappingHelper();

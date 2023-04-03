@@ -12,6 +12,7 @@ import ApiError from "./errors/ApiError.js";
 import httpStatus from "http-status";
 import Messages from "./scripts/utils/constants/Messages.js";
 import compression from "compression";
+import croneJobs from "./scripts/events/cronActions.js";
 
 const __filename = fileURLToPath(import.meta.url);//get all name
 const __dirname = path.dirname(__filename); //get dir name from it.
@@ -19,6 +20,7 @@ const __dirname = path.dirname(__filename); //get dir name from it.
 config();
 loaders();  
 events(); //TIP: includes events.on's, on's should come before emits(they're in controllers) therefore it should be here.
+croneJobs();
 
 const app = express();
 app.use(compression());//to implement gzip.
@@ -28,7 +30,6 @@ app.use(helmet());//TIP: Helmet helps you secure your Express apps by setting va
 app.use(fileUpload()); //TIP:When you upload a file, the file will be accessible from req.files.
 
 loadRoutes(app); //import route usings from another module.
-
 //404 handler
 app.use((req,res,next)=> {
     const error = new ApiError(Messages.ERROR.PAGE_NOT_FOUND, httpStatus.NOT_FOUND);
