@@ -178,6 +178,7 @@ class StockHelper {
             returnOnEquityRates: '',
             priceToSalesRates: '',
             debtToEquities: '',
+            ebitdaValues:''
         };
         return sortedStocks;
     }

@@ -193,6 +193,21 @@ class StockService extends BaseService {
                 return result.quoteSummary.result['0'].financialData;
             });
             const results = await Promise.all(promises);
+            const sortedStocksString = await redisClient.get(
+                Caching.SORTED_STOCKS
+            );
+            //parse stocks.
+            const sortedStock = JSON.parse(sortedStocksString);
+            const returnOnEquities =
+                StockHelper.sortStocksByReturnOnEquities(results);
+            const debtToEquities =
+                StockHelper.sortStocksByDebtToEquities(results);
+            const ebitdaValues = StockHelper.sortStocksByEbitda(results);
+            sortedStock.debtToEquities = debtToEquities;
+            sortedStock.returnOnEquityRates = returnOnEquities;
+            sortedStock.ebitdaValues = ebitdaValues;
+            redisClient.set(Caching.SORTED_STOCKS, JSON.stringify(sortedStock));
+            console.log(results);
             return results;
         } catch (error) {
             throw new ApiError(error?.message, error?.statusCode);
@@ -209,7 +224,8 @@ class StockService extends BaseService {
             requestedRates = allSortedStocks[rateParam];
             if (!requestedRates || requestedRates === '') {
                 await this.getSP500Concurrent();
-                // await this.messageBroker(); //TODO: YOU SOULD USE A MESSAGE BROKER INTS
+                await this.getMultipleStockInformationWithPromiseAll();
+                // await this.messageBroker(); //TODO: YOU SOULD USE A MESSAGE BROKER INSTEAD OF THIS
                 allSortedStocks = JSON.parse(
                     await redisClient.get(Caching.SORTED_STOCKS)
                 );

@@ -7,7 +7,7 @@ class CachingHelper {
         this.Caching = Caching;
     }
     getStockSortings = async (rateType) => {
-        try {  
+        try {
             const cachedResults = await redisClient.get(Caching.SORTED_STOCKS);
             const parsedCachedResults = JSON.parse(cachedResults);
             switch (rateType) {
@@ -35,7 +35,12 @@ class CachingHelper {
                     return parsedCachedResults[
                         Caching.CALCULATIONS.RETURN_ON_EQUITY_RATES
                     ];
-                default://TODO: sp500 yoksa ne olacak? cachede deger yoksa bisey donme, break et.
+                case Caching.CALCULATIONS.EBITDA:
+                    return parsedCachedResults[
+                        Caching.CALCULATIONS.EBITDA
+                    ];
+
+                default: //TODO: sp500 yoksa ne olacak? cachede deger yoksa bisey donme, break et.
                     break;
             }
         } catch (error) {
