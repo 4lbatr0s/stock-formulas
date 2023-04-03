@@ -25,6 +25,7 @@
 # PROBLEMS
 
 1. Price to Sales, Debt to Equities, Return on Equity values cannot be calculated because required parameters are not in the json!
+2. BIST HISSELERI YAHOODAN CEKILEMIYOR. BASKA BIR YONTEM BULMAK GEREK
 
 # MESSAGE BROKER - RABBITMQ
 - CONSUMER'A GELEN MESAJLAR ACAYIP BIR SACMALIKLA DONUYOR. YAPILARI BOZULUYOR, IC ICE OBJELER GELIYOR. COZ.

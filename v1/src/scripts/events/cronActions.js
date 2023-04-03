@@ -34,9 +34,21 @@ const executePromiseAll = async () =>{
 
 }
 
+const executeStockSymbols = async () =>{ 
+    try {
+        console.log('executeStockSymbols');
+        const sp500 = await StockService.scrapSP500Symbols();
+        const bist100 = await StockService.scrapBIST100Symbols();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
 const initialJob = async () => {
     console.log('Sending request INITIAL...');
     try {
+        await executeStockSymbols();
         await executeTheSP500();
         // await executeTheMessageBroker(); //TODO: SHOULD USE MESSAGE BROKER INSTEAD OF PROMISE ALL.
         await executePromiseAll();

@@ -21,6 +21,15 @@ class StockService extends BaseService {
         }
     }
 
+    async getSingleStockInfoFromYahoo(symbol) {
+        try {
+            const result = await ApiHelper.getStockInfoAsync(UrlHelper.getYahooBatchUrl(symbol));
+            return res.status(httpStatus.OK).send(result);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
+
     async getMultipleStockInfo(symbols) {
         try {
             const result = await ScrappingHelper.getMultipleStockInfos(symbols);
@@ -96,6 +105,49 @@ class StockService extends BaseService {
         }
     }
 
+    async getBIST100Concurrent() {
+        const symbols = await redisClient.get(Caching.SYMBOLS.BISTHUND);
+        const symbolsParsed = JSON.parse(symbols);
+        try {
+            const promises = symbolsParsed.map(
+                async (symbol) =>
+                    await ApiHelper.getStockInfoAsync(
+                        UrlHelper.getYahooBatchUrl(symbol)
+                    )
+            );
+            const responses = await Promise.all(promises);
+            const result = responses
+                .map((res) => res.quoteResponse.result)
+                .flat();
+            const calculations = CalculationService.getCalculations(result);
+            const sortedStocks = StockHelper.sortStocksByValues(
+                result,
+                calculations
+            );
+            await redisClient.set(
+                Caching.BIST_100_SORTED,
+                JSON.stringify(sortedStocks),
+                'EX',
+                15
+            );
+            const expireTime = Math.floor(Date.now() / 1000) + 10; // current timestamp + 180 seconds
+            await redisClient.set(
+                Caching.SP_500,
+                JSON.stringify(result),
+                'EX',
+                15
+            );
+            // console.log(result);
+            // await redisClient.set(Caching.CALCULATIONS.GRAHAM_NUMBERS, JSON.stringify(calculations.grahamNumbers));
+            return {
+                fromCache: false,
+                data: result,
+            };
+        } catch (error) {
+            throw new ApiError(error?.message, error?.statusCode);
+        }
+    }
+
     async getSingleStockInfoFromFinnhub(symbols) {
         try {
             const result = await ApiHelper.getStockInfoAsync(
@@ -121,8 +173,7 @@ class StockService extends BaseService {
                 StockHelper.sortStocksByReturnOnEquities(result);
             const debtToEquities =
                 StockHelper.sortStocksByDebtToEquities(result);
-            const ebitdaValues =
-                StockHelper.sortStocksByEbitda(result);
+            const ebitdaValues = StockHelper.sortStocksByEbitda(result);
             sortedStock.debtToEquities = debtToEquities;
             sortedStock.returnOnEquityRates = returnOnEquities;
             sortedStock.ebitdaValues = ebitdaValues;
@@ -134,13 +185,12 @@ class StockService extends BaseService {
         }
     }
 
-    async getMultipleStockInformationWithPromiseAll(){
+    async getMultipleStockInformationWithPromiseAll() {
         try {
-            const promises = stockSymbols.map(async (symbol)=>{
+            const promises = stockSymbols.map(async (symbol) => {
                 const result = await this.getFinancialDataForStock(symbol);
-                return {
-                    symbol:symbol, ...result.quoteResponse.result['0'].financialData
-                }
+                result.quoteSummary.result['0'].financialData.symbol = symbol;
+                return result.quoteSummary.result['0'].financialData;
             });
             const results = await Promise.all(promises);
             return results;
@@ -173,8 +223,8 @@ class StockService extends BaseService {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
-    
-    async scrapSP500Symbols(){
+
+    async scrapSP500Symbols() {
         try {
             const result = await ScrappingHelper.scrapSP500Symbols();
             return result;
@@ -183,7 +233,7 @@ class StockService extends BaseService {
         }
     }
 
-    async scrapBIST100Symbols(){
+    async scrapBIST100Symbols() {
         try {
             const result = await ScrappingHelper.scrapBIST100Symbols();
             return result;

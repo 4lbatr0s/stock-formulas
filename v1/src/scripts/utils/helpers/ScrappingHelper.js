@@ -5,9 +5,10 @@ import ApiHelper from './ApiHelper.js';
 import UrlHelper from './UrlHelper.js';
 import cheerio from 'cheerio';
 import { publicRequest } from './AxiosHelper.js';
+import redisClient from '../../../config/caching/redisConfig.js';
+import Caching from '../constants/Caching.js';
 class ScrappingHelper {
     constructor() {}
-
     createStockInfos = (rawScrappingData) => {
         const stockInfos = {};
         for (const [key, value] of Object.entries(scrappingKeysAndElements)) {
@@ -59,13 +60,18 @@ class ScrappingHelper {
             const $ = cheerio.load(response.data);
             const table = $('table.table-hover.table-borderless.table-sm');
             const tbody = table.children('tbody');
-            const symbols = [];
+            let symbols = [];
             tbody.find('tr').each((i, tr) => {
                 const td3 = $(tr).children('td:nth-child(3)');
                 const symbol = td3.text().trim();
                 symbols.push(symbol);
             });
-            return symbols.slice(0, -4);
+            symbols = symbols.slice(0, -4);
+            await redisClient.set(
+                Caching.SYMBOLS.SPFH,
+                JSON.stringify(symbols)
+            );
+            return symbols;
         } catch (error) {
             console.log(error);
         }
@@ -87,7 +93,10 @@ class ScrappingHelper {
                         stockSymbols.push($(e).text());
                     });
             });
-
+            await redisClient.set(
+                Caching.SYMBOLS.BISTHUND,
+                JSON.stringify(stockSymbols)
+            );
             return stockSymbols;
         } catch (error) {
             console.error(error);

@@ -14,6 +14,15 @@ class StockController {
         }
     }
 
+    async getSingleStockInfoFromYahoo(req, res, next) {
+        try {
+            const result = await StockService.getSingleStockInfoFromYahoo(req?.params.stockSymbol);
+            return res.status(httpStatus.OK).send(result);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
+
     async getMultipleStockInfo(req, res, next) {
         try {
             const result = await StockService.getMultipleStockInfo(
@@ -63,6 +72,15 @@ class StockController {
     async getSP500Concurrent(req, res, next) {
         try {
             const result = await StockService.getSP500Concurrent();
+            return res.status(httpStatus.OK).send(result);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
+
+    async getBIST100Concurrent(req, res, next) {
+        try {
+            const result = await StockService.getBIST100Concurrent();
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));
