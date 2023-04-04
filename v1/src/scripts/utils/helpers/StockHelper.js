@@ -62,8 +62,9 @@ class StockHelper {
      * @param {Array} grahamNumbers graham numbers per each stock we calculate.
      */
     sortStocksByGrahamNumber(stockValues) {
+        const grahamStocks = [...stockValues];
         const result = this.sortStockValues(
-            stockValues,
+            grahamStocks,
             Caching.CALCULATIONS.GRAHAM_NUMBERS
         );
         return result;
@@ -75,8 +76,9 @@ class StockHelper {
      * @param {Array} priceToEarningRates price/earning rate values per stock we calculate.
      */
     sortStocksByPriceToEarningRates(stockValues) {
+        const priceToEarningStocks = [...stockValues];
         const result = this.sortStockValues(
-            stockValues,
+            priceToEarningStocks,
             Caching.CALCULATIONS.PRICE_TO_EARNING_RATES
         );
         return result;
@@ -88,8 +90,9 @@ class StockHelper {
      * @param {Array} priceToBookRates price/book rate values per stock we calculate.
      */
     sortStocksByPriceToBookRates(stockValues) {
+        const priceToBookRatesStocks = [...stockValues];
         const result = this.sortStockValues(
-            stockValues,
+            priceToBookRatesStocks,
             Caching.CALCULATIONS.PRICE_TO_BOOK_RATES
         );
         return result;
@@ -114,8 +117,9 @@ class StockHelper {
         // );
 
         // return sortedStockValues;
+        const returnOnEquitiesStock = [...stockValues];
         const result = this.sortStockValues(
-            stockValues,
+            returnOnEquitiesStock,
             Caching.CALCULATIONS.RETURN_ON_EQUITY_RATES
         );
         return result;
@@ -139,8 +143,9 @@ class StockHelper {
         // );
 
         // return sortedStockValues;
+        const debtToEquitiesStocks = [...stockValues];
         const result = this.sortStockValues(
-            stockValues,
+            debtToEquitiesStocks,
             Caching.CALCULATIONS.DEBT_TO_EQUITY_RATES
         );
         return result;
@@ -151,8 +156,9 @@ class StockHelper {
      * @param {Array} debtToEquities debt/equity value per stock we calculate.
      */
     sortStocksByEbitda(stockValues) {
+        const ebitdaStocks = [...stockValues];
         const result = this.sortStockValues(
-            stockValues,
+            ebitdaStocks,
             Caching.CALCULATIONS.PRICE_TO_BOOK_RATES
         );
         return result;
