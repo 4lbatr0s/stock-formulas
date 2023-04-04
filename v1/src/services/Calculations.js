@@ -97,6 +97,7 @@ class Calculations {
         return sortedDebtToEquities;
     }
 
+
     /**
      *
      * @param {*} stockJsonArray an object array contains stock information we get from api.

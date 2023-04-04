@@ -96,6 +96,7 @@ class StockService extends BaseService {
             );
             // console.log(result);
             // await redisClient.set(Caching.CALCULATIONS.GRAHAM_NUMBERS, JSON.stringify(calculations.grahamNumbers));
+            
             return {
                 fromCache: false,
                 data: result,
