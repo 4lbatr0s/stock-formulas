@@ -28,7 +28,8 @@ class StockHelper {
                             };
                         }
                         return stockJson;
-                    }).sort((a, b) => a.ebitda.raw - b.ebitda.raw);
+                    })
+                    .sort((a, b) => a.ebitda.raw - b.ebitda.raw);
 
             case Caching.CALCULATIONS.DEBT_TO_EQUITY_RATES:
                 return stockValues
@@ -39,7 +40,8 @@ class StockHelper {
                             };
                         }
                         return stockJson;
-                    }).sort((a, b) => a.debtToEquity.raw - b.debtToEquity.raw);
+                    })
+                    .sort((a, b) => a.debtToEquity.raw - b.debtToEquity.raw);
 
             case Caching.CALCULATIONS.RETURN_ON_EQUITY_RATES:
                 return stockValues
@@ -50,7 +52,10 @@ class StockHelper {
                             };
                         }
                         return stockJson;
-                    }).sort((a, b) => a.returnOnEquity.raw - b.returnOnEquity.raw);
+                    })
+                    .sort(
+                        (a, b) => a.returnOnEquity.raw - b.returnOnEquity.raw
+                    );
             default:
                 break;
         }
@@ -114,11 +119,10 @@ class StockHelper {
         // );
 
         // return sortedStockValues;
-        const result = this.sortStockValues(
+        this.sortStockValues(
             stockValues,
             Caching.CALCULATIONS.RETURN_ON_EQUITY_RATES
         );
-        return result;
     }
     /**
      * @param {Array} stockValues values we get from api
@@ -139,11 +143,10 @@ class StockHelper {
         // );
 
         // return sortedStockValues;
-        const result = this.sortStockValues(
+        this.sortStockValues(
             stockValues,
             Caching.CALCULATIONS.DEBT_TO_EQUITY_RATES
         );
-        return result;
     }
 
     /**
@@ -151,11 +154,10 @@ class StockHelper {
      * @param {Array} debtToEquities debt/equity value per stock we calculate.
      */
     sortStocksByEbitda(stockValues) {
-        const result = this.sortStockValues(
+        this.sortStockValues(
             stockValues,
             Caching.CALCULATIONS.PRICE_TO_BOOK_RATES
         );
-        return result;
     }
 
     /**

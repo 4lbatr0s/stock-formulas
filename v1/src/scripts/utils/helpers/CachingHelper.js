@@ -1,5 +1,6 @@
 import redisClient from '../../../config/caching/redisConfig.js';
 import Caching from '../constants/Caching.js';
+import { publicRequest } from './AxiosHelper.js';
 
 class CachingHelper {
     constructor() {
@@ -40,6 +41,7 @@ class CachingHelper {
                     return parsedCachedResults[
                         Caching.CALCULATIONS.EBITDA
                     ];
+
                 default: //TODO: sp500 yoksa ne olacak? cachede deger yoksa bisey donme, break et.
                     break;
             }

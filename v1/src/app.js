@@ -17,7 +17,6 @@ import croneJobs from "./scripts/events/cronActions.js";
 const __filename = fileURLToPath(import.meta.url);//get all name
 const __dirname = path.dirname(__filename); //get dir name from it.
 
-
 config();
 loaders();  
 events(); //TIP: includes events.on's, on's should come before emits(they're in controllers) therefore it should be here.

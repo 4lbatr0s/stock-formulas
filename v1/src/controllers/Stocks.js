@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
 import ApiError from '../errors/ApiError.js';
 import StockService from '../services/Stocks.js';
+import stockSymbols from '../scripts/utils/constants/StockSymbols.js';
 class StockController {
     async getStockInfo(req, res, next) {
         try {
@@ -107,7 +108,8 @@ class StockController {
 
     async getFinancialDatasWithPromisAll(req, res, next) {
         try {
-            const result =await StockService.getMultipleStockInformationWithPromiseAll();
+            const result =
+                await StockService.getMultipleStockInformationWithPromiseAll();
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));
