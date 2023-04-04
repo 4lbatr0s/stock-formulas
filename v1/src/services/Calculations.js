@@ -1,9 +1,19 @@
 import CalculationHelper from '../scripts/utils/helpers/CalculationHelper.js';
 import fs from 'fs';
 import Caching from '../scripts/utils/constants/Caching.js';
+
+/**
+ * INFO: When the getSP500Concurrent() method of StockService is called,
+ * we calculate, Graham Numbers, Price to Earning Rates and Price to Book Rates.
+ * As you can see, we put graham number or other values to the stock json objects.
+ * Then in StockHelper.js file, we sort the stocks based on these JSON object properties.
+ * Returning values in this module does not mean anything.
+ */
+
+
 class Calculations {
-    constructor() {
-    }
+    constructor() {}
+
     //TODO: We don't need the sortings here anymore, we just need the values.
     getGrahamNumbers(stockJsonArray) {
         const grahamNumbers = {};
@@ -13,16 +23,7 @@ class Calculations {
             const stockName = element?.symbol;
             grahamNumbers[stockName] = grahamNumber;
         }
-        const sortedGrahamNumbers = Object.entries(grahamNumbers)
-            .filter((value) => value[1]) //not null or '' or NaN
-            .sort((a, b) => a[1] - b[1]); //sort ascending.
-        // fs.writeFile('grahamNumbers.json', JSON.stringify(sortedGrahamNumbers), (err)=> {
-        //     if(err){
-        //         console.log(err);
-        //     } else {
-        //         console.log('File written successfully');
-        //     }
-        // });
+        const sortedGrahamNumbers = Object.entries(grahamNumbers).sort((a, b) => a[1] - b[1]); 
         return sortedGrahamNumbers;
     }
 
@@ -35,9 +36,7 @@ class Calculations {
             const stockName = element?.symbol;
             priceToEarningRates[stockName] = priceToEarningRate;
         }
-        const sortedpriceToEarningRates = Object.entries(priceToEarningRates)
-            .filter((value) => value[1]) //not null or '' or NaN
-            .sort((a, b) => a[1] - b[1]); //sort ascending.
+        const sortedpriceToEarningRates = Object.entries(priceToEarningRates).sort((a, b) =>  b[1] - a[1]); //sort ascending.
         return sortedpriceToEarningRates;
     }
 
@@ -50,53 +49,27 @@ class Calculations {
             priceToBookRates[stockName] = priceToBookRate;
         }
         const sortedpriceToBookRates = Object.entries(priceToBookRates)
-            .filter((value) => value[1]) //not null or '' or NaN
-            .sort((a, b) => a[1] - b[1]); //sort ascending.
+            .filter((value) => value[1]).sort((a, b) =>  b[1] - a[1]); //sort descending.
         return sortedpriceToBookRates;
     }
 
-    getReturnOnEquities(stockJsonArray) {
-        const returnOnEquties = {};
+    getCalculatedValuesPerEveryStock(stockJsonArray){
+        const calculatedStocks = [];
         for (let i = 0; i < stockJsonArray.length; i++) {
             const element = stockJsonArray[i];
-            const returnOnEquity = CalculationHelper.returnOnEquity(element);
+            const priceToBookRate = CalculationHelper.priceToBookRate(element);
+            const priceToEarningRate = CalculationHelper.priceToEarningRate(element);
+            const grahamNumber = CalculationHelper.grahamNumber(element);
             const stockName = element?.symbol;
-            returnOnEquties[stockName] = returnOnEquity;
+            calculatedStocks.push({
+                stockName:stockName,
+                priceToBookRate:priceToBookRate,
+                priceToEarningRate:priceToEarningRate,
+                grahamNumber:grahamNumber
+            })
         }
-        const sortedreturnOnEquties = Object.entries(returnOnEquties)
-            .filter((value) => value[1]) //not null or '' or NaN
-            .sort((a, b) => b[1] - a[1]); //sort descending.
-        return sortedreturnOnEquties;
+        return calculatedStocks;
     }
-
-    getPriceToSales(stockJsonArray) {
-        const priceToSales = {};
-        for (let i = 0; i < stockJsonArray.length; i++) {
-            const element = stockJsonArray[i];
-            const priceToSale = CalculationHelper.priceToSalesRate(element);
-            const stockName = element?.symbol;
-            priceToSales[stockName] = priceToSale;
-        }
-        const sortedpriceToSales = Object.entries(priceToSales)
-            .filter((value) => value[1]) //not null or '' or NaN
-            .sort((a, b) => a[1] - b[1]); //sort ascending.
-        return sortedpriceToSales;
-    }
-
-    getDebtToEquityRates(stockJsonArray) {
-        const debtToEquities = {};
-        for (let i = 0; i < stockJsonArray.length; i++) {
-            const element = stockJsonArray[i];
-            const debtToEquity = CalculationHelper.debtToEquity(element);
-            const stockName = element?.symbol;
-            debtToEquities[stockName] = debtToEquity;
-        }
-        const sortedDebtToEquities = Object.entries(debtToEquities)
-            .filter((value) => value[1]) //not null or '' or NaN
-            .sort((a, b) => a[1] - b[1]); //sort ascending.
-        return sortedDebtToEquities;
-    }
-
 
     /**
      *
@@ -107,16 +80,10 @@ class Calculations {
         const sortedpriceToEarningRates = this.getPriceToEarningRates(stockJsonArray);
         const sortedGrahamNumbers = this.getGrahamNumbers(stockJsonArray);
         const sortedPriceToBookRates = this.getPriceToBookRates(stockJsonArray);
-        // const sortedreturnOnEquties = this.getReturnOnEquities(stockJsonArray);
-        // const sortedPriceToSales = this.getPriceToSales(stockJsonArray);
-        // const sortedDebtToEquities = this.getDebtToEquityRates(stockJsonArray);
         const calculations = {
             priceToEarningRates: sortedpriceToEarningRates,
             grahamNumbers: sortedGrahamNumbers,
             priceToBookRates: sortedPriceToBookRates,
-            returnOnEquityRates:'',
-            priceToSales: '',
-            debtToEquities: '',
         };
         return calculations;
     }

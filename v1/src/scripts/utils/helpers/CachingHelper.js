@@ -9,6 +9,8 @@ class CachingHelper {
     getStockSortings = async (rateType) => {
         try {
             const cachedResults = await redisClient.get(Caching.SORTED_STOCKS);
+            if(!cachedResults)
+                return cachedResults;
             const parsedCachedResults = JSON.parse(cachedResults);
             switch (rateType) {
                 case Caching.CALCULATIONS.GRAHAM_NUMBERS:

@@ -61,6 +61,50 @@ class StockService extends BaseService {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
+    //TODO: ORIGINAL METHOD.
+    // async getSP500Concurrent() {
+    //     const symbols = stockSymbols.join(',');
+    //     const chunks = ScriptHelper.chunkArray(symbols, 125);
+    //     try {
+    //         const responses = await Promise.all(
+    //             chunks.map((chunk) =>
+    //                 ApiHelper.getStockInfoAsync(
+    //                     UrlHelper.getYahooBatchUrl(chunk)
+    //                 )
+    //             )
+    //         );
+    //         const result = responses
+    //             .map((res) => res.quoteResponse.result)
+    //             .flat();
+    //         const calculations = CalculationService.getCalculations(result);
+    //         const sortedStocks = StockHelper.sortStocksByValues(
+    //             result,
+    //             calculations
+    //         );
+    //         await redisClient.set(
+    //             Caching.SORTED_STOCKS,
+    //             JSON.stringify(sortedStocks),
+    //             'EX',
+    //             15
+    //         );
+    //         const expireTime = Math.floor(Date.now() / 1000) + 10; // current timestamp + 180 seconds
+    //         await redisClient.set(
+    //             Caching.SP_500,
+    //             JSON.stringify(result),
+    //             'EX',
+    //             15
+    //         );
+    //         // console.log(result);
+    //         // await redisClient.set(Caching.CALCULATIONS.GRAHAM_NUMBERS, JSON.stringify(calculations.grahamNumbers));
+            
+    //         return {
+    //             fromCache: false,
+    //             data: result,
+    //         };
+    //     } catch (error) {
+    //         throw new ApiError(error?.message, error?.statusCode);
+    //     }
+    // }
 
     async getSP500Concurrent() {
         const symbols = stockSymbols.join(',');
@@ -76,9 +120,8 @@ class StockService extends BaseService {
             const result = responses
                 .map((res) => res.quoteResponse.result)
                 .flat();
-            const calculations = CalculationService.getCalculations(result);
+            const calculations = CalculationService.getCalculatedValuesPerEveryStock(result);
             const sortedStocks = StockHelper.sortStocksByValues(
-                result,
                 calculations
             );
             await redisClient.set(
@@ -105,6 +148,7 @@ class StockService extends BaseService {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
+
 
     async getBIST100Concurrent() {
         const symbols = await redisClient.get(Caching.SYMBOLS.BISTHUND);
@@ -222,8 +266,7 @@ class StockService extends BaseService {
             let allSortedStocks = JSON.parse(
                 await redisClient.get(Caching.SORTED_STOCKS)
             );
-            requestedRates = allSortedStocks[rateParam];
-            if (!requestedRates || requestedRates === '') {
+            if (!allSortedStocks) {
                 await this.getSP500Concurrent();
                 await this.getMultipleStockInformationWithPromiseAll();
                 // await this.messageBroker(); //TODO: YOU SOULD USE A MESSAGE BROKER INSTEAD OF THIS

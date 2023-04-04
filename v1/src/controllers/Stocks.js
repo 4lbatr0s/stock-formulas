@@ -71,6 +71,7 @@ class StockController {
 
     async getSP500Concurrent(req, res, next) {
         try {
+            console.log('getSP500Concurrent worksss bieeaaacccttchesss');
             const result = await StockService.getSP500Concurrent();
             return res.status(httpStatus.OK).send(result);
         } catch (error) {

@@ -3,7 +3,6 @@ import symbolChecker from '../middlewares/symbolChecker.js';
 import StocksController from '../controllers/Stocks.js';
 import redisCaching from "../middlewares/caching/redis.js";
 import apiKeySetter from '../middlewares/apiKeySetter.js';
-import globalErrorHandler from '../middlewares/error.js';
 const router = express.Router();
 
 router.get("/single/:stockSymbol", symbolChecker, StocksController.getStockInfo);

@@ -1,15 +1,9 @@
 import Caching from '../constants/Caching.js';
 
 class StockHelper {
+    #defaultPositive = 999999999999999;
+    #defaultNegative = -999999999999999;
     constructor() {}
-
-    filterStockValues(stockValues, filter) {
-        const filteredStockValues = stockValues.filter((stockObj) => {
-            return filter.some((array) => array[0] === stockObj?.symbol);
-        });
-
-        return filteredStockValues;
-    }
 
     sortStockValues(stockValues, sortingParameter) {
         switch (sortingParameter) {
@@ -19,12 +13,49 @@ class StockHelper {
                 );
             case Caching.CALCULATIONS.PRICE_TO_EARNING_RATES:
                 return stockValues.sort(
-                    (a, b) => a.priceToEarningRate - b.priceToEarningRate
+                    (a, b) => b.priceToEarningRate - a.priceToEarningRate
                 );
             case Caching.CALCULATIONS.PRICE_TO_BOOK_RATES:
                 return stockValues.sort(
-                    (a, b) => a.priceToBookRate - b.priceToBookRate
+                    (a, b) => b.priceToBookRate - a.priceToBookRate
                 );
+            case Caching.CALCULATIONS.EBITDA:
+                return stockValues
+                    .map((stockJson) => {
+                        if (!stockJson?.ebitda) {
+                            stockJson.ebitda = {
+                                raw: this.#defaultNegative,
+                            };
+                        }
+                        return stockJson;
+                    })
+                    .sort((a, b) => a.ebitda.raw - b.ebitda.raw);
+
+            case Caching.CALCULATIONS.DEBT_TO_EQUITY_RATES:
+                return stockValues
+                    .map((stockJson) => {
+                        if (!stockJson?.debtToEquity) {
+                            stockJson.debtToEquity = {
+                                raw: this.#defaultNegative,
+                            };
+                        }
+                        return stockJson;
+                    })
+                    .sort((a, b) => a.debtToEquity.raw - b.debtToEquity.raw);
+
+            case Caching.CALCULATIONS.RETURN_ON_EQUITY_RATES:
+                return stockValues
+                    .map((stockJson) => {
+                        if (!stockJson?.returnOnEquity) {
+                            stockJson.returnOnEquity = {
+                                raw: this.#defaultNegative,
+                            };
+                        }
+                        return stockJson;
+                    })
+                    .sort(
+                        (a, b) => a.returnOnEquity.raw - b.returnOnEquity.raw
+                    );
             default:
                 break;
         }
@@ -35,18 +66,9 @@ class StockHelper {
      * @param {Array} stockValues values we get from api
      * @param {Array} grahamNumbers graham numbers per each stock we calculate.
      */
-    sortStocksByGrahamNumber(stockValues, grahamNumbers) {
-        // const filteredStockValues = stockValues.filter((stockObj) => {
-        //     return grahamNumbers.some((array) => array[0] === stockObj?.symbol);
-        // });
-
-        // return filteredStockValues;
-        const filteredStockValues = this.filterStockValues(
-            stockValues,
-            grahamNumbers
-        );
+    sortStocksByGrahamNumber(stockValues) {
         const result = this.sortStockValues(
-            filteredStockValues,
+            stockValues,
             Caching.CALCULATIONS.GRAHAM_NUMBERS
         );
         return result;
@@ -57,13 +79,9 @@ class StockHelper {
      * @param {Array} stockValues values we get from api
      * @param {Array} priceToEarningRates price/earning rate values per stock we calculate.
      */
-    sortStocksByPriceToEarningRates(stockValues, priceToEarningRates) {
-        const filteredStockValues = this.filterStockValues(
-            stockValues,
-            priceToEarningRates
-        );
+    sortStocksByPriceToEarningRates(stockValues) {
         const result = this.sortStockValues(
-            filteredStockValues,
+            stockValues,
             Caching.CALCULATIONS.PRICE_TO_EARNING_RATES
         );
         return result;
@@ -74,13 +92,9 @@ class StockHelper {
      * @param {Array} stockValues values we get from api
      * @param {Array} priceToBookRates price/book rate values per stock we calculate.
      */
-    sortStocksByPriceToBookRates(stockValues, priceToBookRates) {
-        const filteredStockValues = this.filterStockValues(
-            stockValues,
-            priceToBookRates
-        );
+    sortStocksByPriceToBookRates(stockValues) {
         const result = this.sortStockValues(
-            filteredStockValues,
+            stockValues,
             Caching.CALCULATIONS.PRICE_TO_BOOK_RATES
         );
         return result;
@@ -92,35 +106,47 @@ class StockHelper {
      * @param {Array} returnOnEquities return on equity values per stock we calculate.
      */
     sortStocksByReturnOnEquities(stockValues) {
-        const filteredStockValues = stockValues
-        .filter((stockObj)=>  stockObj?.returnOnEquity);
-        const sortedStockValues = filteredStockValues.sort((a,b)=>  a.returnOnEquity.raw-b.returnOnEquity.raw);
+        // const filteredStockValues = stockValues.map((stockJson) => {
+        //     if (!stockJson?.returnOnEquity) {
+        //         stockJson.returnOnEquity = {
+        //             raw: this.#defaultNegative,
+        //         };
+        //     }
+        //     return stockJson;
+        // });
+        // const sortedStockValues = filteredStockValues.sort(
+        //     (a, b) => a.returnOnEquity.raw - b.returnOnEquity.raw
+        // );
 
-        return sortedStockValues; 
+        // return sortedStockValues;
+        this.sortStockValues(
+            stockValues,
+            Caching.CALCULATIONS.RETURN_ON_EQUITY_RATES
+        );
     }
-
-    /**
-     * @param {Array} stockValues values we get from api
-     * @param {Array} priceToSales price/sale value per stock we calculate.
-     */
-    sortStocksByPricesToSales(stockValues, priceToSales) {
-        const filteredStockValues = stockValues.filter((stockObj) => {
-            return priceToSales.some((array) => array[0] === stockObj?.symbol);
-        });
-
-        return filteredStockValues;
-    }
-
     /**
      * @param {Array} stockValues values we get from api
      * @param {Array} debtToEquities debt/equity value per stock we calculate.
      */
     sortStocksByDebtToEquities(stockValues) {
-        const filteredStockValues = stockValues
-        .filter((stockObj)=>  stockObj?.debtToEquity);
-        const sortedStockValues = filteredStockValues.sort((a,b)=>  a.debtToEquity.raw-b.debtToEquity.raw);
+        // const filteredStockValues = stockValues.map((stockJson) => {
+        //     if (!stockJson?.debtToEquity) {
+        //         stockJson.debtToEquity = {
+        //             raw: this.defaultPositive,
+        //         };
+        //     }
+        //     return stockJson;
+        // });
 
-        return sortedStockValues; 
+        // const sortedStockValues = filteredStockValues.sort(
+        //     (a, b) => a.debtToEquity.raw - b.debtToEquity.raw
+        // );
+
+        // return sortedStockValues;
+        this.sortStockValues(
+            stockValues,
+            Caching.CALCULATIONS.DEBT_TO_EQUITY_RATES
+        );
     }
 
     /**
@@ -128,12 +154,11 @@ class StockHelper {
      * @param {Array} debtToEquities debt/equity value per stock we calculate.
      */
     sortStocksByEbitda(stockValues) {
-        const filteredStockValues = stockValues
-        .filter((stockObj)=>  stockObj?.ebitda)
-        const sortedStockValues = filteredStockValues.sort((a,b)=>  a.ebitda.raw-b.ebitda.raw);
-        return sortedStockValues; 
+        this.sortStockValues(
+            stockValues,
+            Caching.CALCULATIONS.PRICE_TO_BOOK_RATES
+        );
     }
-
 
     /**
      *
@@ -141,48 +166,24 @@ class StockHelper {
      * @param {Object} calculations arrays of values per each stock choosing formulas we get from the Calculation Service.
      * @returns
      */
-    sortStocksByValues(stockValues, calculations) {
-        const stockValuesSortedByGraham = this.sortStocksByGrahamNumber(
-            stockValues,
-            calculations.grahamNumbers
-        );
+    sortStocksByValues(stockValues) {
+        const stockValuesSortedByGraham =
+            this.sortStocksByGrahamNumber(stockValues);
         const stockValuesSortedByPriceToEarningRates =
-            this.sortStocksByPriceToEarningRates(
-                stockValues,
-                calculations.priceToEarningRates
-            );
+            this.sortStocksByPriceToEarningRates(stockValues);
         const stockValuesSortedByPriceToBookRates =
-            this.sortStocksByPriceToBookRates(
-                stockValues,
-                calculations.priceToBookRates
-            );
-        // const stockValuesSortedByReturnOnEquities =
-        //     this.sortStocksByReturnOnEquities(
-        //         stockValues,
-        //         calculations.returnOnEquityRates
-        //     );
-        // const stockValuesSortedByPriceToSales = this.sortStocksByPricesToSales(
-        //     stockValues,
-        //     calculations.priceToSales
-        // );
-        // const stockValuesSortedByDebtToEquities =
-        //     this.sortStocksByDebtToEquities(
-        //         stockValues,
-        //         calculations.debtToEquities
-        //     );
+            this.sortStocksByPriceToBookRates(stockValues);
 
         const sortedStocks = {
             graham: stockValuesSortedByGraham,
             priceToEarningRates: stockValuesSortedByPriceToEarningRates,
             priceToBookRates: stockValuesSortedByPriceToBookRates,
             returnOnEquityRates: '',
-            priceToSalesRates: '',
             debtToEquities: '',
-            ebitdaValues:''
+            ebitdaValues: '',
         };
         return sortedStocks;
     }
-
 }
 
 export default new StockHelper();
