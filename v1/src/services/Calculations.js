@@ -68,6 +68,7 @@ class Calculations {
                 grahamNumber:grahamNumber
             })
         }
+
         return calculatedStocks;
     }
 
