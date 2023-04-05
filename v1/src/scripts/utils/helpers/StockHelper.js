@@ -28,7 +28,8 @@ class StockHelper {
                             };
                         }
                         return stockJson;
-                    }).sort((a, b) => a.ebitda.raw - b.ebitda.raw);
+                    })
+                    .sort((a, b) => a.ebitda.raw - b.ebitda.raw);
 
             case Caching.CALCULATIONS.DEBT_TO_EQUITY_RATES:
                 return stockValues
@@ -39,7 +40,8 @@ class StockHelper {
                             };
                         }
                         return stockJson;
-                    }).sort((a, b) => a.debtToEquity.raw - b.debtToEquity.raw);
+                    })
+                    .sort((a, b) => a.debtToEquity.raw - b.debtToEquity.raw);
 
             case Caching.CALCULATIONS.RETURN_ON_EQUITY_RATES:
                 return stockValues
@@ -50,7 +52,10 @@ class StockHelper {
                             };
                         }
                         return stockJson;
-                    }).sort((a, b) => a.returnOnEquity.raw - b.returnOnEquity.raw);
+                    })
+                    .sort(
+                        (a, b) => a.returnOnEquity.raw - b.returnOnEquity.raw
+                    );
             default:
                 break;
         }
@@ -122,7 +127,6 @@ class StockHelper {
             returnOnEquitiesStock,
             Caching.CALCULATIONS.RETURN_ON_EQUITY_RATES
         );
-        return result;
     }
     /**
      * @param {Array} stockValues values we get from api
@@ -148,7 +152,6 @@ class StockHelper {
             debtToEquitiesStocks,
             Caching.CALCULATIONS.DEBT_TO_EQUITY_RATES
         );
-        return result;
     }
 
     /**
@@ -161,7 +164,6 @@ class StockHelper {
             ebitdaStocks,
             Caching.CALCULATIONS.PRICE_TO_BOOK_RATES
         );
-        return result;
     }
 
     /**
