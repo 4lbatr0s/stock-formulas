@@ -1,12 +1,15 @@
+import MetaData from "./MetaData.js";
+
 class PagedList extends Array {
     constructor(items, count, pageNumber, pageSize) {
       super();
-      this.MetaData = {
-        TotalCount: count,
-        PageSize: pageSize,
-        CurrentPage: pageNumber,
-        TotalPages: Math.ceil(count / pageSize),
-      };
+      this.MetaData = new MetaData(pageNumber, Math.ceil(count/pageSize), pageSize, count);
+      // this.MetaData = {
+      //   TotalCount: count,
+      //   PageSize: pageSize,
+      //   CurrentPage: pageNumber,
+      //   TotalPages: Math.ceil(count / pageSize),
+      // };
       this.push(...items);
     }
   

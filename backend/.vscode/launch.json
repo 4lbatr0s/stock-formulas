@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${file}"
+            "program": "${workspaceFolder}/v1/src/models/shared/RequestFeatures/PagedList.js"
         }
     ]
 }
