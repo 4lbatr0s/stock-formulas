@@ -1,12 +1,9 @@
 ## STRUCTURE
-1. Decide required parameters for every value that will be calculated.
 2. Scrap the values from a single or multiple websites.
-3. Calculate the values
 4. You can put a SortingValues property to each stockValue object and do sortings based on these values, for instance AAPL:{SortingValues: {graham:5, ebitda:241, ...., p/b:123}}
  
 ## CODE
 1. Create a global logger middleware.
-2. Use REDIS to cache the api responses.[DONE]
 3. CREATE A SINGLE REDIS CLIENT, DO NOT CALL REDISCONFIG EVERWHERE. USE THE SAME CLIENT EVERYWHERE. THIS IS A PROBLEM ORIGINATE FROM EXPORTING AN ASYNCHRONOUS FUNCTION IN configs/caching/redis.js file.
 4. TRY TO USE REDIS BY PASSING IT FROM BaseController to the inherited controllers.
 5. REDIS EXPIRATION DOES NOT WORK, PROBABLY BECAUSE OF THE REASON ABOVE: ITS NOT WORKING BECAUSE EVERY TIME YOU EXECUTE THE FUNCTION, ITS A NEW REDIS CLIENT, SO EXPIRATION DATES DISAPPEAR INTO THE SPACE :)
@@ -23,8 +20,6 @@
 
 
 # PROBLEMS
-
-1. Price to Sales, Debt to Equities, Return on Equity values cannot be calculated because required parameters are not in the json!
 2. BIST HISSELERI YAHOODAN CEKILEMIYOR. BASKA BIR YONTEM BULMAK GEREK
 
 # MESSAGE BROKER - RABBITMQ
