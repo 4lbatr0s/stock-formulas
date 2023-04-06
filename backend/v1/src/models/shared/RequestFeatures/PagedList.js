@@ -15,8 +15,8 @@ class PagedList extends Array {
   
     static ToPagedList(source, pageNumber, pageSize) {
       const count = source.length;
-      const items = source.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
-      return new PagedList(items, count, pageNumber, pageSize);
+      // const items = source.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+      return new PagedList(source, count, pageNumber, pageSize);
     }
 }
 
