@@ -11,6 +11,8 @@ import Caching from '../scripts/utils/constants/Caching.js';
 import StockHelper from '../scripts/utils/helpers/StockHelper.js';
 import ScriptHelper from '../scripts/utils/helper.js';
 import PagedList from '../models/shared/RequestFeatures/PagedList.js';
+import StockExtensions from './extensions/StockExtensions.js';
+import RequestHelper from '../scripts/utils/helpers/RequestHelper.js';
 class StockService extends BaseService {
     async getStockInfo(symbol) {
         try {
@@ -121,6 +123,7 @@ class StockService extends BaseService {
                 .map((res) => res.quoteResponse.result)
                 .flat();
             const calculations = CalculationService.getCalculatedValuesPerEveryStock(result);
+            await redisClient.set(Caching.UNSORTED_STOCKS, JSON.stringify(calculations), 'EX', 15);
             const sortedStocks = StockHelper.sortStocksByValues(
                 calculations
             );
@@ -273,9 +276,12 @@ class StockService extends BaseService {
                 allSortedStocks = JSON.parse(
                     await redisClient.get(Caching.SORTED_STOCKS)
                 );
-                requestedRates = allSortedStocks[rateParam];
+            const allUnSortedStocks = JSON.parse(await redisClient.get(Caching.UNSORTED_STOCKS));
+                requestedRates = allSortedStocks[rateParam] ? allSortedStocks[rateParam]: allUnSortedStocks;
             }
-            const paginatedResult = PagedList.ToPagedList(requestedRates, req?.query.pageNumber, req?.query.pageSize)
+            const options = RequestHelper.setManipulationOptions(req);
+            const responseManipulation = StockExtensions.manipulationChaining(requestedRates,options);
+            const paginatedResult = PagedList.ToPagedList(responseManipulation, req?.query.pageNumber, req?.query.pageSize)
             return {
                 fromCache: false,
                 data: paginatedResult,

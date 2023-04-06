@@ -2,6 +2,7 @@ const Caching={
         SP_500:'SP500',
         SINGLE:'SINGLE',
         SORTED_STOCKS:'SORTED_STOCKS',
+        UNSORTED_STOCKS:'stockValues',
         BIST_100_SORTED:'BISTHUNDSORT',
         CALCULATIONS:{
                 GRAHAM_NUMBERS:'graham',

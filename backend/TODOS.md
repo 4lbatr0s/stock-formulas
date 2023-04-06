@@ -1,3 +1,5 @@
+## SORTING
+1. Stocklari sort edip cache'de mi tutacaksin ? yoksa sort edilmemis stocklari sorting query ile mi sort edeceksin karar verilmeli. Simdilik
 ## STRUCTURE
 2. Scrap the values from a single or multiple websites.
 4. You can put a SortingValues property to each stockValue object and do sortings based on these values, for instance AAPL:{SortingValues: {graham:5, ebitda:241, ...., p/b:123}}
