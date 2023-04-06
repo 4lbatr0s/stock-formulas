@@ -10,7 +10,7 @@ import redisClient from '../config/caching/redisConfig.js';
 import Caching from '../scripts/utils/constants/Caching.js';
 import StockHelper from '../scripts/utils/helpers/StockHelper.js';
 import ScriptHelper from '../scripts/utils/helper.js';
-
+import PagedList from '../models/shared/RequestFeatures/PagedList.js';
 class StockService extends BaseService {
     async getStockInfo(symbol) {
         try {
@@ -275,9 +275,10 @@ class StockService extends BaseService {
                 );
                 requestedRates = allSortedStocks[rateParam];
             }
+            const paginatedResult = PagedList.ToPagedList(requestedRates, req?.query.pageNumber, req?.query.pageSize)
             return {
                 fromCache: false,
-                data: requestedRates,
+                data: paginatedResult,
             };
         } catch (error) {
             throw new ApiError(error?.message, error?.statusCode);
