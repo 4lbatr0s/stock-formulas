@@ -7,9 +7,9 @@ import StockExtensions from "../../services/extensions/StockExtensions.js";
 import RequestHelper from "../../scripts/utils/helpers/RequestHelper.js";
 
 async function cacheData(req,res,next){
-    let rateType = req.params?.rateType || Caching.UNSORTED_STOCKS;
+    let rateType = req.params?.rateType || Caching.PARAMETERS;
      try {
-        const options = RequestHelper.setManipulationOptions(req);
+        const options = RequestHelper.setOptions(req);
         const cachedResults = await CachingHelper.getStockSortings(rateType);
         if(cachedResults && cachedResults !==''){
             const responseManipulation = StockExtensions.manipulationChaining(cachedResults, options);

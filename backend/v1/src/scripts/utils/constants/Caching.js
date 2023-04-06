@@ -2,7 +2,7 @@ const Caching={
         SP_500:'SP500',
         SINGLE:'SINGLE',
         SORTED_STOCKS:'SORTED_STOCKS',
-        UNSORTED_STOCKS:'stockValues',
+        UNSORTED_STOCKS:'UNSORTED_STOCKS',
         BIST_100_SORTED:'BISTHUNDSORT',
         CALCULATIONS:{
                 GRAHAM_NUMBERS:'graham',
@@ -16,7 +16,8 @@ const Caching={
         SYMBOLS:{
                 SPFH:'SPFH',
                 BISTHUND:'BISTHUND'
-        }
+        }, 
+        PARAMETERS:'PARAMETERS'
 }
 
 export default Caching;

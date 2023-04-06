@@ -1,5 +1,6 @@
 class RequestHelper{
-    static setManipulationOptions(req){
+    constructor(){}
+    setOptions(req){
         const options = {
             pageNumber:req?.query.pageNumber, 
             pageSize:req?.query.pageSize,

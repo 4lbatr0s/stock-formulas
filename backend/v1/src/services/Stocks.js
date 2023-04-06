@@ -13,6 +13,7 @@ import ScriptHelper from '../scripts/utils/helper.js';
 import PagedList from '../models/shared/RequestFeatures/PagedList.js';
 import StockExtensions from './extensions/StockExtensions.js';
 import RequestHelper from '../scripts/utils/helpers/RequestHelper.js';
+
 class StockService extends BaseService {
     async getStockInfo(symbol) {
         try {
@@ -279,7 +280,7 @@ class StockService extends BaseService {
             const allUnSortedStocks = JSON.parse(await redisClient.get(Caching.UNSORTED_STOCKS));
                 requestedRates = allSortedStocks[rateParam] ? allSortedStocks[rateParam]: allUnSortedStocks;
             }
-            const options = RequestHelper.setManipulationOptions(req);
+            const options = RequestHelper.setOptions(req);
             const responseManipulation = StockExtensions.manipulationChaining(requestedRates,options);
             const paginatedResult = PagedList.ToPagedList(responseManipulation, req?.query.pageNumber, req?.query.pageSize)
             return {

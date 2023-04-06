@@ -43,7 +43,7 @@ class CachingHelper {
                     return parsedCachedResults[
                         Caching.CALCULATIONS.EBITDA
                     ];
-                case Caching.UNSORTED_STOCKS:
+                case Caching.PARAMETERS:
                     return parsedUnsortedStocks;
 
                 default: //TODO: sp500 yoksa ne olacak? cachede deger yoksa bisey donme, break et.
