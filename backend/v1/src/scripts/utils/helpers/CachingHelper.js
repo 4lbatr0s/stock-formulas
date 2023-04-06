@@ -9,6 +9,8 @@ class CachingHelper {
     getStockSortings = async (rateType) => {
         try {
             const cachedResults = await redisClient.get(Caching.SORTED_STOCKS);
+            const unsortedStocks = await redisClient.get(Caching.UNSORTED_STOCKS);
+            const parsedUnsortedStocks = JSON.parse(unsortedStocks);
             if(!cachedResults)
                 return cachedResults;
             const parsedCachedResults = JSON.parse(cachedResults);
@@ -41,6 +43,8 @@ class CachingHelper {
                     return parsedCachedResults[
                         Caching.CALCULATIONS.EBITDA
                     ];
+                case Caching.PARAMETERS:
+                    return parsedUnsortedStocks;
 
                 default: //TODO: sp500 yoksa ne olacak? cachede deger yoksa bisey donme, break et.
                     break;

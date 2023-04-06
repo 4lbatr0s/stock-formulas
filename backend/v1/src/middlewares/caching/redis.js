@@ -1,17 +1,18 @@
 import httpStatus from "http-status";
 import ApiError from "../../errors/ApiError.js";
 import Caching from "../../scripts/utils/constants/Caching.js";
-import redisClient from "../../config/caching/redisConfig.js";
 import CachingHelper from "../../scripts/utils/helpers/CachingHelper.js";
 import PagedList from "../../models/shared/RequestFeatures/PagedList.js";
 import StockExtensions from "../../services/extensions/StockExtensions.js";
+import RequestHelper from "../../scripts/utils/helpers/RequestHelper.js";
 
 async function cacheData(req,res,next){
-    let rateType = req.params?.rateType || Caching.SP_500;
+    let rateType = req.params?.rateType || Caching.PARAMETERS;
      try {
+        const options = RequestHelper.setOptions(req);
         const cachedResults = await CachingHelper.getStockSortings(rateType);
         if(cachedResults && cachedResults !==''){
-            const responseManipulation = StockExtensions.manipulationChaining(cachedResults, req?.query.pageNumber, req?.query.pageSize, req?.query.searchTerm, req?.query.sortBy);
+            const responseManipulation = StockExtensions.manipulationChaining(cachedResults, options);
             const paginatedResult = PagedList.ToPagedList(responseManipulation, req?.query.pageNumber, req?.query.pageSize)
             return res.status(httpStatus.OK).send({
                 fromCache:true,

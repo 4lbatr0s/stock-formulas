@@ -14,47 +14,152 @@ class StockExtensions {
         );
     }
 
-    //property names
-    createOrderObject(orderByQueryString) {
+    filter(stocks, options) {
+        const {
+            minGrahamNumber,
+            maxGrahamNumber,
+            minPriceToEarningRate,
+            maxPriceToEarningRate,
+            minPriceToBookRate,
+            maxPriceToBookRate,
+            minEbitda,
+            maxEbitda,
+            minDebtToEquity,
+            maxDebtToEquity,
+            minReturnOnEquity,
+            maxReturnOnEquity,
+        } = options;
+
+        const propertiesToCheck = [
+            {
+                property: 'grahamNumber',
+                min: minGrahamNumber,
+                max: maxGrahamNumber,
+            },
+            {
+                property: 'priceToEarningRate',
+                min: minPriceToEarningRate,
+                max: maxPriceToEarningRate,
+            },
+            {
+                property: 'priceToBookRate',
+                min: minPriceToBookRate,
+                max: maxPriceToBookRate,
+            },
+            {
+                property: 'debtToEquity',
+                min: minDebtToEquity,
+                max: maxDebtToEquity,
+            },
+            {
+                property: 'returnOnEquity',
+                min: minReturnOnEquity,
+                max: maxReturnOnEquity,
+            },
+            { property: 'ebitda', min: minEbitda, max: maxEbitda },
+        ];
+
+        return stocks.filter((s) => {
+            for (const { property, min, max } of propertiesToCheck) {
+                if (s[property] < min || s[property] > max) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    createOrderObject(orderByQueryString, nullsLast = true) {
         const sortParams = {};
         if (orderByQueryString) {
-          const sortFields = orderByQueryString.split(',');
-          sortFields.forEach((sortField) => {
-            const [field, direction = 'asc'] = sortField.trim().split(' ');
-            sortParams[field] = direction.toLowerCase();
-          });
+            const sortFields = orderByQueryString.split(',');
+            sortFields.forEach((sortField) => {
+                const [field, direction = 'asc'] = sortField.trim().split(' ');
+                sortParams[field] = {
+                    direction: direction.toLowerCase(),
+                    nullsLast,
+                };
+            });
         }
         return sortParams;
-      }
-      
+    }
 
-      sort(stocks, orderByQueryString) {
+    sort(stocks, orderByQueryString) {
+        if (!orderByQueryString) {
+            return stocks.sort((a, b) =>
+                a.stockName.localeCompare(b.stockName)
+            );
+        }
+
         const sortParams = this.createOrderObject(orderByQueryString);
-        return stocks.sort((a, b) => {
-          for (const [field, direction] of Object.entries(sortParams)) {
-            const valueA = a[field];
-            const valueB = b[field];
-            const isString = typeof valueA === 'string' && typeof valueB === 'string';
-            const compareResult = isString
-              ? valueA.localeCompare(valueB)
-              : valueA > valueB
-              ? 1
-              : valueA < valueB
-              ? -1
-              : 0;
-            if (compareResult !== 0) {
-              return direction === 'asc' ? compareResult : -compareResult;
+
+        if (Object.keys(sortParams).length === 0) {
+            return stocks.sort((a, b) =>
+                a.stockName.localeCompare(b.stockName)
+            );
+        }
+
+        const sortedStocks = stocks.sort((a, b) => {
+            for (const [field, direction] of Object.entries(sortParams)) {
+                const aValue = a[field];
+                const bValue = b[field];
+
+                if (typeof aValue !== typeof bValue) {
+                    return typeof aValue > typeof bValue ? 1 : -1;
+                }
+
+                const compareResult = (
+                    typeof aValue === 'string' ? aValue : ''
+                ).localeCompare(bValue);
+
+                if (compareResult !== 0) {
+                    return direction === 'asc' ? compareResult : -compareResult;
+                }
             }
-          }
-          return 0;
+
+            return 0;
         });
-      }
-      
+
+        return sortedStocks;
+    }
 
     //page-filter-search-sort
-    manipulationChaining(stocks, pageNumber, pageSize, searchTerm, orderByQueryString) {
+    manipulationChaining(stocks, options) {
+        const {
+            pageNumber = 1,
+            pageSize = 50,
+            searchTerm = '',
+            orderByQueryString = 'stockName',
+            minGrahamNumber = -Infinity,
+            maxGrahamNumber = Infinity,
+            minPriceToEarningRate = -Infinity,
+            maxPriceToEarningRate = Infinity,
+            minPriceToBookRate = -Infinity,
+            maxPriceToBookRate = Infinity,
+            minEbitda = -Infinity,
+            maxEbitda = Infinity,
+            minDebtToEquitiy = -Infinity,
+            maxDebtToEquity = Infinity,
+            minReturnOnEquity = -Infinity,
+            maxReturnOnEquity = Infinity,
+        } = options;
+
         const paginated = this.pagination(stocks, pageNumber, pageSize);
-        const searched = this.search(paginated, searchTerm);
+        const filtered = this.filter(paginated, {
+            minGrahamNumber,
+            maxGrahamNumber,
+            minPriceToEarningRate,
+            maxPriceToEarningRate,
+            minPriceToBookRate,
+            maxPriceToBookRate,
+            minEbitda,
+            maxEbitda,
+            minDebtToEquitiy,
+            maxDebtToEquity,
+            minReturnOnEquity,
+            maxReturnOnEquity,
+        });
+        const searched = this.search(filtered, searchTerm);
         const sorted = this.sort(searched, orderByQueryString);
         return sorted;
     }
