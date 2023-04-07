@@ -17,7 +17,7 @@ const Caching={
                 SPFH:'SPFH',
                 BISTHUND:'BISTHUND'
         }, 
-        PARAMETERS:'PARAMETERS'
+        PARAMETERS:'parameters'
 }
 
 export default Caching;

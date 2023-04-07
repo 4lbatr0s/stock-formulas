@@ -12,7 +12,7 @@ async function cacheData(req,res,next){
         const options = RequestHelper.setOptions(req);
         const cachedResults = await CachingHelper.getStockSortings(rateType);
         if(cachedResults && cachedResults !==''){
-            const responseManipulation = StockExtensions.manipulationChaining(cachedResults, options);
+            const responseManipulation =  StockExtensions.manipulationChaining(cachedResults, options);
             const paginatedResult = PagedList.ToPagedList(responseManipulation, req?.query.pageNumber, req?.query.pageSize)
             return res.status(httpStatus.OK).send({
                 fromCache:true,

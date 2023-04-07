@@ -113,7 +113,7 @@ class StockExtensions {
                 ).localeCompare(bValue);
 
                 if (compareResult !== 0) {
-                    return direction === 'asc' ? compareResult : -compareResult;
+                    return direction === 'asc' ? -compareResult : compareResult;
                 }
             }
 
@@ -129,7 +129,8 @@ class StockExtensions {
             pageNumber = 1,
             pageSize = 50,
             searchTerm = '',
-            orderByQueryString = 'stockName',
+            orderByQueryString = 'stockName desc',
+            dynamicSorting=false,
             minGrahamNumber = -Infinity,
             maxGrahamNumber = Infinity,
             minPriceToEarningRate = -Infinity,
@@ -160,7 +161,7 @@ class StockExtensions {
             maxReturnOnEquity,
         });
         const searched = this.search(filtered, searchTerm);
-        const sorted = this.sort(searched, orderByQueryString);
+        const sorted = dynamicSorting ? this.sort(searched, orderByQueryString) : searched;
         return sorted;
     }
 }

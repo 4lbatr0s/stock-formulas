@@ -277,7 +277,7 @@ class StockService extends BaseService {
                 allSortedStocks = JSON.parse(
                     await redisClient.get(Caching.SORTED_STOCKS)
                 );
-            const allUnSortedStocks = JSON.parse(await redisClient.get(Caching.UNSORTED_STOCKS));
+                const allUnSortedStocks = JSON.parse(await redisClient.get(Caching.UNSORTED_STOCKS));
                 requestedRates = allSortedStocks[rateParam] ? allSortedStocks[rateParam]: allUnSortedStocks;
             }
             const options = RequestHelper.setOptions(req);
