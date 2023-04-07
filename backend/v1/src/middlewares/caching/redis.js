@@ -7,16 +7,14 @@ import StockExtensions from "../../services/extensions/StockExtensions.js";
 import RequestHelper from "../../scripts/utils/helpers/RequestHelper.js";
 
 async function cacheData(req,res,next){
-    let rateType = req.params?.rateType || Caching.PARAMETERS;
+    let rateType = req.query?.rateType || Caching.PARAMETERS;
      try {
         const options = RequestHelper.setOptions(req);
-        const cachedResults = await CachingHelper.getStockSortings(rateType);
-        if(cachedResults && cachedResults !==''){
-            const responseManipulation =  StockExtensions.manipulationChaining(cachedResults, options);
-            const paginatedResult = PagedList.ToPagedList(responseManipulation, req?.query.pageNumber, req?.query.pageSize)
+        const sortedStocks = await CachingHelper.getStockSortings(rateType, options);
+        if(sortedStocks && sortedStocks !==''){
             return res.status(httpStatus.OK).send({
                 fromCache:true,
-                data:paginatedResult
+                data:sortedStocks
             })
         } else {
             return next();

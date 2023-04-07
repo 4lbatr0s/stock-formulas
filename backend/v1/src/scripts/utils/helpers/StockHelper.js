@@ -166,6 +166,26 @@ class StockHelper {
         );
     }
 
+    getAskedPropertiesFromJson(jsonSource, destination, ...properties) {
+        const result = jsonSource.map((json) => {
+            const newObj = {};
+            for (const prop of properties) {
+                newObj[prop] = json[prop];
+            }
+            return newObj;
+        });
+
+        const destMap = new Map(destination.map((obj) => [obj.stockName, obj]));
+        for (const res of result) {
+            const dest = destMap.get(res.symbol);
+            if (dest) {
+                Object.assign(dest, res);
+                delete dest.symbol;
+            }
+        }
+        
+    }
+
     /**
      *
      * @param {Array} stockValues stock values we get from api

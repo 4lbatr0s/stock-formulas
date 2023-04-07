@@ -68,7 +68,6 @@ class StockExtensions {
             return true;
         });
     }
-
     createOrderObject(orderByQueryString, nullsLast = true) {
         const sortParams = {};
         if (orderByQueryString) {
@@ -77,47 +76,67 @@ class StockExtensions {
                 const [field, direction = 'asc'] = sortField.trim().split(' ');
                 sortParams[field] = {
                     direction: direction.toLowerCase(),
-                    nullsLast,
+                    nullsLast: field !== 'stockName' || nullsLast,
                 };
             });
         }
         return sortParams;
     }
-
+ 
     sort(stocks, orderByQueryString) {
         if (!orderByQueryString) {
-          return stocks.sort((a, b) => a.stockName.localeCompare(b.stockName));
+            return [...stocks].sort((a, b) =>
+                a.stockName.localeCompare(b.stockName)
+            );
         }
-      
+
         const sortParams = this.createOrderObject(orderByQueryString);
-      
+
         if (Object.keys(sortParams).length === 0) {
-          return stocks.sort((a, b) => a.stockName.localeCompare(b.stockName));
+            return [...stocks].sort((a, b) =>
+                a.stockName.localeCompare(b.stockName)
+            );
         }
-      
-        const sortedStocks = stocks.sort((a, b) => {
-          for (const [field, direction] of Object.entries(sortParams)) {
-            const aValue = a[field];
-            const bValue = b[field];
-      
-            if (typeof aValue !== typeof bValue) {
-              return typeof aValue > typeof bValue ? 1 : -1;
+
+        const sortedStocks = [...stocks].sort((a, b) => {
+            for (const [field, direction] of Object.entries(sortParams)) {
+                const aValue = a[field];
+                const bValue = b[field];
+
+                if (typeof aValue !== typeof bValue) {
+                    return typeof aValue > typeof bValue ? 1 : -1;
+                }
+
+                if (field === 'stockName') {
+                    const compareResult = aValue.localeCompare(bValue);
+                    if (compareResult !== 0) {
+                        return direction === 'asc'
+                            ? -compareResult
+                            : compareResult;
+                    }
+                } else {
+                    if (aValue === null && bValue !== null) {
+                        return direction.nullsLast ? 1 : -1;
+                    }
+                    if (aValue !== null && bValue === null) {
+                        return direction.nullsLast ? -1 : 1;
+                    }
+                    if (aValue !== null && bValue !== null) {
+                        const compareResult = aValue - bValue;
+                        if (compareResult !== 0) {
+                            return direction === 'asc'
+                                ? compareResult
+                                : -compareResult;
+                        }
+                    }
+                }
             }
-      
-            const compareResult = aValue - bValue;
-      
-            if (compareResult !== 0) {
-              return direction === "asc" ? compareResult : -compareResult;
-            }
-          }
-      
-          return 0;
+
+            return 0;
         });
-      
+
         return sortedStocks;
-      }
-      
-      
+    }
 
     //page-filter-search-sort
     manipulationChaining(stocks, options) {
@@ -125,8 +144,7 @@ class StockExtensions {
             pageNumber = 1,
             pageSize = 50,
             searchTerm = '',
-            orderByQueryString = 'stockName desc',
-            dynamicSorting=false,
+            orderByQueryString = 'stockName asc',
             minGrahamNumber = -Infinity,
             maxGrahamNumber = Infinity,
             minPriceToEarningRate = -Infinity,
@@ -157,7 +175,7 @@ class StockExtensions {
             maxReturnOnEquity,
         });
         const searched = this.search(filtered, searchTerm);
-        const sorted = dynamicSorting ? this.sort(searched, orderByQueryString) : searched;
+        const sorted = this.sort(searched, orderByQueryString);
         return sorted;
     }
 }
