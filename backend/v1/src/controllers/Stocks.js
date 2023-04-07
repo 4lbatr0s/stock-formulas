@@ -100,6 +100,7 @@ class StockController {
     async getRates(req, res, next) {
         try {
             const result = await StockService.getRates(req);
+            res.set('X-Pagination', JSON.stringify(result.MetaData));
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));

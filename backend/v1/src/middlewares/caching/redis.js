@@ -11,6 +11,7 @@ async function cacheData(req,res,next){
         const options = RequestHelper.setOptions(req);
         const sortedStocks = await CachingHelper.getStockSortings(options);
         if(sortedStocks && sortedStocks !==''){
+            res.set('X-Pagination', JSON.stringify(sortedStocks.MetaData));
             return res.status(httpStatus.OK).send({
                 fromCache:true,
                 data:sortedStocks
