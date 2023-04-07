@@ -153,29 +153,31 @@ class StockHelper {
     }
 
     getAskedPropertiesFromJson(jsonSource, destination) {
+        const symbolMap = new Map();
         const updatedJsonArray = [];
-        const result = jsonSource.map((json) => {
-            const newObj = {};
-            newObj.debtToEquity = json.debtToEquity.raw;
-            newObj.returnOnEquity = json.returnOnEquity.raw;
-            newObj.ebitda = json.ebitda.raw;
-            newObj.symbol= json.symbol;
-            return newObj;
-        });
-
-        for(let json of result){
-            for(let obj of destination){
-                if(json.symbol === obj.stockName){
-                    obj = {...obj, ...json};
-                    delete obj.symbol;
-                    updatedJsonArray.push(obj);
-                }
-            }
+      
+        // Create a map of symbols to objects from the jsonSource array
+        for (const json of jsonSource) {
+          symbolMap.set(json.symbol, {
+            debtToEquity: json.debtToEquity.raw,
+            returnOnEquity: json.returnOnEquity.raw,
+            ebitda: json.ebitda.raw,
+          });
         }
+      
+        // Iterate through the destination array and add properties to matching objects
+        for (const obj of destination) {
+          const symbolObj = symbolMap.get(obj.stockName);
+          if (symbolObj) {
+            const updatedObj = {...obj, ...symbolObj};
+            delete updatedObj.symbol;
+            updatedJsonArray.push(updatedObj);
+          }
+        }
+      
         return updatedJsonArray;
-
-    }
-
+      }
+      
     /**
      *
      * @param {Array} stockValues stock values we get from api
