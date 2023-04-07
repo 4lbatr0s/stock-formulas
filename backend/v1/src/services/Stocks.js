@@ -26,7 +26,9 @@ class StockService extends BaseService {
 
     async getSingleStockInfoFromYahoo(symbol) {
         try {
-            const result = await ApiHelper.getStockInfoAsync(UrlHelper.getYahooBatchUrl(symbol));
+            const result = await ApiHelper.getStockInfoAsync(
+                UrlHelper.getYahooBatchUrl(symbol)
+            );
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));
@@ -79,8 +81,14 @@ class StockService extends BaseService {
             const result = responses
                 .map((res) => res.quoteResponse.result)
                 .flat();
-            const calculations = CalculationService.getCalculatedValuesPerEveryStock(result);
-            await redisClient.set(Caching.UNSORTED_STOCKS, JSON.stringify(calculations), 'EX', 15);
+            const calculations =
+                CalculationService.getCalculatedValuesPerEveryStock(result);
+            await redisClient.set(
+                Caching.UNSORTED_STOCKS,
+                JSON.stringify(calculations),
+                'EX',
+                15
+            );
             await redisClient.set(
                 Caching.SP_500,
                 JSON.stringify(result),
@@ -95,7 +103,6 @@ class StockService extends BaseService {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
-
 
     async getBIST100Concurrent() {
         const symbols = await redisClient.get(Caching.SYMBOLS.BISTHUND);
@@ -169,7 +176,7 @@ class StockService extends BaseService {
             sortedStock.debtToEquities = debtToEquities;
             sortedStock.returnOnEquityRates = returnOnEquities;
             sortedStock.ebitdaValues = ebitdaValues;
-            redisClient.set(Caching.SORTED_STOCKS, JSON.stringify(sortedStock));
+            await redisClient.set(Caching.SORTED_STOCKS, JSON.stringify(sortedStock));
             console.log(result);
             return result;
         } catch (error) {
@@ -189,9 +196,15 @@ class StockService extends BaseService {
                 Caching.UNSORTED_STOCKS
             );
             //parse stocks.
-            const sortedStock = JSON.parse(unsortedStocks);
-            
-            redisClient.set(Caching.UNSORTED_STOCKS, JSON.stringify(sortedStock));
+            const parsedUnsortedStocks = JSON.parse(unsortedStocks);
+            const updatedUnsortedStocks = StockHelper.getAskedPropertiesFromJson(
+                results,
+                parsedUnsortedStocks,
+            );
+            await redisClient.set(
+                Caching.UNSORTED_STOCKS,
+                JSON.stringify(updatedUnsortedStocks)
+            );
             console.log(results);
             return results;
         } catch (error) {
@@ -203,10 +216,19 @@ class StockService extends BaseService {
         try {
             await this.getSP500Concurrent();
             await this.getMultipleStockInformationWithPromiseAll();
-            const requestedRates = JSON.parse(await redisClient.get(Caching.UNSORTED_STOCKS));
+            const requestedRates = JSON.parse(
+                await redisClient.get(Caching.UNSORTED_STOCKS)
+            );
             const options = RequestHelper.setOptions(req);
-            const responseManipulation = StockExtensions.manipulationChaining(requestedRates,options);
-            const paginatedResult = PagedList.ToPagedList(responseManipulation, req?.query.pageNumber, req?.query.pageSize)
+            const responseManipulation = StockExtensions.manipulationChaining(
+                requestedRates,
+                options
+            );
+            const paginatedResult = PagedList.ToPagedList(
+                responseManipulation,
+                req?.query.pageNumber,
+                req?.query.pageSize
+            );
             return {
                 fromCache: false,
                 data: paginatedResult,

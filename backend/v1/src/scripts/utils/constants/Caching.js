@@ -11,7 +11,8 @@ const Caching={
                 RETURN_ON_EQUITY_RATES: 'returnOnEquityRates',
                 PRICE_TO_SALES_RATES: 'priceToSalesRates',
                 DEBT_TO_EQUITY_RATES: 'debtToEquities',
-                EBITDA:"ebitdaValues"
+                EBITDA:"ebitdaValues",
+                SYMBOL:"symbol"
         },
         SYMBOLS:{
                 SPFH:'SPFH',

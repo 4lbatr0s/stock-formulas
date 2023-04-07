@@ -133,20 +133,6 @@ class StockHelper {
      * @param {Array} debtToEquities debt/equity value per stock we calculate.
      */
     sortStocksByDebtToEquities(stockValues) {
-        // const filteredStockValues = stockValues.map((stockJson) => {
-        //     if (!stockJson?.debtToEquity) {
-        //         stockJson.debtToEquity = {
-        //             raw: this.defaultPositive,
-        //         };
-        //     }
-        //     return stockJson;
-        // });
-
-        // const sortedStockValues = filteredStockValues.sort(
-        //     (a, b) => a.debtToEquity.raw - b.debtToEquity.raw
-        // );
-
-        // return sortedStockValues;
         const debtToEquitiesStocks = [...stockValues];
         const result = this.sortStockValues(
             debtToEquitiesStocks,
@@ -166,24 +152,28 @@ class StockHelper {
         );
     }
 
-    getAskedPropertiesFromJson(jsonSource, destination, ...properties) {
+    getAskedPropertiesFromJson(jsonSource, destination) {
+        const updatedJsonArray = [];
         const result = jsonSource.map((json) => {
             const newObj = {};
-            for (const prop of properties) {
-                newObj[prop] = json[prop];
-            }
+            newObj.debtToEquity = json.debtToEquity.raw;
+            newObj.returnOnEquity = json.returnOnEquity.raw;
+            newObj.ebitda = json.ebitda.raw;
+            newObj.symbol= json.symbol;
             return newObj;
         });
 
-        const destMap = new Map(destination.map((obj) => [obj.stockName, obj]));
-        for (const res of result) {
-            const dest = destMap.get(res.symbol);
-            if (dest) {
-                Object.assign(dest, res);
-                delete dest.symbol;
+        for(let json of result){
+            for(let obj of destination){
+                if(json.symbol === obj.stockName){
+                    obj = {...obj, ...json};
+                    delete obj.symbol;
+                    updatedJsonArray.push(obj);
+                }
             }
         }
-        
+        return updatedJsonArray;
+
     }
 
     /**
