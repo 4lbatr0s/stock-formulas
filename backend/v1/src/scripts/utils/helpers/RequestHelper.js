@@ -6,7 +6,7 @@ class RequestHelper{
             pageSize:req?.query.pageSize,
             searchTerm:req?.query.searchTerm,
             sortBy:req?.query.sortBy,
-            dynamicSorting:false,
+            dynamicSorting:req.query.dynamicSorting,
             minGrahamNumber: req?.query.minGrahamNumber,
             maxGrahamNumber:req?.query.maxGrahamNumber,
             minPriceToEarningRate: req?.query.minPriceToEarningRate,

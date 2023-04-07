@@ -86,42 +86,38 @@ class StockExtensions {
 
     sort(stocks, orderByQueryString) {
         if (!orderByQueryString) {
-            return stocks.sort((a, b) =>
-                a.stockName.localeCompare(b.stockName)
-            );
+          return stocks.sort((a, b) => a.stockName.localeCompare(b.stockName));
         }
-
+      
         const sortParams = this.createOrderObject(orderByQueryString);
-
+      
         if (Object.keys(sortParams).length === 0) {
-            return stocks.sort((a, b) =>
-                a.stockName.localeCompare(b.stockName)
-            );
+          return stocks.sort((a, b) => a.stockName.localeCompare(b.stockName));
         }
-
+      
         const sortedStocks = stocks.sort((a, b) => {
-            for (const [field, direction] of Object.entries(sortParams)) {
-                const aValue = a[field];
-                const bValue = b[field];
-
-                if (typeof aValue !== typeof bValue) {
-                    return typeof aValue > typeof bValue ? 1 : -1;
-                }
-
-                const compareResult = (
-                    typeof aValue === 'string' ? aValue : ''
-                ).localeCompare(bValue);
-
-                if (compareResult !== 0) {
-                    return direction === 'asc' ? -compareResult : compareResult;
-                }
+          for (const [field, direction] of Object.entries(sortParams)) {
+            const aValue = a[field];
+            const bValue = b[field];
+      
+            if (typeof aValue !== typeof bValue) {
+              return typeof aValue > typeof bValue ? 1 : -1;
             }
-
-            return 0;
+      
+            const compareResult = aValue - bValue;
+      
+            if (compareResult !== 0) {
+              return direction === "asc" ? compareResult : -compareResult;
+            }
+          }
+      
+          return 0;
         });
-
+      
         return sortedStocks;
-    }
+      }
+      
+      
 
     //page-filter-search-sort
     manipulationChaining(stocks, options) {
