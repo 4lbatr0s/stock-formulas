@@ -7,10 +7,9 @@ import StockExtensions from "../../services/extensions/StockExtensions.js";
 import RequestHelper from "../../scripts/utils/helpers/RequestHelper.js";
 
 async function cacheData(req,res,next){
-    let rateType = req.query?.rateType || Caching.PARAMETERS;
      try {
         const options = RequestHelper.setOptions(req);
-        const sortedStocks = await CachingHelper.getStockSortings(rateType, options);
+        const sortedStocks = await CachingHelper.getStockSortings(options);
         if(sortedStocks && sortedStocks !==''){
             return res.status(httpStatus.OK).send({
                 fromCache:true,

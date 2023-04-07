@@ -5,7 +5,7 @@ class RequestHelper{
             pageNumber:req?.query.pageNumber, 
             pageSize:req?.query.pageSize,
             searchTerm:req?.query.searchTerm,
-            sortBy:req?.query.sortBy,
+            orderByQueryString:req?.query.sortBy,
             dynamicSorting:req.query.dynamicSorting,
             minGrahamNumber: req?.query.minGrahamNumber,
             maxGrahamNumber:req?.query.maxGrahamNumber,
