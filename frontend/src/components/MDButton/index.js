@@ -21,12 +21,11 @@ import PropTypes from "prop-types";
 // Custom styles for MDButton
 import MDButtonRoot from "components/MDButton/MDButtonRoot";
 
-// Material Dashboard 2 React contexts
-import { useMaterialUIController } from "context";
+import { useSelector } from "react-redux";
 
 const MDButton = forwardRef(
   ({ color, variant, size, circular, iconOnly, children, ...rest }, ref) => {
-    const [controller] = useMaterialUIController();
+    const controller = useSelector(state=> state.materialUI);
     const { darkMode } = controller;
 
     return (

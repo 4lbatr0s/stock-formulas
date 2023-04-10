@@ -47,15 +47,16 @@ import {
 
 // Material Dashboard 2 React context
 import {
-  useMaterialUIController,
   setTransparentNavbar,
   setMiniSidenav,
   setOpenConfigurator,
-} from "context";
+} from "redux/materialUISlice.js";
+import { useDispatch, useSelector } from "react-redux";
 
 function DashboardNavbar({ absolute, light, isMini }) {
+  const dispatch = useDispatch();
   const [navbarType, setNavbarType] = useState();
-  const [controller, dispatch] = useMaterialUIController();
+  const controller = useSelector(state=> state.materialUI);
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);

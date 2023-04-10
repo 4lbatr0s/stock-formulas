@@ -39,17 +39,19 @@ import ConfiguratorRoot from "examples/Configurator/ConfiguratorRoot";
 
 // Material Dashboard 2 React context
 import {
-  useMaterialUIController,
   setOpenConfigurator,
   setTransparentSidenav,
   setWhiteSidenav,
   setFixedNavbar,
   setSidenavColor,
   setDarkMode,
-} from "context";
+} from "redux/materialUISlice.js";
+
+import { useDispatch, useSelector } from "react-redux";
 
 function Configurator() {
-  const [controller, dispatch] = useMaterialUIController();
+  const dispatch = useDispatch();
+  const controller = useSelector(state=> state.materialUI);
   const {
     openConfigurator,
     fixedNavbar,

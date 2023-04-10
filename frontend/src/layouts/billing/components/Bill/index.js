@@ -23,12 +23,12 @@ import Icon from "@mui/material/Icon";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
+import { useSelector } from "react-redux";
 
 // Material Dashboard 2 React context
-import { useMaterialUIController } from "context";
 
 function Bill({ name, company, email, vat, noGutter }) {
-  const [controller] = useMaterialUIController();
+  const controller = useSelector(state=> state.materialUI);
   const { darkMode } = controller;
 
   return (

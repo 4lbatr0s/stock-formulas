@@ -41,14 +41,16 @@ import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
 
 // Material Dashboard 2 React context
 import {
-  useMaterialUIController,
   setMiniSidenav,
   setTransparentSidenav,
   setWhiteSidenav,
-} from "context";
+} from "redux/materialUISlice.js";
+import { useDispatch, useSelector } from "react-redux";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
-  const [controller, dispatch] = useMaterialUIController();
+  console.log(routes);
+  const dispatch = useDispatch();
+  const controller = useSelector(state=> state.materialUI);
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");

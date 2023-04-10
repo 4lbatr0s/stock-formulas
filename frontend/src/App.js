@@ -47,14 +47,16 @@ import createCache from "@emotion/cache";
 import routes from "routes";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
-
+import { setMiniSidenav, setOpenConfigurator } from "redux/materialUISlice";
 // Images
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function App() {
-  const [controller, dispatch] = useMaterialUIController();
+
+  const dispatch = useDispatch();
+  const controller = useSelector(state=> state.materialUI);
   const {
     miniSidenav,
     direction,

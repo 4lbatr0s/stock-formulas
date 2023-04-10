@@ -21,12 +21,12 @@ import Icon from "@mui/material/Icon";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
+import { useSelector } from "react-redux";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController } from "context";
 
 function DataTableHeadCell({ width, children, sorted, align, ...rest }) {
-  const [controller] = useMaterialUIController();
+  const controller = useSelector(state=> state.materialUI);
   const { darkMode } = controller;
 
   return (
