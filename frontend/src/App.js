@@ -47,7 +47,7 @@ import createCache from "@emotion/cache";
 import routes from "routes";
 
 // Material Dashboard 2 React contexts
-import { setMiniSidenav, setOpenConfigurator } from "redux/materialUISlice";
+import { setMiniSidenavCall, setOpenConfiguratorCall } from "redux/apiCalls/materialUISlice.js";
 // Images
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
@@ -84,7 +84,7 @@ export default function App() {
   // Open sidenav when mouse enter on mini sidenav
   const handleOnMouseEnter = () => {
     if (miniSidenav && !onMouseEnter) {
-      setMiniSidenav(dispatch, false);
+      setMiniSidenavCall(dispatch, false);
       setOnMouseEnter(true);
     }
   };
@@ -92,7 +92,7 @@ export default function App() {
   // Close sidenav when mouse leave mini sidenav
   const handleOnMouseLeave = () => {
     if (onMouseEnter) {
-      setMiniSidenav(dispatch, true);
+      setMiniSidenavCall(dispatch, true);
       setOnMouseEnter(false);
     }
   };
@@ -103,7 +103,7 @@ export default function App() {
   }, [miniSidenav, onMouseEnter]);
 
   // Change the openConfigurator state
-  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
+  const handleConfiguratorOpen = () => setOpenConfiguratorCall(dispatch, !openConfigurator);
 
   // Setting the dir attribute for the body element
   useEffect(() => {

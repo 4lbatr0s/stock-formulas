@@ -47,10 +47,10 @@ import {
 
 // Material Dashboard 2 React context
 import {
-  setTransparentNavbar,
-  setMiniSidenav,
-  setOpenConfigurator,
-} from "redux/materialUISlice.js";
+  setTransparentNavbarCall,
+  setMiniSidenavCall,
+  setOpenConfiguratorCall,
+} from "redux/apiCalls/materialUISlice.js";
 import { useDispatch, useSelector } from "react-redux";
 
 function DashboardNavbar({ absolute, light, isMini }) {
@@ -60,6 +60,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+
+  console.log('transparentNavbar:',transparentNavbar);
 
   useEffect(() => {
     // Setting the navbar type
@@ -71,7 +73,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
 
     // A function that sets the transparent state of the navbar.
     function handleTransparentNavbar() {
-      setTransparentNavbar(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);
+      setTransparentNavbarCall(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);
     }
 
     /** 
@@ -87,8 +89,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
     return () => window.removeEventListener("scroll", handleTransparentNavbar);
   }, [dispatch, fixedNavbar]);
 
-  const handleMiniSidenav = () => setMiniSidenav(dispatch, !miniSidenav);
-  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
+  const handleMiniSidenav = () => setMiniSidenavCall(dispatch, !miniSidenav);
+  const handleConfiguratorOpen = () => setOpenConfiguratorCall(dispatch, !openConfigurator);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
 
