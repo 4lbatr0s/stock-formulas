@@ -82,61 +82,126 @@ class StockExtensions {
         }
         return sortParams;
     }
- 
-    sort(stocks, orderByQueryString) {
-        if (!orderByQueryString) {
-            return [...stocks].sort((a, b) =>
-                a.stockName.localeCompare(b.stockName)
-            );
-        }
 
-        const sortParams = this.createOrderObject(orderByQueryString);
+  sort(stocks, orderByQueryString) {
+  if (!orderByQueryString) {
+    return [...stocks].sort((a, b) =>
+      a.stockName.localeCompare(b.stockName)
+    );
+  }
 
-        if (Object.keys(sortParams).length === 0) {
-            return [...stocks].sort((a, b) =>
-                a.stockName.localeCompare(b.stockName)
-            );
-        }
+  const sortParams = this.createOrderObject(orderByQueryString);
 
-        const sortedStocks = [...stocks].sort((a, b) => {
-            for (const [field, direction] of Object.entries(sortParams)) {
-                const aValue = a[field];
-                const bValue = b[field];
-
-                if (typeof aValue !== typeof bValue) {
-                    return typeof aValue > typeof bValue ? 1 : -1;
-                }
-
-                if (field === 'stockName') {
-                    const compareResult = aValue.localeCompare(bValue);
-                    if (compareResult !== 0) {
-                        return direction === 'asc'
-                            ? -compareResult
-                            : compareResult;
-                    }
-                } else {
-                    if (aValue === null && bValue !== null) {
-                        return direction.nullsLast ? 1 : -1;
-                    }
-                    if (aValue !== null && bValue === null) {
-                        return direction.nullsLast ? -1 : 1;
-                    }
-                    if (aValue !== null && bValue !== null) {
-                        const compareResult = aValue - bValue;
-                        if (compareResult !== 0) {
-                            return direction === 'asc'
-                                ? compareResult
-                                : -compareResult;
-                        }
-                    }
-                }
-            }
-
-            return 0;
-        });
-
-        return sortedStocks;
+  if (Object.keys(sortParams).length === 0) {
+    // If no sorting parameters provided, sort by grahamNumber in ascending order by default
+    sortParams['grahamNumber'] = {
+      direction: 'asc',
+      nullsLast: true
     }
+  }
+
+  const sortedStocks = [...stocks].sort((a, b) => {
+    for (const [field, direction] of Object.entries(sortParams)) {
+      const aValue = a[field];
+      const bValue = b[field];
+
+      if (typeof aValue !== typeof bValue) {
+        return typeof aValue > typeof bValue ? 1 : -1;
+      }
+
+      if (field === 'stockName') {
+        const compareResult = aValue.localeCompare(bValue);
+        if (compareResult !== 0) {
+          return direction === 'desc'
+            ? -compareResult
+            : compareResult;
+        }
+      } else {
+        if (aValue === null && bValue !== null) {
+          return direction.nullsLast ? 1 : -1;
+        }
+        if (aValue !== null && bValue === null) {
+          return direction.nullsLast ? -1 : 1;
+        }
+        if (aValue !== null && bValue !== null) {
+          const compareResult = aValue - bValue;
+          if (compareResult !== 0) {
+            return direction === 'desc'
+              ? compareResult
+              : -compareResult;
+          }
+        }
+      }
+    }
+
+    return 0;
+  });
+
+  if(orderByQueryString==="grahamNumber"){
+    const notNullGrahamNumberArr = sortedStocks.filter(item => item.grahamNumber !== null);
+    const reversedNotNullGrahamNumberArr = notNullGrahamNumberArr.reverse();
+    const result = sortedStocks.map(item => item.grahamNumber === null ? item : reversedNotNullGrahamNumberArr.shift());
+    return result;
+  } 
+  return sortedStocks;
+  
+}
+
+      
+    
+    // sort(stocks, orderByQueryString) {
+    //     if (!orderByQueryString) {
+    //         return [...stocks].sort((a, b) =>
+    //             a.stockName.localeCompare(b.stockName)
+    //         );
+    //     }
+
+    //     const sortParams = this.createOrderObject(orderByQueryString);
+
+    //     if (Object.keys(sortParams).length === 0) {
+    //         return [...stocks].sort((a, b) =>
+    //             a.stockName.localeCompare(b.stockName)
+    //         );
+    //     } 
+    //     const sortedStocks = [...stocks].sort((a, b) => {
+    //         for (const [field, direction] of Object.entries(sortParams)) {
+    //             const aValue = a[field];
+    //             const bValue = b[field];
+
+    //             if (typeof aValue !== typeof bValue) {
+    //                 return typeof aValue > typeof bValue ? 1 : -1;
+    //             }
+
+    //             if (field === 'stockName') {
+    //                 const compareResult = aValue.localeCompare(bValue);
+    //                 if (compareResult !== 0) {
+    //                     return direction === 'desc'
+    //                         ? -compareResult
+    //                         : compareResult;
+    //                 }
+    //             } else {
+    //                 if (aValue === null && bValue !== null) {
+    //                     return direction.nullsLast ? 1 : -1;
+    //                 }
+    //                 if (aValue !== null && bValue === null) {
+    //                     return direction.nullsLast ? -1 : 1;
+    //                 }
+    //                 if (aValue !== null && bValue !== null) {
+    //                     const compareResult = aValue - bValue;
+    //                     if (compareResult !== 0) {
+    //                         return direction === 'desc'
+    //                             ? compareResult
+    //                             : -compareResult;
+    //                     }
+    //                 }
+    //             }
+    //         }
+
+    //         return 0;
+    //     });
+
+    //     return sortedStocks;
+    // }
 
     //page-filter-search-sort
     manipulationChaining(stocks, options) {

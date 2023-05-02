@@ -167,14 +167,19 @@ class StockHelper {
       
         // Iterate through the destination array and add properties to matching objects
         for (const obj of destination) {
-          const symbolObj = symbolMap.get(obj.stockName);
-          if (symbolObj) {
-            const updatedObj = {...obj, ...symbolObj};
-            delete updatedObj.symbol;
-            updatedJsonArray.push(updatedObj);
+            const symbolObj = symbolMap.get(obj.stockName);
+            if (symbolObj) {
+              const updatedObj = {
+                ...obj, 
+                debtToEquity: symbolObj.debtToEquity || null,
+                ebitda: symbolObj.ebitda || null,
+                returnOnEquity: symbolObj.returnOnEquity || null
+              };
+              delete updatedObj.symbol;
+              updatedJsonArray.push(updatedObj);
+            }
           }
-        }
-      
+          
         return updatedJsonArray;
       }
       

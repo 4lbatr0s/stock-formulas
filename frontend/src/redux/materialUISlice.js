@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   miniSidenav: false,
-  transparentSidenav: false,
+  transparentSidenav: true,
   whiteSidenav: false,  
   sidenavColor: "info",
   transparentNavbar: true,

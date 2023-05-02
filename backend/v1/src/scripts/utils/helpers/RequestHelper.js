@@ -20,7 +20,7 @@ class RequestHelper{
             minReturnOnEquity: req?.query.minReturnOnEquity,
             maxReturnOnEquity:req?.query.maxReturnOnEquity,
         }
-        return options;
+        return options;   
     }
 }
 

@@ -57,9 +57,9 @@ class Calculations {
         const calculatedStocks = [];
         for (let i = 0; i < stockJsonArray.length; i++) {
             const element = stockJsonArray[i];
-            const priceToBookRate = CalculationHelper.priceToBookRate(element);
-            const priceToEarningRate = CalculationHelper.priceToEarningRate(element);
-            const grahamNumber = CalculationHelper.grahamNumber(element);
+            const priceToBookRate = Number(CalculationHelper.priceToBookRate(element).toFixed(3));
+            const priceToEarningRate = Number(CalculationHelper.priceToEarningRate(element).toFixed(3));
+            const grahamNumber = Number(CalculationHelper.grahamNumber(element).toFixed(3));
             const stockName = element?.symbol;
             calculatedStocks.push({
                 stockName:stockName,
