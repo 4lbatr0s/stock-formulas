@@ -41,14 +41,16 @@ import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
 
 // Material Dashboard 2 React context
 import {
-  useMaterialUIController,
-  setMiniSidenav,
-  setTransparentSidenav,
-  setWhiteSidenav,
-} from "context";
+  setMiniSidenavCall,
+  setTransparentSidenavCall,
+  setWhiteSidenavCall,
+} from "redux/apiCalls/materialUISlice.js";
+import { useDispatch, useSelector } from "react-redux";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
-  const [controller, dispatch] = useMaterialUIController();
+  console.log(routes);
+  const dispatch = useDispatch();
+  const controller = useSelector(state=> state.materialUI);
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
@@ -61,14 +63,14 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     textColor = "inherit";
   }
 
-  const closeSidenav = () => setMiniSidenav(dispatch, true);
+  const closeSidenav = () => setMiniSidenavCall(dispatch, true);
 
   useEffect(() => {
     // A function that sets the mini state of the sidenav.
     function handleMiniSidenav() {
-      setMiniSidenav(dispatch, window.innerWidth < 1200);
-      setTransparentSidenav(dispatch, window.innerWidth < 1200 ? false : transparentSidenav);
-      setWhiteSidenav(dispatch, window.innerWidth < 1200 ? false : whiteSidenav);
+      setMiniSidenavCall(dispatch, window.innerWidth < 1200);
+      setTransparentSidenavCall(dispatch, window.innerWidth < 1200 ? false : transparentSidenav);
+      setWhiteSidenavCall(dispatch, window.innerWidth < 1200 ? false : whiteSidenav);
     }
 
     /** 

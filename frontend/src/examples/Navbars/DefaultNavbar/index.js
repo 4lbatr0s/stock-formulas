@@ -36,12 +36,12 @@ import DefaultNavbarMobile from "examples/Navbars/DefaultNavbar/DefaultNavbarMob
 
 // Material Dashboard 2 React base styles
 import breakpoints from "assets/theme/base/breakpoints";
+import { useSelector } from "react-redux";
 
 // Material Dashboard 2 React context
-import { useMaterialUIController } from "context";
 
 function DefaultNavbar({ transparent, light, action }) {
-  const [controller] = useMaterialUIController();
+  const controller = useSelector(state=> state.materialUI);
   const { darkMode } = controller;
 
   const [mobileNavbar, setMobileNavbar] = useState(false);

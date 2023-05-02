@@ -13,9 +13,9 @@ router.get("/multiple/finnhub/:stockSymbol", apiKeySetter, StocksController.getM
 router.get("/multiple/sp500", StocksController.getSP500);
 router.get("/multiple/sp500-concurrent", redisCaching, StocksController.getSP500Concurrent);
 router.get("/multiple/bist100-concurrent", redisCaching, StocksController.getBIST100Concurrent);
-router.get("/multiple/rates/", redisCaching, StocksController.getRates);
+router.get("/multiple/rates", redisCaching, StocksController.getRates);
 router.get("/multiple/message-broker", StocksController.messageBroker);
-router.get("/denemecigeldi", redisCaching, StocksController.getFinancialDatasWithPromisAll);
+router.get("/multiple/financial-data", redisCaching, StocksController.getFinancialDatasWithPromisAll);
 router.get("/bring-sp500-symbols", StocksController.scrapSP500Symbols);
 router.get("/bring-bist100-symbols", StocksController.scrapBIST100Symbols);
 

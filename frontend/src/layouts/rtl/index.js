@@ -38,17 +38,17 @@ import Projects from "layouts/rtl/components/Projects";
 import OrdersOverview from "layouts/rtl/components/OrdersOverview";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, setDirection } from "context";
+import { useSelector, useDispatch} from "react-redux";
+import { setDirectionCall } from "redux/apiCalls/materialUISlice";
 
 function RTL() {
-  const [, dispatch] = useMaterialUIController();
+  const dispatch = useDispatch();
+  const controller = useSelector(state=> state.materialUI);
   const { sales, tasks } = reportsLineChartData;
 
   // Changing the direction to rtl
   useEffect(() => {
-    setDirection(dispatch, "rtl");
-
-    return () => setDirection(dispatch, "ltr");
+    return () => setDirectionCall(dispatch, "ltr");
   }, []);
 
   return (

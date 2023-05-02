@@ -25,14 +25,17 @@ import PropTypes from "prop-types";
 import MDBox from "components/MDBox";
 
 // Material Dashboard 2 React context
-import { useMaterialUIController, setLayout } from "context";
+import { setLayoutCall } from "redux/apiCalls/materialUISlice.js";
+
+import { useSelector, useDispatch} from "react-redux";
 
 function PageLayout({ background, children }) {
-  const [, dispatch] = useMaterialUIController();
+  const dispatch = useDispatch();
+  const controller = useSelector(state=> state.materialUI);
   const { pathname } = useLocation();
 
   useEffect(() => {
-    setLayout(dispatch, "page");
+    setLayoutCall(dispatch, "page");
   }, [pathname]);
 
   return (

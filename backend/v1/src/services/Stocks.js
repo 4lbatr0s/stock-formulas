@@ -13,6 +13,7 @@ import ScriptHelper from '../scripts/utils/helper.js';
 import PagedList from '../models/shared/RequestFeatures/PagedList.js';
 import StockExtensions from './extensions/StockExtensions.js';
 import RequestHelper from '../scripts/utils/helpers/RequestHelper.js';
+import CalculationHelper from '../scripts/utils/helpers/CalculationHelper.js';
 
 class StockService extends BaseService {
     async getStockInfo(symbol) {
@@ -201,9 +202,10 @@ class StockService extends BaseService {
                 results,
                 parsedUnsortedStocks,
             );
+            const updatedUnsortedStocksWithOverallStockScores = CalculationHelper.allOverallValues(updatedUnsortedStocks);
             await redisClient.set(
                 Caching.UNSORTED_STOCKS,
-                JSON.stringify(updatedUnsortedStocks)
+                JSON.stringify(updatedUnsortedStocksWithOverallStockScores)
             );
             console.log(results);
             return results;
@@ -258,3 +260,7 @@ class StockService extends BaseService {
 }
 
 export default new StockService();
+
+
+
+

@@ -38,25 +38,12 @@ function SimpleBlogCard({ image, title, description, action }) {
           alt={title}
           borderRadius="lg"
           shadow="md"
-          width="100%"
-          height="100%"
-          position="relative"
-          zIndex={1}
-        />
-        <MDBox
-          borderRadius="lg"
-          shadow="md"
-          width="100%"
-          height="100%"
+          width="25%" // set the width to 25%
+          height="100%" // set the height to 100%
           position="absolute"
-          left={0}
-          top="3%"
-          sx={{
-            backgroundImage: `url(${image})`,
-            transform: "scale(0.94)",
-            filter: "blur(12px)",
-            backgroundSize: "cover",
-          }}
+          left={0} // adjust the left position
+          top={0} // adjust the top position
+          zIndex={1}
         />
       </MDBox>
       <MDBox p={3}>

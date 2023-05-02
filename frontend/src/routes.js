@@ -47,7 +47,8 @@ import SignUp from "layouts/authentication/sign-up";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
-
+import { ShowChart } from "@mui/icons-material";
+import StockTables from "layouts/stocks";
 const routes = [
   {
     type: "collapse",
@@ -113,6 +114,16 @@ const routes = [
     route: "/authentication/sign-up",
     component: <SignUp />,
   },
+
+  {
+    type: "collapse",
+    name: "Stocks",
+    key: "stocks",
+    icon: <Icon fontSize="small"><ShowChart/></Icon>,
+    route: "/stocks",
+    component: <StockTables />,
+  },
+
 ];
 
 export default routes;
