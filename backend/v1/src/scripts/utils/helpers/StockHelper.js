@@ -162,6 +162,7 @@ class StockHelper {
             debtToEquity: json.debtToEquity.raw,
             returnOnEquity: json.returnOnEquity.raw,
             ebitda: json.ebitda.raw,
+            totalRevenue: json.totalRevenue.raw,
           });
         }
       
@@ -171,9 +172,10 @@ class StockHelper {
             if (symbolObj) {
               const updatedObj = {
                 ...obj, 
-                debtToEquity: symbolObj.debtToEquity || null,
-                ebitda: symbolObj.ebitda || null,
-                returnOnEquity: symbolObj.returnOnEquity || null
+                debtToEquity: Number(symbolObj.debtToEquity).toFixed(3) || null,
+                ebitda: Number(symbolObj.ebitda) || null,
+                returnOnEquity: Number(symbolObj.returnOnEquity).toFixed(3) || null,
+                totalRevenue: Number(symbolObj.totalRevenue) || null
               };
               delete updatedObj.symbol;
               updatedJsonArray.push(updatedObj);
@@ -182,6 +184,26 @@ class StockHelper {
           
         return updatedJsonArray;
       }
+
+      getAskPropertiesFromYfinance(jsonSource){
+        const filteredArray = jsonSource.map(json=> {
+            return {
+                name: json.shortName,
+                symbol:json.underlyingSymbol,
+                priceToBookRate: parseFloat(Number(json.priceToBook).toFixed(3)),
+                priceToEarningRate: parseFloat(Number(json.trailingPE)),
+                grahamNumber: parseFloat(Number(Math.sqrt(
+                    json.trailingEps * json.bookValue * 22.5
+                )).toFixed(3)),
+                debtToEquities: parseFloat(Number(json.debtToEquity).toFixed(3)),
+                returnOnEquity: parseFloat(Number(json.returnOnEquity).toFixed(3)),
+                ebitda: parseFloat(Number(json.ebitda)),
+                ebitdaMargins: parseFloat(Number(json.ebitdaMargins).toFixed(3)),
+            }
+        });
+        return filteredArray;
+    }
+    
       
     /**
      *

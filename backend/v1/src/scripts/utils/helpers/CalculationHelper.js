@@ -79,35 +79,51 @@ class CalculationHelper {
      * @returns calculated overall value for a stock object.
      */
     calculateOverallScorePerStock(stock) {
-        const { priceToBookRate, priceToEarningRate, grahamNumber, debtToEquity, ebitda, returnOnEquity } = stock;
-        console.log("stock:",stock);
-        const grahamWeight = 0.1;
-        const pbrWeight = 0.2;
-        const perWeight = 0.2;
-        const dteWeight = 0.15;
-        const ebitdaWeight = 0.25;
-        const roeWeight = 0.1;
-        
-        const grahamScore = grahamNumber ?  1 / grahamNumber : 0;
-        const pbrScore = priceToBookRate ? 1 / priceToBookRate : 0;
-        const perScore = priceToEarningRate ? 1 / priceToEarningRate : 0;
-        const dteScore = debtToEquity ? 1/debtToEquity : 0;
-        const ebitdaScore = ebitda ? 1 / ebitda : 0;
-        const roeScore = returnOnEquity ? 1 / returnOnEquity : 0;
-        
-        const weightedScoresSum = 
-          grahamScore * grahamWeight +
-          pbrScore * pbrWeight +
-          perScore * perWeight +
-          dteScore * dteWeight +
-          ebitdaScore * ebitdaWeight +
-          roeScore * roeWeight;
-
-        console.log("weightedScoresSum:",weightedScoresSum);
-    
-        return weightedScoresSum;
+        let factors = [];
+        let weights = [];
+      
+        if (stock.priceToBookRate !== null) {
+          factors.push({ name: "Price-to-Book Ratio", value: 1 / stock.priceToBookRate });
+          weights.push(0.2);
+        }
+      
+        if (stock.priceToEarningRate !== null) {
+          factors.push({ name: "Price-to-Earning Ratio", value: stock.priceToEarningRate });
+          weights.push(0.2);
+        }
+      
+        if (stock.grahamNumber !== null) {
+          factors.push({ name: "Graham Number", value: 1 / stock.grahamNumber });
+          weights.push(0.15);
+        }
+      
+        if (stock.debtToEquity !== null) {
+          factors.push({ name: "Debt-to-Equity Ratio", value: 1 / stock.debtToEquity });
+          weights.push(0.15);
+        }
+      
+        if (stock.ebitdaMargins !== null) {
+          factors.push({ name: "EBITDA Margin", value:stock.ebitdaMargins });
+          weights.push(0.15);
+        }
+      
+        if (stock.returnOnEquity !== null) {
+          factors.push({ name: "Return on Equity", value: stock.returnOnEquity });
+          weights.push(0.15);
+        }
+      
+        let totalWeight = weights.reduce((acc, val) => acc + val, 0);
+        let weightedFactors = factors.map((factor, i) => factor.value * weights[i]);
+      
+        if (totalWeight === 0) {
+          return 0;
+        }
+      
+        let weightedSum = weightedFactors.filter(value=> !isNaN(value)).reduce((acc, val) => acc + val, 0);
+        const score = Number(weightedSum / totalWeight).toFixed(3);
+        return score;
       }
-       
+      
 
     /**
      * @param {Object} stockJson 
@@ -117,8 +133,7 @@ class CalculationHelper {
         for(let i=0; i<stockArray.length; i++){
             let stock = stockArray[i];
             const overallScore = this.calculateOverallScorePerStock(stock);
-            stock.overallScore = overallScore;
-            console.log("stock:", stock);
+            stock.overallScore = parseFloat(Number(overallScore).toFixed(3));
         }
     }
 }

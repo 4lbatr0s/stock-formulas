@@ -28,52 +28,89 @@ import Footer from 'examples/Footer';
 import DataTable from 'examples/Tables/DataTable';
 
 // Data
-import authorsTableData from 'layouts/tables/data/authorsTableData';
-import projectsTableData from 'layouts/tables/data/projectsTableData';
-import stocksTableData from 'layouts/tables/data/stocksTableData';
-import SimpleBlogCard from 'examples/Cards/BlogCards/SimpleBlogCard';
+import StocksTableData from 'layouts/tables/data/StocksTableData.js';
 import MarketNavigationCard from 'examples/Cards/CustomCards/MarketNavigationCard';
-import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
-import { getAllStocksStartCall } from 'redux/apiCalls/sp500Calls';
-import { bist100Dummy } from 'helpers/dummyData.js';
-import { getAllStocksSuccess } from 'redux/sp500Slice';
+import { getAllStocksCallSP500, getAllStocksCallBIST100 } from 'redux/apiCalls/stockCalls.js';
 
-function StockTables() {
+const StockTables = () => {
+
+    /**
+     * @useSelectors
+     */
+
+    const { sp500List, bist100List } = useSelector(state => ({
+        sp500List: state.stocks.stockListSP500,
+        bist100List: state.stocks.stockListBIST100
+    }));
+      
 
     /**
      * @useStates
      */
-    const [market, setMarket] = useState("sp500");
+    const [market, setMarket] = useState("SP500");
     const dispatch = useDispatch();
-    const stockListController = useSelector(state=> state.sp500);
-    useEffect(()=> {
-      const allStocksCall = async()=> {
-        await getAllStocksStartCall(dispatch);
-      };   
-      if(market==="sp500") {
-        allStocksCall();
-      } else {
-        getAllStocksSuccess(bist100Dummy); //fake data for now.
-      }
-      
-    },[])
+    const [dataFetched, setDataFetched] = useState(false);
+    const [columns, setColumns] = useState([]);
+    const [rows, setRows] = useState([]);
+    const [sortingValue, setSortingValue] = useState("");
 
-    useEffect(()=> {
-      console.log("stockListController:", stockListController?.stockList)
-    }, [stockListController?.stockList]);
-
-    const { columns, rows } = stocksTableData(market === "sp500" ? stockListController.stockList.data.data : bist100Dummy);
-
-
-    console.log(market);
 
     /**
      * @handlers
      */
 
- 
+    const fetchStockData = async () => {
+        if (market === 'SP500') {
+            await getAllStocksCallSP500(dispatch, sortingValue);
+        } else if (market === 'BIST100') {
+            await getAllStocksCallBIST100(dispatch, sortingValue);
+        }
+
+        setDataFetched(true);
+    };
+
+
+    const handleSortingValue = (value) => {
+        sortingValue && sortingValue === value ? setSortingValue('') : setSortingValue(value);
+    }
+
+
+    useEffect(()=> {
+        console.log("sortingValue:",sortingValue);
+    }, [sortingValue])
+
+
+    /**
+     * @useEffects
+     */
+
+    useEffect(() => {
+        fetchStockData();
+    }, [market, sortingValue]);
+
+    useEffect(()=> {
+        console.log(' stockListController.stockListSP500:',  sp500List);
+        console.log(' stockListController.stockListBIST100:',  bist100List);
+        console.log(' dataFetched:',  dataFetched);
+    }, [ sp500List, bist100List,dataFetched])
+
+    useEffect(() => {
+        if (dataFetched) {
+            const { columns, rows } = StocksTableData(
+                market === 'SP500' ? sp500List : bist100List
+                , handleSortingValue);
+            setColumns(columns);
+            setRows(rows);
+            console.log(market);
+            console.log('columns:', columns);
+            console.log('rows:', rows);
+        }
+    }, [dataFetched, market, sp500List, bist100List]);
+
+
+
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -87,11 +124,11 @@ function StockTables() {
                                 display="flex"
                                 justifyContent="center"
                             >
-                                <Grid item lg={3} onClick={()=>setMarket("bist100")}>
-                                    <MarketNavigationCard market={market} content="BIST100" imageUrl="https://upload.wikimedia.org/wikipedia/commons/b/bb/Turkey_flag_300.png"/>                                    
+                                <Grid item lg={3} onClick={() => setMarket("BIST100")}>
+                                    <MarketNavigationCard market={market} content="BIST100" imageUrl="https://upload.wikimedia.org/wikipedia/commons/b/bb/Turkey_flag_300.png" />
                                 </Grid>
-                                <Grid item lg={3} onClick={()=>setMarket("sp500")} >
-                                    <MarketNavigationCard market ={market} content="SP500" imageUrl="https://cdn.britannica.com/79/4479-050-6EF87027/flag-Stars-and-Stripes-May-1-1795.jpg"/>
+                                <Grid item lg={3} onClick={() => setMarket("SP500")} >
+                                    <MarketNavigationCard market={market} content="SP500" imageUrl="https://cdn.britannica.com/79/4479-050-6EF87027/flag-Stars-and-Stripes-May-1-1795.jpg" />
                                 </Grid>
                             </Grid>
                         </MDBox>
@@ -120,7 +157,7 @@ function StockTables() {
                                             variant="h6"
                                             color="white"
                                         >
-                                            {'SP500'}
+                                            {market}
                                         </MDTypography>
                                     </MDBox>
                                 </Grid>

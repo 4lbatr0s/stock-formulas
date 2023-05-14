@@ -9,6 +9,7 @@ function MarketNavigationCard({ content, market}) {
       className='flag-box'
       sx={{
         maxWidth: 600,
+        maxHeight:100,
         borderRadius: 2,
         boxShadow: '0px 5px 20px rgba(0, 0, 0, 0.1)', // add shadow
         transition: 'transform 0.1s ease-in-out',

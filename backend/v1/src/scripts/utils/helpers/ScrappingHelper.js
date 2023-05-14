@@ -90,11 +90,11 @@ class ScrappingHelper {
                 $(tbody)
                     .find('tr:nth-child(n+2) td.currency a b')
                     .each((i, e) => {
-                        stockSymbols.push($(e).text());
+                        stockSymbols.push(`${$(e).text()}.IS`);
                     });
             });
             await redisClient.set(
-                Caching.SYMBOLS.BISTHUND,
+                Caching.SYMBOLS.BISTHUND_SYMBOLS,
                 JSON.stringify(stockSymbols)
             );
             return stockSymbols;

@@ -10,7 +10,7 @@ class StockExtensions {
 
         const lowerCaseTerm = searchTerm.trim().toLowerCase();
         return stocks.filter((s) =>
-            s.stockName.toLowerCase().includes(lowerCaseTerm)
+            s.symbol.toLowerCase().includes(lowerCaseTerm)
         );
     }
 
@@ -76,7 +76,7 @@ class StockExtensions {
                 const [field, direction = 'asc'] = sortField.trim().split(' ');
                 sortParams[field] = {
                     direction: direction.toLowerCase(),
-                    nullsLast: field !== 'stockName' || nullsLast,
+                    nullsLast: field !== 'symbol' || nullsLast,
                 };
             });
         }
@@ -86,7 +86,7 @@ class StockExtensions {
   sort(stocks, orderByQueryString) {
   if (!orderByQueryString) {
     return [...stocks].sort((a, b) =>
-      a.stockName.localeCompare(b.stockName)
+      a.symbol.localeCompare(b.symbol)
     );
   }
 
@@ -109,7 +109,7 @@ class StockExtensions {
         return typeof aValue > typeof bValue ? 1 : -1;
       }
 
-      if (field === 'stockName') {
+      if (field === 'symbol') {
         const compareResult = aValue.localeCompare(bValue);
         if (compareResult !== 0) {
           return direction === 'desc'
@@ -137,79 +137,22 @@ class StockExtensions {
     return 0;
   });
 
-  if(orderByQueryString==="grahamNumber"){
-    const notNullGrahamNumberArr = sortedStocks.filter(item => item.grahamNumber !== null);
-    const reversedNotNullGrahamNumberArr = notNullGrahamNumberArr.reverse();
-    const result = sortedStocks.map(item => item.grahamNumber === null ? item : reversedNotNullGrahamNumberArr.shift());
-    return result;
-  } 
+  
+
+
   return sortedStocks;
   
 }
 
-      
-    
-    // sort(stocks, orderByQueryString) {
-    //     if (!orderByQueryString) {
-    //         return [...stocks].sort((a, b) =>
-    //             a.stockName.localeCompare(b.stockName)
-    //         );
-    //     }
 
-    //     const sortParams = this.createOrderObject(orderByQueryString);
-
-    //     if (Object.keys(sortParams).length === 0) {
-    //         return [...stocks].sort((a, b) =>
-    //             a.stockName.localeCompare(b.stockName)
-    //         );
-    //     } 
-    //     const sortedStocks = [...stocks].sort((a, b) => {
-    //         for (const [field, direction] of Object.entries(sortParams)) {
-    //             const aValue = a[field];
-    //             const bValue = b[field];
-
-    //             if (typeof aValue !== typeof bValue) {
-    //                 return typeof aValue > typeof bValue ? 1 : -1;
-    //             }
-
-    //             if (field === 'stockName') {
-    //                 const compareResult = aValue.localeCompare(bValue);
-    //                 if (compareResult !== 0) {
-    //                     return direction === 'desc'
-    //                         ? -compareResult
-    //                         : compareResult;
-    //                 }
-    //             } else {
-    //                 if (aValue === null && bValue !== null) {
-    //                     return direction.nullsLast ? 1 : -1;
-    //                 }
-    //                 if (aValue !== null && bValue === null) {
-    //                     return direction.nullsLast ? -1 : 1;
-    //                 }
-    //                 if (aValue !== null && bValue !== null) {
-    //                     const compareResult = aValue - bValue;
-    //                     if (compareResult !== 0) {
-    //                         return direction === 'desc'
-    //                             ? compareResult
-    //                             : -compareResult;
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         return 0;
-    //     });
-
-    //     return sortedStocks;
-    // }
-
+ 
     //page-filter-search-sort
     manipulationChaining(stocks, options) {
         const {
             pageNumber = 1,
-            pageSize = 50,
+            pageSize = 600,
             searchTerm = '',
-            orderByQueryString = 'stockName asc',
+            orderByQueryString = 'symbol asc',
             minGrahamNumber = -Infinity,
             maxGrahamNumber = Infinity,
             minPriceToEarningRate = -Infinity,
@@ -224,8 +167,9 @@ class StockExtensions {
             maxReturnOnEquity = Infinity,
         } = options;
 
-        const paginated = this.pagination(stocks, pageNumber, pageSize);
-        const filtered = this.filter(paginated, {
+        const searched = this.search(stocks, searchTerm);
+        const sorted = this.sort(searched, orderByQueryString);
+        const filtered = this.filter(sorted, {
             minGrahamNumber,
             maxGrahamNumber,
             minPriceToEarningRate,
@@ -239,9 +183,8 @@ class StockExtensions {
             minReturnOnEquity,
             maxReturnOnEquity,
         });
-        const searched = this.search(filtered, searchTerm);
-        const sorted = this.sort(searched, orderByQueryString);
-        return sorted;
+        const paginated = this.pagination(filtered, pageNumber, pageSize);
+        return paginated;
     }
 }
 

@@ -3,6 +3,7 @@ export const TEST_URL = `http://localhost:${LOCAL_HOST_PORT}`
 
 
 export const GET_SP500_STOCKS =  TEST_URL + "/stocks/multiple/rates";
+export const GET_BIST100_STOCKS =  TEST_URL + "/stocks/multiple/bist100-concurrent";
 
 //products
 export const GET_PRODUCTS =  TEST_URL + "/products";

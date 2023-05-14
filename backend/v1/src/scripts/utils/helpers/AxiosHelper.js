@@ -5,3 +5,5 @@ export const publicRequest = axios.create({
     baseURL: UrlHelper.getBaseURL(),
 })
 
+export const finnHubRequest = axios.create({
+})

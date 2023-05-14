@@ -7,12 +7,16 @@ class CachingHelper {
     constructor() {
         this.Caching = Caching;
     }
-    getStockSortings = async (options) => {
+    getStockSortings = async (options, stockExchangeType) => {
         try {
-            const cachedResults = await redisClient.get(Caching.UNSORTED_STOCKS);
+            const cachedResults = stockExchangeType.startsWith("rates") 
+            ? await redisClient.get(Caching.UNSORTED_STOCKS) 
+            : await redisClient.get(Caching.BIST_100_UNSORTED);
+            
             const parsedUnsortedStocks = JSON.parse(cachedResults);
             if(!cachedResults)
                 return cachedResults;
+            
             const responseManipulation =  StockExtensions.manipulationChaining(parsedUnsortedStocks, options);
             const paginatedResult = PagedList.ToPagedList(responseManipulation, options.pageNumber, options.pageSize)
             return paginatedResult;

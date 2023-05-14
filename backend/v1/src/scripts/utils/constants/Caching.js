@@ -1,9 +1,11 @@
 const Caching={
         SP_500:'SP500',
+        BIST_100_DETAILED_FINANCIALS:'BIST100_DETAILED_FINANCIALS',
         SINGLE:'SINGLE',
         SORTED_STOCKS:'SORTED_STOCKS',
         UNSORTED_STOCKS:'UNSORTED_STOCKS',
         BIST_100_SORTED:'BISTHUNDSORT',
+        BIST_100_UNSORTED:'BISTHUNDUNSORTED',
         CALCULATIONS:{
                 GRAHAM_NUMBERS:'graham',
                 PRICE_TO_EARNING_RATES: 'priceToEarningRates',
@@ -15,8 +17,8 @@ const Caching={
                 SYMBOL:"symbol"
         },
         SYMBOLS:{
-                SPFH:'SPFH',
-                BISTHUND:'BISTHUND'
+                SPFH:'SPFIVEHUND_SYMBOLS',
+                BISTHUND_SYMBOLS:'BISTHUND_SYMBOLS'
         }, 
         PARAMETERS:'parameters'
 }

@@ -1,7 +1,7 @@
 import MetaData from "./MetaData.js";
 
 class PagedList extends Array {
-    constructor(items, count, pageNumber=1, pageSize=50) {
+    constructor(items, count, pageNumber=1, pageSize=500) {
       super();
       this.MetaData = new MetaData(pageNumber, Math.ceil(count/pageSize), pageSize, count);
       // this.MetaData = {

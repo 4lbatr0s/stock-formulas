@@ -3,7 +3,7 @@ import compression from "compression";
 import helmet from "helmet";
 import fileUpload from "express-fileupload";
 import express from "express";
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5000'];
 
 export default (app)=> {
     app.use(cors({

@@ -14,16 +14,9 @@ import PagedList from '../models/shared/RequestFeatures/PagedList.js';
 import StockExtensions from './extensions/StockExtensions.js';
 import RequestHelper from '../scripts/utils/helpers/RequestHelper.js';
 import CalculationHelper from '../scripts/utils/helpers/CalculationHelper.js';
+import destinations from '../scripts/utils/constants/Destinations.js';
 
 class StockService extends BaseService {
-    async getStockInfo(symbol) {
-        try {
-            const result = await ScrappingHelper.getStockInfo(symbol);
-            return result;
-        } catch (error) {
-            throw new ApiError(error?.message, error?.statusCode);
-        }
-    }
 
     async getSingleStockInfoFromYahoo(symbol) {
         try {
@@ -32,7 +25,7 @@ class StockService extends BaseService {
             );
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
-            return next(new ApiError(error?.message, error?.statusCode));
+            throw new ApiError(error?.message, error?.statusCode);
         }
     }
 
@@ -56,102 +49,73 @@ class StockService extends BaseService {
         }
     }
 
-    async getSP500() {
-        const symbols = stockSymbols.join(',');
-        try {
-            const result = await ApiHelper.getStockInfoAsync(
-                UrlHelper.getYahooBatchUrl(symbols)
-            );
-            return result;
-        } catch (error) {
-            throw new ApiError(error?.message, error?.statusCode);
-        }
-    }
+
 
     async getSP500Concurrent() {
-        const symbols = stockSymbols.join(',');
-        const chunks = ScriptHelper.chunkArray(symbols, 125);
         try {
-            const responses = await Promise.all(
-                chunks.map((chunk) =>
-                    ApiHelper.getStockInfoAsync(
-                        UrlHelper.getYahooBatchUrl(chunk)
-                    )
-                )
-            );
-            const result = responses
-                .map((res) => res.quoteResponse.result)
-                .flat();
-            const calculations =
-                CalculationService.getCalculatedValuesPerEveryStock(result);
+            const responses = await ApiHelper.getStockInfoAsync(UrlHelper.getYahooBatchUrl());
+            const results = StockHelper.getAskPropertiesFromYfinance(responses);
+            CalculationHelper.allOverallValues(results);
+            console.log(results.length);
             await redisClient.set(
                 Caching.UNSORTED_STOCKS,
-                JSON.stringify(calculations),
-                'EX',
-                15
+                JSON.stringify(results),
             );
             await redisClient.set(
                 Caching.SP_500,
-                JSON.stringify(result),
-                'EX',
-                15
+                JSON.stringify(responses),
             );
             return {
                 fromCache: false,
-                data: result,
+                data: responses,
             };
         } catch (error) {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
 
-    async getBIST100Concurrent() {
-        const symbols = await redisClient.get(Caching.SYMBOLS.BISTHUND);
-        const symbolsParsed = JSON.parse(symbols);
+    async getBIST100Concurrent(req) {
         try {
-            const promises = symbolsParsed.map(
-                async (symbol) =>
-                    await ApiHelper.getStockInfoAsync(
-                        UrlHelper.getYahooBatchUrl(symbol)
-                    )
-            );
-            const responses = await Promise.all(promises);
-            const result = responses
-                .map((res) => res.quoteResponse.result)
-                .flat();
-            const calculations = CalculationService.getCalculations(result);
-            const sortedStocks = StockHelper.sortStocksByValues(
-                result,
-                calculations
+            const bist100Symbols = JSON.parse(await redisClient.get(Caching.SYMBOLS.BISTHUND_SYMBOLS)).join(',');
+            const responses = await ApiHelper.getStockInfoAsync(UrlHelper.getYFinanceBist100Url(bist100Symbols));
+
+            const results = StockHelper.getAskPropertiesFromYfinance(responses);
+            CalculationHelper.allOverallValues(results);
+
+            await redisClient.set(
+                Caching.BIST_100_UNSORTED,
+                JSON.stringify(results),
             );
             await redisClient.set(
-                Caching.BIST_100_SORTED,
-                JSON.stringify(sortedStocks),
-                'EX',
-                15
+                Caching.BIST_100_DETAILED_FINANCIALS,
+                JSON.stringify(responses),
             );
-            const expireTime = Math.floor(Date.now() / 1000) + 10; // current timestamp + 180 seconds
-            await redisClient.set(
-                Caching.SP_500,
-                JSON.stringify(result),
-                'EX',
-                15
+
+            const options = RequestHelper.setOptions(req);
+            const responseManipulation = StockExtensions.manipulationChaining(
+                requestedRates,
+                options
             );
-            // console.log(result);
-            // await redisClient.set(Caching.CALCULATIONS.GRAHAM_NUMBERS, JSON.stringify(calculations.grahamNumbers));
+            const paginatedResult = PagedList.ToPagedList(
+                responseManipulation,
+                req?.query.pageNumber,
+                req?.query.pageSize
+            );
             return {
                 fromCache: false,
-                data: result,
+                data: paginatedResult,
             };
+
         } catch (error) {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
 
-    async getSingleStockInfoFromFinnhub(symbols) {
+    async getSingleStockInfoFromFinnhub(req) {
         try {
-            const result = await ApiHelper.getStockInfoAsync(
-                UrlHelper.getFinnHubMultipleStocksUrl(symbols)
+            const result = await ApiHelper.getStockInfoAsyncFinnhub(
+                UrlHelper.getFinancialDataFromFinnhubUrl(req.params?.stockSymbol),
+                req.headers['X-Finnhub-Token'],
             );
             return result;
         } catch (error) {
@@ -159,65 +123,11 @@ class StockService extends BaseService {
         }
     }
 
-    async messageBroker() {
-        try {
-            console.log('messageBrokerExecutedIntheService');
-            const result = await RabbitMQBase.consumeFinnhubMessages();
-            await RabbitMQBase.CallThirtyStockPerSeconds();
-            const sortedStocksString = await redisClient.get(
-                Caching.SORTED_STOCKS
-            );
-            //parse stocks.
-            const sortedStock = JSON.parse(sortedStocksString);
-            const returnOnEquities =
-                StockHelper.sortStocksByReturnOnEquities(result);
-            const debtToEquities =
-                StockHelper.sortStocksByDebtToEquities(result);
-            const ebitdaValues = StockHelper.sortStocksByEbitda(result);
-            sortedStock.debtToEquities = debtToEquities;
-            sortedStock.returnOnEquityRates = returnOnEquities;
-            sortedStock.ebitdaValues = ebitdaValues;
-            await redisClient.set(Caching.SORTED_STOCKS, JSON.stringify(sortedStock));
-            console.log(result);
-            return result;
-        } catch (error) {
-            throw new ApiError(error?.message, error?.statusCode);
-        }
-    }
 
-    async getMultipleStockInformationWithPromiseAll() {
-        try {
-            const promises = stockSymbols.map(async (symbol) => {
-                const result = await this.getFinancialDataForStock(symbol);
-                result.quoteSummary.result['0'].financialData.symbol = symbol;
-                return result.quoteSummary.result['0'].financialData;
-            });
-            const results = await Promise.all(promises);
-            const unsortedStocks = await redisClient.get(
-                Caching.UNSORTED_STOCKS
-            );
-            //parse stocks.
-            const parsedUnsortedStocks = JSON.parse(unsortedStocks);
-            const updatedUnsortedStocks = StockHelper.getAskedPropertiesFromJson(
-                results,
-                parsedUnsortedStocks,
-            );
-            const updatedUnsortedStocksWithOverallStockScores = CalculationHelper.allOverallValues(updatedUnsortedStocks);
-            await redisClient.set(
-                Caching.UNSORTED_STOCKS,
-                JSON.stringify(updatedUnsortedStocksWithOverallStockScores)
-            );
-            console.log(results);
-            return results;
-        } catch (error) {
-            throw new ApiError(error?.message, error?.statusCode);
-        }
-    }
 
     async getRates(req) {
         try {
             await this.getSP500Concurrent();
-            await this.getMultipleStockInformationWithPromiseAll();
             const requestedRates = JSON.parse(
                 await redisClient.get(Caching.UNSORTED_STOCKS)
             );

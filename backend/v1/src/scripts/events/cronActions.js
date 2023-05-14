@@ -58,29 +58,28 @@ const initialJob = async () => {
 };
 
 
+// const quoteDataJobEveryFifteenMinutes = cron.schedule('*/15 * * * *', () => {
+//     return StockService.getSP500Concurrent()
+//         .then((response) => {
+//             console.log(response);
+//         })
+//         .catch((error) => {
+//             console.error(error);
+//         });
+// });
 
-
-const quoteDataJobEveryFifteenMinutes = cron.schedule('*/15 * * * *', () => {
-    return StockService.getSP500Concurrent()
-        .then((response) => {
-            console.log(response);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-});
-
-const financialDataJobEverHour = cron.schedule('0 * * * *', () => {
-    return StockService.messageBroker()
-        .then((response) => {
-            console.log(response);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-});
+// const financialDataJobEverHour = cron.schedule('0 * * * *', () => {
+//     return StockService.messageBroker()
+//         .then((response) => {
+//             console.log(response);
+//         })
+//         .catch((error) => {
+//             console.error(error);
+//         });
+// });
 
 const jobStarter = async () => {
+    await executeStockSymbols();
     // await initialJob();
     // quoteDataJobEveryFifteenMinutes.start();
     // financialDataJobEverHour.start();

@@ -60,7 +60,7 @@ class Calculations {
             const priceToBookRate = Number(CalculationHelper.priceToBookRate(element).toFixed(3));
             const priceToEarningRate = Number(CalculationHelper.priceToEarningRate(element).toFixed(3));
             const grahamNumber = Number(CalculationHelper.grahamNumber(element).toFixed(3));
-            const stockName = element?.symbol;
+            const stockName = element?.underlyingSymbol;
             calculatedStocks.push({
                 stockName:stockName,
                 priceToBookRate:priceToBookRate,

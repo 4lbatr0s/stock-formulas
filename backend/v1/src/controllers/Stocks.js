@@ -3,16 +3,6 @@ import ApiError from '../errors/ApiError.js';
 import StockService from '../services/Stocks.js';
 import stockSymbols from '../scripts/utils/constants/StockSymbols.js';
 class StockController {
-    async getStockInfo(req, res, next) {
-        try {
-            const result = await StockService.getStockInfo(
-                req.params.stockSymbol
-            );
-            return res.status(httpStatus.OK).send(result);
-        } catch (error) {
-            return next(new ApiError(error?.message, error?.statusCode));
-        }
-    }
 
     async getSingleStockInfoFromYahoo(req, res, next) {
         try {
@@ -49,20 +39,12 @@ class StockController {
         }
     }
 
-    async getMultipleStockInfoFromFinnhub(req, res, next) {
+    async getSingleStockInfoFromFinnhub(req, res, next) {
         try {
-            const result = await StockService.getMultipleStockInfoFromFinnhub(
-                req.params?.stockSymbol
+            console.log(req.headers);
+            const result = await StockService.getSingleStockInfoFromFinnhub(
+                req
             );
-            return res.status(httpStatus.OK).send(result);
-        } catch (error) {
-            return next(new ApiError(error?.message, error?.statusCode));
-        }
-    }
-
-    async getSP500(req, res, next) {
-        try {
-            const result = await StockService.getSP500();
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));
@@ -81,26 +63,18 @@ class StockController {
 
     async getBIST100Concurrent(req, res, next) {
         try {
-            const result = await StockService.getBIST100Concurrent();
+            const result = await StockService.getBIST100Concurrent(req);
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));
         }
     }
 
-    async messageBroker(req, res, next) {
-        try {
-            const result = await StockService.messageBroker();
-            return res.status(httpStatus.OK).send(result);
-        } catch (error) {
-            return next(new ApiError(error?.message, error?.statusCode));
-        }
-    }
 
     async getRates(req, res, next) {
         try {
             const result = await StockService.getRates(req);
-            res.set('X-Pagination', JSON.stringify(result.MetaData));
+            res.set('X-Pagination', JSON.stringify(result.data.MetaData));
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));

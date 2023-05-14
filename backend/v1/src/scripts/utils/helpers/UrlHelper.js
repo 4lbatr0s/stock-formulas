@@ -27,16 +27,22 @@ class UrlHelper {
         return url;
     }
 
-    getYahooBatchUrl(symbols) {
-        return `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`;
-    }
-    getYahooFinancialDataUrl(symbols) {
-        return `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${symbols}?modules=financialData`
-        // return `https://finance.yahoo.com/quote/${symbols}/financials`;
+    getYahooBatchUrl(symbol='') {
+        // return `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`;
+        return `http://192.168.1.46:5000/sp500-stocks`;
     }
 
-    getFinnHubMultipleStocksUrl(symbols) {
-        return `${URL.FINNHUB_MAIN}/quote?symbol=${symbols}&token=${process.env.FINNHUB_API_KEY}`;
+    getYFinanceBist100Url(symbols){
+        return `http://192.168.1.46:5000/bist100-stocks/${symbols}`;
+    }
+
+    getYahooFinancialDataUrl(symbols) {
+        return `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${symbols}?modules=financialData`;
+    }
+
+    getFinancialDataFromFinnhubUrl(symbol) {
+        // return `${URL.FINNHUB_MAIN}/stock/metric?${symbol}=AAPL&metric=all&token=${process.env.FINNHUB_API_KEY}`;
+        return `${URL.FINNHUB_MAIN}/stock/metric?symbol=${symbol}&metric=all`;
     }
     getFinnHubEbitda(symbol) {
         return `${URL.FINNHUB_MAIN}/stock/ebitda-estimate?symbol=${symbol}`;

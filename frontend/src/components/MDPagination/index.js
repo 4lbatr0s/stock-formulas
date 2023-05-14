@@ -30,7 +30,7 @@ const Context = createContext();
 const MDPagination = forwardRef(
   ({ item, variant, color, size, active, children, ...rest }, ref) => {
     const context = useContext(Context);
-    const paginationSize = context ? context.size : null;
+    const paginationSize = context ? context.size : 50;
 
     const value = useMemo(() => ({ variant, color, size }), [variant, color, size]);
 
