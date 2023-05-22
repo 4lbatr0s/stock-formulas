@@ -2,7 +2,18 @@ import httpStatus from 'http-status';
 import ApiError from '../errors/ApiError.js';
 import StockService from '../services/Stocks.js';
 import stockSymbols from '../scripts/utils/constants/StockSymbols.js';
+import redisClient from '../config/caching/redisConfig.js';
+import Caching from '../scripts/utils/constants/Caching.js';
 class StockController {
+    async test(req,res,next){
+        try {
+            const financialValues = new Map(JSON.parse(await redisClient.get(Caching.BIST100_SP500_FINANCIALS)));
+            const symb = financialValues.get(req.params.symbol)
+            return res.status(httpStatus.OK).send(symb);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
 
     async getSingleStockInfoFromYahoo(req, res, next) {
         try {
@@ -13,16 +24,6 @@ class StockController {
         }
     }
 
-    async getMultipleStockInfo(req, res, next) {
-        try {
-            const result = await StockService.getMultipleStockInfo(
-                req.query?.symbols
-            );
-            return res.status(httpStatus.OK).send(result);
-        } catch (error) {
-            return next(new ApiError(error?.message, error?.statusCode));
-        }
-    }
 
     async getFinancialDataForStock(req, res, next) {
         try {
@@ -42,6 +43,7 @@ class StockController {
     async getSingleStockInfoFromFinnhub(req, res, next) {
         try {
             console.log(req.headers);
+            req.headers['X-Finnhub-Token'] = process.env.FINNHUB_API_KEY;
             const result = await StockService.getSingleStockInfoFromFinnhub(
                 req
             );
@@ -53,7 +55,6 @@ class StockController {
 
     async getSP500Concurrent(req, res, next) {
         try {
-            console.log('getSP500Concurrent worksss bieeaaacccttchesss');
             const result = await StockService.getSP500Concurrent();
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
@@ -75,16 +76,6 @@ class StockController {
         try {
             const result = await StockService.getRates(req);
             res.set('X-Pagination', JSON.stringify(result.data.MetaData));
-            return res.status(httpStatus.OK).send(result);
-        } catch (error) {
-            return next(new ApiError(error?.message, error?.statusCode));
-        }
-    }
-
-    async getFinancialDatasWithPromisAll(req, res, next) {
-        try {
-            const result =
-                await StockService.getMultipleStockInformationWithPromiseAll();
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));

@@ -72,19 +72,19 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=grahamNumber')}
+                            onClick={() => handleSortingValue('sortBy=priceToSalesRate')}
                             color="info"
                             variant="gradient"
                             size="lg"
                         >
                             <MDTypography variant="h6" color="white">
-                                Graham
+                                P/S Rate
                             </MDTypography>{' '}
                             <Icon>sort</Icon>
                         </MDButton>
                     </MDBox>
                 ),
-                accessor: 'grahamNumber',
+                accessor: 'priceToSalesRate',
                 align: 'center',
             },
             {
@@ -132,7 +132,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=debtToEquities')}
+                            onClick={() => handleSortingValue('sortBy=debtToEquityRate')}
                             badgeContent="Stock Name"
                             color="info"
                             variant="gradient"
@@ -146,14 +146,14 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                         </MDButton>
                     </MDBox>
                 ),
-                accessor: 'debtToEquities',
+                accessor: 'debtToEquityRate',
                 align: 'center',
             },
             {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=returnOnEquity')}
+                            onClick={() => handleSortingValue('sortBy=returnOnEquityRate')}
                             badgeContent="Stock Name"
                             color="info"
                             variant="gradient"
@@ -166,14 +166,14 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                         </MDButton>
                     </MDBox>
                 ),
-                accessor: 'returnOnEquity',
+                accessor: 'returnOnEquityRate',
                 align: 'center',
             },
             {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=returnOnEquity')}
+                            onClick={() => handleSortingValue('sortBy=returnOnEquityRate')}
                             badgeContent="Ebitda"
                             color="info"
                             variant="gradient"
@@ -218,7 +218,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                     symbol={stock.symbol}
                 />
             ),
-            grahamNumber: (
+            priceToSalesRate: (
                 <MDTypography
                     component="a"
                     href="#"
@@ -226,7 +226,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                     color="text"
                     fontWeight="bold"
                 >
-                    {stock.grahamNumber ? stock.grahamNumber : "N/A"}
+                    {stock.priceToSalesRate ? stock.priceToSalesRate : "N/A"}
                 </MDTypography>
             ),
             priceToBookRate: (
@@ -251,7 +251,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                     {stock.priceToEarningRate ? stock.priceToEarningRate : "N/A"}
                 </MDTypography>
             ),
-            debtToEquities: (
+            debtToEquityRate: (
                 <MDTypography
                     component="a"
                     href="#"
@@ -259,10 +259,10 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                     color="text"
                     fontWeight="bold"
                 >
-                    {stock.debtToEquities ? stock.debtToEquities : "N/A"}
+                    {stock.debtToEquityRate ? stock.debtToEquityRate : "N/A"}
                 </MDTypography>
             ),
-            returnOnEquity: (
+            returnOnEquityRate: (
                 <MDTypography
                     component="a"
                     href="#"
@@ -270,7 +270,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                     color="text"
                     fontWeight="bold"
                 >
-                    {stock.returnOnEquity ? stock.returnOnEquity : "N/A"}
+                    {stock.returnOnEquityRate ? stock.returnOnEquityRate : "N/A"}
                 </MDTypography>
             ),
             ebitda: (

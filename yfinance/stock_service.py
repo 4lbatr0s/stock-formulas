@@ -17,27 +17,6 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
 }
 
-# @cache.memoize(timeout=3600)
-# def get_ticker_info(ticker):
-#     return yf.Ticker(ticker).info
-
-# @app.route('/stocks', methods=['GET'])
-# @cache.cached(timeout=3600, key_prefix='stock_infos')
-# def get_financial_ratios():
-#     symbol_list = symbls.five_hund()
-#     tickers_list = []
-
-#     with concurrent.futures.ThreadPoolExecutor() as executor:
-#         # submit each ticker to the executor for processing in parallel
-#         futures = [executor.submit(get_ticker_info, ticker) for ticker in symbol_list]
-#         # collect the results from the futures
-#         for future in concurrent.futures.as_completed(futures):
-#             try:
-#                 tickers_list.append(future.result())
-#             except Exception as e:
-#                 print(f'An error occurred: {e}')
-
-#     return jsonify(tickers_list)
 
 def fetch_ticker_info(ticker, tickers_list, tickers):
     ticker_info = tickers.tickers[ticker].info
@@ -153,6 +132,20 @@ def get_ticker_properties(ticker, property_names):
     
 
 
+@app.route('/sp500/<ticker>/', methods=['GET'])
+@cache.cached(timeout=3600)
+def get_single_ticker_info_yfinance(ticker):
+    # Get the cached ticker info
+    print(ticker)
+    ticker_info = cache.get("sp500_symbol_" + ticker)
+    if ticker_info is None:
+        # Ticker info not in cache, fetch it from Yahoo Finance and store it in cache
+        ticker_info = yf.Ticker(ticker).info
+        cache.set("sp500_symbol_" + ticker, ticker_info)
+    # Return the requested properties if they exist in the ticker info, otherwise return a 404
+    return jsonify({ticker: ticker_info})  
+    
+
 
 @app.route('/bist100/<ticker>/', methods=['GET'])
 @cache.cached(timeout=3600)
@@ -162,10 +155,38 @@ def get_ticker_info_alpha_vantage(ticker):
     if ticker_info is None:
         # Ticker info not in cache, fetch it from Yahoo Finance and store it in cache
         ticker_info = yf.Ticker(ticker+'.IS').info
-        cache.set("symbol_" + ticker, ticker_info)
+        cache.set("bist100_symbol_" + ticker, ticker_info)
     # Return the requested properties if they exist in the ticker info, otherwise return a 404
     return jsonify({ticker: ticker_info})  
     
+
+@app.route('/stock-test/<ticker>', methods=['GET'])
+@cache.cached(timeout=3600)
+def get_balance_sheet_for_stock(ticker):
+    # Get the cached ticker info
+    ticker_info = cache.get("test_stock_" + ticker)
+    if ticker_info is None:
+        # Ticker info not in cache, fetch it from Yahoo Finance
+        stock = yf.Ticker(ticker)
+
+        # Get the balance sheet data
+        balance_sheet = stock.balance_sheet
+
+        # Extract the necessary values for calculation
+        total_assets = balance_sheet.loc["Total Assets"].values[0]
+        total_liabilities = balance_sheet.loc["Total Liab"].values[0]
+
+        # Create a dictionary with the extracted values
+        ticker_info = {
+            "Total Assets": total_assets,
+            "Total Liabilities": total_liabilities
+        }
+
+        # Store the extracted values in the cache
+        cache.set("test_stock_" + ticker, ticker_info)
+
+    # Return the ticker info from the cache
+    return jsonify({ticker: ticker_info})
 
 
 if __name__ == '__main__':

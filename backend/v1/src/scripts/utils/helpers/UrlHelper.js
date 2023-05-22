@@ -32,6 +32,10 @@ class UrlHelper {
         return `http://192.168.1.46:5000/sp500-stocks`;
     }
 
+    getYFinanceSingleStock(symbol){
+        return `http://192.168.1.46:5000/sp500/${symbol}`;
+    }
+
     getYFinanceBist100Url(symbols){
         return `http://192.168.1.46:5000/bist100-stocks/${symbols}`;
     }

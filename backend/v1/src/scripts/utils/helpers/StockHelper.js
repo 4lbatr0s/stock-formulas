@@ -1,234 +1,179 @@
-import Caching from '../constants/Caching.js';
+import CalculationHelper from "./CalculationHelper.js";
+import redisClient from "../../../config/caching/redisConfig.js";
+import Caching from "../constants/Caching.js";
 
 class StockHelper {
-    #defaultPositive = 999999999999999;
-    #defaultNegative = -999999999999999;
-    constructor() {}
+  getFromYahooFinancial = async (json, properties) => {
+    try {
+      const financialValues = JSON.parse(
+        await redisClient.get(Caching.BIST100_SP500_FINANCIALS)
+      );
+      const stock = financialValues[json.symbol];
+      const propertiesToReturn = {};
 
-    sortStockValues(stockValues, sortingParameter) {
-        switch (sortingParameter) {
-            case Caching.CALCULATIONS.GRAHAM_NUMBERS:
-                return stockValues.sort(
-                    (a, b) => a.grahamNumber - b.grahamNumber
-                );
-            case Caching.CALCULATIONS.PRICE_TO_EARNING_RATES:
-                return stockValues.sort(
-                    (a, b) => b.priceToEarningRate - a.priceToEarningRate
-                );
-            case Caching.CALCULATIONS.PRICE_TO_BOOK_RATES:
-                return stockValues.sort(
-                    (a, b) => b.priceToBookRate - a.priceToBookRate
-                );
-            case Caching.CALCULATIONS.EBITDA:
-                return stockValues
-                    .map((stockJson) => {
-                        if (!stockJson?.ebitda) {
-                            stockJson.ebitda = {
-                                raw: this.#defaultNegative,
-                            };
-                        }
-                        return stockJson;
-                    })
-                    .sort((a, b) => a.ebitda.raw - b.ebitda.raw);
-
-            case Caching.CALCULATIONS.DEBT_TO_EQUITY_RATES:
-                return stockValues
-                    .map((stockJson) => {
-                        if (!stockJson?.debtToEquity) {
-                            stockJson.debtToEquity = {
-                                raw: this.#defaultNegative,
-                            };
-                        }
-                        return stockJson;
-                    })
-                    .sort((a, b) => a.debtToEquity.raw - b.debtToEquity.raw);
-
-            case Caching.CALCULATIONS.RETURN_ON_EQUITY_RATES:
-                return stockValues
-                    .map((stockJson) => {
-                        if (!stockJson?.returnOnEquity) {
-                            stockJson.returnOnEquity = {
-                                raw: this.#defaultNegative,
-                            };
-                        }
-                        return stockJson;
-                    })
-                    .sort(
-                        (a, b) => a.returnOnEquity.raw - b.returnOnEquity.raw
-                    );
-            default:
-                break;
-        }
-    }
-
-    /**
-     *
-     * @param {Array} stockValues values we get from api
-     * @param {Array} grahamNumbers graham numbers per each stock we calculate.
-     */
-    sortStocksByGrahamNumber(stockValues) {
-        const grahamStocks = [...stockValues];
-        const result = this.sortStockValues(
-            grahamStocks,
-            Caching.CALCULATIONS.GRAHAM_NUMBERS
-        );
-        return result;
-    }
-
-    /**
-     *
-     * @param {Array} stockValues values we get from api
-     * @param {Array} priceToEarningRates price/earning rate values per stock we calculate.
-     */
-    sortStocksByPriceToEarningRates(stockValues) {
-        const priceToEarningStocks = [...stockValues];
-        const result = this.sortStockValues(
-            priceToEarningStocks,
-            Caching.CALCULATIONS.PRICE_TO_EARNING_RATES
-        );
-        return result;
-    }
-
-    /**
-     *
-     * @param {Array} stockValues values we get from api
-     * @param {Array} priceToBookRates price/book rate values per stock we calculate.
-     */
-    sortStocksByPriceToBookRates(stockValues) {
-        const priceToBookRatesStocks = [...stockValues];
-        const result = this.sortStockValues(
-            priceToBookRatesStocks,
-            Caching.CALCULATIONS.PRICE_TO_BOOK_RATES
-        );
-        return result;
-    }
-
-    /**
-     *
-     * @param {Array} stockValues values we get from api
-     * @param {Array} returnOnEquities return on equity values per stock we calculate.
-     */
-    sortStocksByReturnOnEquities(stockValues) {
-        // const filteredStockValues = stockValues.map((stockJson) => {
-        //     if (!stockJson?.returnOnEquity) {
-        //         stockJson.returnOnEquity = {
-        //             raw: this.#defaultNegative,
-        //         };
-        //     }
-        //     return stockJson;
-        // });
-        // const sortedStockValues = filteredStockValues.sort(
-        //     (a, b) => a.returnOnEquity.raw - b.returnOnEquity.raw
-        // );
-
-        // return sortedStockValues;
-        const returnOnEquitiesStock = [...stockValues];
-        const result = this.sortStockValues(
-            returnOnEquitiesStock,
-            Caching.CALCULATIONS.RETURN_ON_EQUITY_RATES
-        );
-    }
-    /**
-     * @param {Array} stockValues values we get from api
-     * @param {Array} debtToEquities debt/equity value per stock we calculate.
-     */
-    sortStocksByDebtToEquities(stockValues) {
-        const debtToEquitiesStocks = [...stockValues];
-        const result = this.sortStockValues(
-            debtToEquitiesStocks,
-            Caching.CALCULATIONS.DEBT_TO_EQUITY_RATES
-        );
-    }
-
-    /**
-     * @param {Array} stockValues values we get from api
-     * @param {Array} debtToEquities debt/equity value per stock we calculate.
-     */
-    sortStocksByEbitda(stockValues) {
-        const ebitdaStocks = [...stockValues];
-        const result = this.sortStockValues(
-            ebitdaStocks,
-            Caching.CALCULATIONS.PRICE_TO_BOOK_RATES
-        );
-    }
-
-    getAskedPropertiesFromJson(jsonSource, destination) {
-        const symbolMap = new Map();
-        const updatedJsonArray = [];
-      
-        // Create a map of symbols to objects from the jsonSource array
-        for (const json of jsonSource) {
-          symbolMap.set(json.symbol, {
-            debtToEquity: json.debtToEquity.raw,
-            returnOnEquity: json.returnOnEquity.raw,
-            ebitda: json.ebitda.raw,
-            totalRevenue: json.totalRevenue.raw,
-          });
-        }
-      
-        // Iterate through the destination array and add properties to matching objects
-        for (const obj of destination) {
-            const symbolObj = symbolMap.get(obj.stockName);
-            if (symbolObj) {
-              const updatedObj = {
-                ...obj, 
-                debtToEquity: Number(symbolObj.debtToEquity).toFixed(3) || null,
-                ebitda: Number(symbolObj.ebitda) || null,
-                returnOnEquity: Number(symbolObj.returnOnEquity).toFixed(3) || null,
-                totalRevenue: Number(symbolObj.totalRevenue) || null
-              };
-              delete updatedObj.symbol;
-              updatedJsonArray.push(updatedObj);
-            }
-          }
-          
-        return updatedJsonArray;
+      for (const property of properties) {
+        propertiesToReturn[property] = stock[property];
       }
 
-      getAskPropertiesFromYfinance(jsonSource){
-        const filteredArray = jsonSource.map(json=> {
-            return {
-                name: json.shortName,
-                symbol:json.underlyingSymbol,
-                priceToBookRate: parseFloat(Number(json.priceToBook).toFixed(3)),
-                priceToEarningRate: parseFloat(Number(json.trailingPE)),
-                grahamNumber: parseFloat(Number(Math.sqrt(
-                    json.trailingEps * json.bookValue * 22.5
-                )).toFixed(3)),
-                debtToEquities: parseFloat(Number(json.debtToEquity).toFixed(3)),
-                returnOnEquity: parseFloat(Number(json.returnOnEquity).toFixed(3)),
-                ebitda: parseFloat(Number(json.ebitda)),
-                ebitdaMargins: parseFloat(Number(json.ebitdaMargins).toFixed(3)),
-            }
-        });
-        return filteredArray;
+      return propertiesToReturn;
+    } catch (error) {
+      console.log(error);
+      return {};
     }
-    
-      
-    /**
-     *
-     * @param {Array} stockValues stock values we get from api
-     * @param {Object} calculations arrays of values per each stock choosing formulas we get from the Calculation Service.
-     * @returns
-     */
-    sortStocksByValues(stockValues) {
-        const stockValuesSortedByGraham =
-            this.sortStocksByGrahamNumber(stockValues);
-        const stockValuesSortedByPriceToEarningRates =
-            this.sortStocksByPriceToEarningRates(stockValues);
-        const stockValuesSortedByPriceToBookRates =
-            this.sortStocksByPriceToBookRates(stockValues);
+  };
 
-        const sortedStocks = {
-            graham: stockValuesSortedByGraham,
-            priceToEarningRates: stockValuesSortedByPriceToEarningRates,
-            priceToBookRates: stockValuesSortedByPriceToBookRates,
-            returnOnEquityRates: '',
-            debtToEquities: '',
-            ebitdaValues: '',
-        };
-        return sortedStocks;
+  getFromFinnhubFinancial = async (json, properties) => {
+    try {
+      const financialValues = JSON.parse(
+        await redisClient.get(Caching.BIST100_SP500_FINANCIALS)
+      );
+      const stock = financialValues[json.symbol];
+      const propertiesToReturn = {};
+
+      for (const property of properties) {
+        propertiesToReturn[property] = stock[property];
+      }
+
+      return propertiesToReturn;
+    } catch (error) {
+      console.log(error);
+      return {};
     }
+  };
+
+  getPriceToBookRate(json) {
+    if (json.hasOwnProperty("priceToBook")) {
+      return json.priceToBook;
+    }
+
+    const finnhubStocksArray = this.getFromFinnhubFinancial(json, [
+      "pbQuarterly",
+    ]);
+    if (finnhubStocksArray.hasOwnProperty("pbQuarterly"))
+      return finnhubStocksArray.pbQuarterly;
+
+    const calculatedPriceToBookRate =
+      CalculationHelper.calculatePriceToBookRate(json, finnhubStocksArray);
+    return calculatedPriceToBookRate;
+  }
+
+  getPriceToEarningRate(json) {
+    if (json.hasOwnProperty("trailingPE")) {
+      return json.trailingPE;
+    }
+    const finnhubStocksArray = this.getFromFinnhubFinancial(json, [
+      "peTTM",
+      "peAnnual",
+    ]);
+    let peRate = finnhubStocksArray.peTTM || finnhubStocksArray.peAnnual;
+    if (peRate) return peRate;
+    return CalculationHelper.calculatePriceToEarningRate(
+      json,
+      finnhubStocksArray
+    );
+  }
+
+  getPriceToSalesRate(json) {
+    if (json.hasOwnProperty("priceToSalesTrailing12Months")) {
+      return json.priceToSalesTrailing12Months;
+    }
+    const finnhubStocksArray = this.getFromFinnhubFinancial(json, [
+      "psTTM",
+      "psAnnual",
+    ]);
+
+    let psRate = finnhubStocksArray.psTTM || finnhubStocksArray.psAnnual;
+    return psRate || null;
+  }
+
+  getDebtToEquityRate(json) {
+    if (json.hasOwnProperty("debtToEquity")) {
+      return json.debtToEquity;
+    }
+    const financialValues = this.getFromYahooFinancial(json, ["debtToEquity"]);
+    if ("debtToEquity" in financialValues) {
+      return financialValues.debtToEquity.raw;
+    }
+    return null;
+  }
+  getReturnOnEquityRate(json) {
+    if (json.hasOwnProperty("returnOnEquity")) {
+      return json.returnOnEquity;
+    }
+    const financialValues = this.getFromYahooFinancial(json, [
+      "returnOnEquity",
+    ]);
+    if ("returnOnEquity" in financialValues) {
+      return financialValues.returnOnEquity.raw;
+    } else {
+      return CalculationHelper.calculateReturnOnEquityRate(
+        json,
+        financialValues
+      );
+    }
+  }
+
+  getEbitda(json) {
+    if (json.hasOwnProperty("ebitda")) {
+      return json.ebitda;
+    }
+    const financialValues = this.getFromYahooFinancial(json, ["ebitda"]);
+    if ("ebitda" in financialValues) {
+      return financialValues.ebitda.raw;
+    }
+    return null;
+  }
+
+  getEbitdaMargins(json) {
+    if (json.hasOwnProperty("ebitdaMargins")) {
+      return json.ebitdaMargins;
+    }
+    const financialValues = this.getFromYahooFinancial(json, ["ebitdaMargins"]);
+    if ("ebitdaMargins" in financialValues) {
+      return financialValues.ebitdaMargins.raw;
+    }
+    return null;
+  }
+
+  getBookValue(yahooJson, finnhubJson) {
+    let bookValue =
+      yahooJson?.bookValue || finnhubJson?.bookValuePerShareAnnual;
+    return bookValue || null;
+  }
+
+  getEpsRate(yahooJson, finnhubJson) {
+    let epsRate = yahooJson.trailingEps || finnhubJson.epsAnnual;
+    return epsRate || null;
+  }
+
+  getAskPropertiesFromYfinance(jsonSource) {
+    const filteredArray = jsonSource.map((json) => {
+      return {
+        name: json.shortName,
+        symbol: json.underlyingSymbol,
+        priceToBookRate: parseFloat(
+          Number(this.getPriceToBookRate(json)).toFixed(3)
+        ),
+        priceToEarningRate: parseFloat(
+          Number(this.getPriceToEarningRate(json)).toFixed(3)
+        ),
+        priceToSalesRate: parseFloat(
+          Number(this.getPriceToSalesRate(json)).toFixed(3)
+        ),
+        // debtToEquityRate: parseFloat(
+        //   Number(this.getDebtToEquityRate(json)).toFixed(3)
+        // ),
+        // returnOnEquityRate: parseFloat(
+        //   Number(this.getReturnOnEquityRate(json)).toFixed(3)
+        // ),
+        // ebitda: parseFloat(Number(this.getEbitda(json))),
+        // ebitdaMargins: parseFloat(
+        //   Number(this.getEbitdaMargins(json)).toFixed(3)
+        // ),
+      };
+    });
+    return filteredArray;
+  }
 }
 
 export default new StockHelper();

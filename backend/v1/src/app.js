@@ -24,13 +24,14 @@ appConfig(app);
 app.use('/uploads', express.static(path.join(__dirname, './', 'uploads')));
 
 loadRoutes(app); //import route usings from another module.
+
 //404 handler
 app.use((req,res,next)=> {
     const error = new ApiError(Messages.ERROR.PAGE_NOT_FOUND, httpStatus.NOT_FOUND);
     next(error);
 });
 
-app. use(globalErrorHandler);//INFO: if you use () globalErrorHandler middleware will be invoked immediately when app starts running.
+app.use(globalErrorHandler);//INFO: if you use () globalErrorHandler middleware will be invoked immediately when app starts running.
 
 app.listen(process.env.APP_PORT, ()=>{ 
 console.log("server is listening on port " + process.env.APP_PORT);

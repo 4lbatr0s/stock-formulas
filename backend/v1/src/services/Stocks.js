@@ -1,54 +1,40 @@
 import ApiError from '../errors/ApiError.js';
-import stockSymbols from '../scripts/utils/constants/StockSymbols.js';
 import ApiHelper from '../scripts/utils/helpers/ApiHelper.js';
 import ScrappingHelper from '../scripts/utils/helpers/ScrappingHelper.js';
 import UrlHelper from '../scripts/utils/helpers/UrlHelper.js';
 import BaseService from './BaseService.js';
-import RabbitMQBase from '../scripts/messageBrokers/rabbitMQ/RabbitMQBase.js';
-import CalculationService from './Calculations.js';
 import redisClient from '../config/caching/redisConfig.js';
 import Caching from '../scripts/utils/constants/Caching.js';
 import StockHelper from '../scripts/utils/helpers/StockHelper.js';
-import ScriptHelper from '../scripts/utils/helper.js';
 import PagedList from '../models/shared/RequestFeatures/PagedList.js';
 import StockExtensions from './extensions/StockExtensions.js';
 import RequestHelper from '../scripts/utils/helpers/RequestHelper.js';
 import CalculationHelper from '../scripts/utils/helpers/CalculationHelper.js';
-import destinations from '../scripts/utils/constants/Destinations.js';
 
 class StockService extends BaseService {
 
     async getSingleStockInfoFromYahoo(symbol) {
         try {
             const result = await ApiHelper.getStockInfoAsync(
-                UrlHelper.getYahooBatchUrl(symbol)
+                UrlHelper.getYFinanceSingleStock(symbol)
             );
-            return res.status(httpStatus.OK).send(result);
-        } catch (error) {
-            throw new ApiError(error?.message, error?.statusCode);
-        }
-    }
-
-    async getMultipleStockInfo(symbols) {
-        try {
-            const result = await ScrappingHelper.getMultipleStockInfos(symbols);
             return result;
         } catch (error) {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
 
-    async getFinancialDataForStock(symbols) {
+
+    async getFinancialDataForStock(symbol) {
         try {
             const result = await ApiHelper.getStockInfoAsync(
-                UrlHelper.getYahooFinancialDataUrl(symbols)
+                UrlHelper.getYahooFinancialDataUrl(symbol)
             );
-            return result;
+            return result?.quoteSummary?.result['0']?.financialData;
         } catch (error) {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
-
 
 
     async getSP500Concurrent() {
@@ -57,7 +43,7 @@ class StockService extends BaseService {
             const results = StockHelper.getAskPropertiesFromYfinance(responses);
             CalculationHelper.allOverallValues(results);
             console.log(results.length);
-            await redisClient.set(
+            await redisClient.set( 
                 Caching.UNSORTED_STOCKS,
                 JSON.stringify(results),
             );
@@ -93,7 +79,7 @@ class StockService extends BaseService {
 
             const options = RequestHelper.setOptions(req);
             const responseManipulation = StockExtensions.manipulationChaining(
-                requestedRates,
+                results,
                 options
             );
             const paginatedResult = PagedList.ToPagedList(
@@ -149,6 +135,7 @@ class StockService extends BaseService {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
+
 
     async scrapSP500Symbols() {
         try {
