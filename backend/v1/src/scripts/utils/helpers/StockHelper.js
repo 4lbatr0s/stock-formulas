@@ -6,7 +6,7 @@ class StockHelper {
   getFromYahooFinancial = async (json, properties) => {
     try {
       const financialValues = JSON.parse(
-        await redisClient.get(Caching.BIST100_SP500_FINANCIALS)
+        redisClient.get(Caching.BIST100_SP500_FINANCIALS)
       );
       const stock = financialValues[json.symbol];
       const propertiesToReturn = {};
@@ -22,117 +22,103 @@ class StockHelper {
     }
   };
 
-  getFromFinnhubFinancial = async (json, properties) => {
+  async getFromFinnhubFinancial(json, properties) {
     try {
-      const financialValues = JSON.parse(
-        await redisClient.get(Caching.BIST100_SP500_FINANCIALS)
+      const financialValues = await redisClient.get(
+        Caching.BIST100_SP500_FINANCIALS
       );
-      const stock = financialValues[json.symbol];
+      const stock = JSON.parse(financialValues)[json.symbol];
       const propertiesToReturn = {};
 
       for (const property of properties) {
         propertiesToReturn[property] = stock[property];
       }
-
       return propertiesToReturn;
     } catch (error) {
       console.log(error);
       return {};
     }
-  };
-
-  getPriceToBookRate(json) {
+  }
+  async getPriceToBookRate(json) {
     if (json.hasOwnProperty("priceToBook")) {
       return json.priceToBook;
     }
 
-    const finnhubStocksArray = this.getFromFinnhubFinancial(json, [
+    const finnhubStocksArray = await this.getFromFinnhubFinancial(json, [
       "pbQuarterly",
     ]);
-    if (finnhubStocksArray.hasOwnProperty("pbQuarterly"))
-      return finnhubStocksArray.pbQuarterly;
-
-    const calculatedPriceToBookRate =
-      CalculationHelper.calculatePriceToBookRate(json, finnhubStocksArray);
-    return calculatedPriceToBookRate;
-  }
-
-  getPriceToEarningRate(json) {
-    if (json.hasOwnProperty("trailingPE")) {
-      return json.trailingPE;
-    }
-    const finnhubStocksArray = this.getFromFinnhubFinancial(json, [
-      "peTTM",
-      "peAnnual",
-    ]);
-    let peRate = finnhubStocksArray.peTTM || finnhubStocksArray.peAnnual;
-    if (peRate) return peRate;
-    return CalculationHelper.calculatePriceToEarningRate(
-      json,
-      finnhubStocksArray
+    return (
+      finnhubStocksArray?.pbQuarterly ||
+      CalculationHelper.calculatePriceToBookRate(json, finnhubStocksArray)
     );
   }
 
-  getPriceToSalesRate(json) {
+  async getPriceToEarningRate(json) {
+    if (json.hasOwnProperty("trailingPE")) {
+      return json.trailingPE;
+    }
+
+    const finnhubStocksArray = await this.getFromFinnhubFinancial(json, [
+      "peTTM",
+      "peAnnual",
+    ]);
+
+    return (
+      finnhubStocksArray?.peTTM ||
+      finnhubStocksArray?.peAnnual ||
+      CalculationHelper.calculatePriceToEarningRate(json, finnhubStocksArray)
+    );
+  }
+
+  async getPriceToSalesRate(json) {
     if (json.hasOwnProperty("priceToSalesTrailing12Months")) {
       return json.priceToSalesTrailing12Months;
     }
-    const finnhubStocksArray = this.getFromFinnhubFinancial(json, [
+
+    const finnhubStocksArray = await this.getFromFinnhubFinancial(json, [
       "psTTM",
       "psAnnual",
     ]);
 
-    let psRate = finnhubStocksArray.psTTM || finnhubStocksArray.psAnnual;
-    return psRate || null;
+    return (
+      finnhubStocksArray?.psTTM ||
+      finnhubStocksArray?.psAnnual ||
+      CalculationHelper.calculatePriceToSalesRate(json, finnhubStocksArray)
+    );
   }
 
-  getDebtToEquityRate(json) {
-    if (json.hasOwnProperty("debtToEquity")) {
+  async getDebtToEquityRate(json) {
+    if (json?.debtToEquity) {
       return json.debtToEquity;
     }
-    const financialValues = this.getFromYahooFinancial(json, ["debtToEquity"]);
-    if ("debtToEquity" in financialValues) {
-      return financialValues.debtToEquity.raw;
-    }
-    return null;
-  }
-  getReturnOnEquityRate(json) {
-    if (json.hasOwnProperty("returnOnEquity")) {
-      return json.returnOnEquity;
-    }
-    const financialValues = this.getFromYahooFinancial(json, [
-      "returnOnEquity",
+
+    const financialValues = await this.getFromFinnhubFinancial(json, [
+      "totalDebt/totalEquityQuarterly",
     ]);
-    if ("returnOnEquity" in financialValues) {
-      return financialValues.returnOnEquity.raw;
-    } else {
-      return CalculationHelper.calculateReturnOnEquityRate(
-        json,
-        financialValues
-      );
+
+    return financialValues?.["totalDebt/totalEquityQuarterly"] || null;
+  }
+
+  async getReturnOnEquityRate(json) {
+    if (json?.returnOnEquity) {
+      return json.returnOnEquity * 100;
     }
+
+    const financialValues = await this.getFromFinnhubFinancial(json, [
+      "roeTTM",
+    ]);
+
+    return financialValues?.roeTTM || null;
   }
 
   getEbitda(json) {
-    if (json.hasOwnProperty("ebitda")) {
-      return json.ebitda;
-    }
-    const financialValues = this.getFromYahooFinancial(json, ["ebitda"]);
-    if ("ebitda" in financialValues) {
-      return financialValues.ebitda.raw;
-    }
-    return null;
+    let ebitda = json?.ebitda;
+    return ebitda || null;
   }
 
   getEbitdaMargins(json) {
-    if (json.hasOwnProperty("ebitdaMargins")) {
-      return json.ebitdaMargins;
-    }
-    const financialValues = this.getFromYahooFinancial(json, ["ebitdaMargins"]);
-    if ("ebitdaMargins" in financialValues) {
-      return financialValues.ebitdaMargins.raw;
-    }
-    return null;
+    let ebitdaMargins = json?.ebitdaMargins;
+    return ebitdaMargins || null;
   }
 
   getBookValue(yahooJson, finnhubJson) {
@@ -146,34 +132,49 @@ class StockHelper {
     return epsRate || null;
   }
 
-  getAskPropertiesFromYfinance(jsonSource) {
-    const filteredArray = jsonSource.map((json) => {
-      return {
-        name: json.shortName,
-        symbol: json.underlyingSymbol,
-        priceToBookRate: parseFloat(
-          Number(this.getPriceToBookRate(json)).toFixed(3)
-        ),
-        priceToEarningRate: parseFloat(
-          Number(this.getPriceToEarningRate(json)).toFixed(3)
-        ),
-        priceToSalesRate: parseFloat(
-          Number(this.getPriceToSalesRate(json)).toFixed(3)
-        ),
-        // debtToEquityRate: parseFloat(
-        //   Number(this.getDebtToEquityRate(json)).toFixed(3)
-        // ),
-        // returnOnEquityRate: parseFloat(
-        //   Number(this.getReturnOnEquityRate(json)).toFixed(3)
-        // ),
-        // ebitda: parseFloat(Number(this.getEbitda(json))),
-        // ebitdaMargins: parseFloat(
-        //   Number(this.getEbitdaMargins(json)).toFixed(3)
-        // ),
-      };
-    });
+  getMarketPricePerShare(yahooJson, finnhubJson) {
+    if ("currentPrice" in yahooJson) return yahooJson.currentPrice;
+    return null;
+  }
+
+  getSalesPerShare(yahooJson, finnhubJson) {
+    let salesPerShare = yahooJson?.totalRevenue / yahooJson?.sharesOutstanding;
+    if (salesPerShare) return salesPerShare;
+    return null;
+  }
+
+  async bringValues(jsonSource) {
+    const result = {
+      name: jsonSource.shortName,
+      symbol: jsonSource.underlyingSymbol,
+      priceToBookRate: parseFloat(
+        Number(await this.getPriceToBookRate(jsonSource)).toFixed(3)
+      ),
+      priceToEarningRate: parseFloat(
+        Number(await this.getPriceToEarningRate(jsonSource)).toFixed(3)
+      ),
+      priceToSalesRate: parseFloat(
+        Number(await this.getPriceToSalesRate(jsonSource)).toFixed(3)
+      ),
+      debtToEquityRate: parseFloat(
+        Number(await this.getDebtToEquityRate(jsonSource)).toFixed(3)
+      ),
+      returnOnEquityRate: parseFloat(
+        Number(await this.getReturnOnEquityRate(jsonSource)).toFixed(3)
+      ),
+      ebitda: parseFloat(Number(this.getEbitda(jsonSource))),
+      ebitdaMargins: parseFloat(
+        Number(await this.getEbitdaMargins(jsonSource)).toFixed(3)
+      ),
+    };
+    return result;
+  }
+  
+  async getAskPropertiesFromYfinance(jsonSource) {
+    const filteredArray = await Promise.all(jsonSource.map(json => this.bringValues(json)));
     return filteredArray;
   }
+  
 }
 
 export default new StockHelper();

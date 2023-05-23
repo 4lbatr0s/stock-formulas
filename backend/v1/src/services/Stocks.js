@@ -40,7 +40,7 @@ class StockService extends BaseService {
     async getSP500Concurrent() {
         try {
             const responses = await ApiHelper.getStockInfoAsync(UrlHelper.getYahooBatchUrl());
-            const results = StockHelper.getAskPropertiesFromYfinance(responses);
+            const results = await StockHelper.getAskPropertiesFromYfinance(responses);
             CalculationHelper.allOverallValues(results);
             console.log(results.length);
             await redisClient.set( 
@@ -65,7 +65,7 @@ class StockService extends BaseService {
             const bist100Symbols = JSON.parse(await redisClient.get(Caching.SYMBOLS.BISTHUND_SYMBOLS)).join(',');
             const responses = await ApiHelper.getStockInfoAsync(UrlHelper.getYFinanceBist100Url(bist100Symbols));
 
-            const results = StockHelper.getAskPropertiesFromYfinance(responses);
+            const results = await StockHelper.getAskPropertiesFromYfinance(responses);
             CalculationHelper.allOverallValues(results);
 
             await redisClient.set(
@@ -140,6 +140,7 @@ class StockService extends BaseService {
     async scrapSP500Symbols() {
         try {
             const result = await ScrappingHelper.scrapSP500Symbols();
+            delete result['BRK.B'];
             return result;
         } catch (error) {
             throw new ApiError(error?.message, error?.statusCode);

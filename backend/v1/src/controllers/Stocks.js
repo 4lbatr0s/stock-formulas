@@ -4,12 +4,15 @@ import StockService from '../services/Stocks.js';
 import stockSymbols from '../scripts/utils/constants/StockSymbols.js';
 import redisClient from '../config/caching/redisConfig.js';
 import Caching from '../scripts/utils/constants/Caching.js';
+import ApiHelper from '../scripts/utils/helpers/ApiHelper.js';
+import UrlHelper from '../scripts/utils/helpers/UrlHelper.js';
+import StockHelper from '../scripts/utils/helpers/StockHelper.js';
 class StockController {
     async test(req,res,next){
         try {
-            const financialValues = new Map(JSON.parse(await redisClient.get(Caching.BIST100_SP500_FINANCIALS)));
-            const symb = financialValues.get(req.params.symbol)
-            return res.status(httpStatus.OK).send(symb);
+            const responses = await ApiHelper.getStockInfoAsync(UrlHelper.getYahooBatchUrl());
+            const results =  await StockHelper.getAskPropertiesFromYfinance(responses.find(response => response.symbol ===req.params.symbol));
+            return res.status(httpStatus.OK).send(results);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));
         }

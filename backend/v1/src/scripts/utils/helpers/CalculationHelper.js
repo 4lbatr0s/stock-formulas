@@ -17,17 +17,10 @@ class CalculationHelper {
     return epsRate / currentPrice || null;
   }
 
-  calculatePriceToSalesRate(jsonValue) {
-    if (
-      "totalRevenue" in jsonValue &&
-      "currentPrice" in jsonValue &&
-      "sharesOutstanding" in jsonValue
-    ) {
-      const salesPerShare = totalRevenue / sharesOutstanding;
-      const currentPrice = jsonValue.currentPrice;
-      return currentPrice / salesPerShare;
-    }
-    return null;
+  calculatePriceToSalesRate(jsonValueFromYahoo, jsonValueFromFinnhub) {
+      const salesPerShare = StockHelper.getSalesPerShare(jsonValueFromYahoo, jsonValueFromFinnhub);
+      const currentPrice = StockHelper.getMarketPricePerShare(jsonValueFromYahoo, jsonValueFromFinnhub);
+      return (currentPrice / salesPerShare) || null;
   }
 
   calculateReturnOnEquityRate(jsonValue, financialValues) {
