@@ -51,7 +51,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=stockName')}
+                            onClick={() => handleSortingValue('sortBy=name&orderBy=asc')}
                             badgeContent="Stock Name"
                             color="info"
                             variant="gradient"
@@ -72,7 +72,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=priceToSalesRate')}
+                            onClick={() => handleSortingValue('sortBy=priceToSalesRate&orderBy=asc')}
                             color="info"
                             variant="gradient"
                             size="lg"
@@ -91,7 +91,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=priceToBookRate')}
+                            onClick={() => handleSortingValue('sortBy=priceToBookRate&orderBy=asc')}
                             badgeContent="Stock Name"
                             color="info"
                             variant="gradient"
@@ -112,7 +112,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=priceToEarningRate')}
+                            onClick={() => handleSortingValue('sortBy=priceToEarningRate&orderBy=asc')}
                             badgeContent="Stock Name"
                             color="info"
                             variant="gradient"
@@ -132,7 +132,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=debtToEquityRate')}
+                            onClick={() => handleSortingValue('sortBy=debtToEquityRate&orderBy=asc')}
                             badgeContent="Stock Name"
                             color="info"
                             variant="gradient"
@@ -153,7 +153,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=returnOnEquityRate')}
+                            onClick={() => handleSortingValue('sortBy=returnOnEquityRate&orderBy=desc')}
                             badgeContent="Stock Name"
                             color="info"
                             variant="gradient"
@@ -173,7 +173,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=returnOnEquityRate')}
+                            onClick={() => handleSortingValue('sortBy=ebitda&orderBy=desc')}
                             badgeContent="Ebitda"
                             color="info"
                             variant="gradient"
@@ -193,7 +193,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                 Header: (
                     <MDBox ml={-1}>
                         <MDButton
-                            onClick={() => handleSortingValue('sortBy=overallScore')}
+                            onClick={() => handleSortingValue('sortBy=overallScore&orderBy=desc')}
                             badgeContent="Overall Score"
                             color="info"
                             variant="gradient"

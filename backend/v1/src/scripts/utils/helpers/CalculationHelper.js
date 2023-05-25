@@ -44,7 +44,7 @@ class CalculationHelper {
     if (stock.priceToBookRate !== null) {
       factors.push({
         name: "Price-to-Book Ratio",
-        value: 1 / stock.priceToBookRate,
+        value: stock?.priceToBookRate>0 ?  1 / stock.priceToBookRate : stock.priceToBookRate,
       });
       weights.push(0.2);
     }
@@ -52,20 +52,22 @@ class CalculationHelper {
     if (stock.priceToEarningRate !== null) {
       factors.push({
         name: "Price-to-Earning Ratio",
-        value: stock.priceToEarningRate,
+        value: stock?.priceToEarningRate>0 ? 1 / stock.priceToEarningRate : stock.priceToEarningRate,
       });
       weights.push(0.2);
     }
 
-    if (stock.grahamNumber !== null) {
-      factors.push({ name: "Graham Number", value: 1 / stock.grahamNumber });
+    if (stock.priceToSalesRate !== null) {
+      factors.push({
+      name: "Price-to-Sales Ratio", 
+      value: stock?.priceToSalesRate>0 ? 1 / stock.priceToSalesRate : stock.priceToSalesRate});
       weights.push(0.15);
     }
 
     if (stock.debtToEquity !== null) {
       factors.push({
         name: "Debt-to-Equity Ratio",
-        value: 1 / stock.debtToEquity,
+        value: stock?.debtToEquity>0 ? 1 / stock.debtToEquity : stock.debtToEquity,
       });
       weights.push(0.15);
     }
@@ -105,8 +107,6 @@ class CalculationHelper {
       stock.overallScore = parseFloat(Number(overallScore).toFixed(3));
     }
   }
-
-  getOrCalculateDebtToEquity(stockJson) {}
 }
 
 export default new CalculationHelper();
