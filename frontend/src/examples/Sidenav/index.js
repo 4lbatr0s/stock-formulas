@@ -51,14 +51,14 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   console.log(routes);
   const dispatch = useDispatch();
   const controller = useSelector(state=> state.materialUI);
-  const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
+  const { miniSidenav, transparentSidenav = true, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
 
   let textColor = "white";
 
   if (transparentSidenav || (whiteSidenav && !darkMode)) {
-    textColor = "dark";
+    textColor = "inherit";
   } else if (whiteSidenav && darkMode) {
     textColor = "inherit";
   }
@@ -181,19 +181,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         }
       />
       <List>{renderRoutes}</List>
-      <MDBox p={2} mt="auto">
-        <MDButton
-          component="a"
-          href="https://www.creative-tim.com/product/material-dashboard-pro-react"
-          target="_blank"
-          rel="noreferrer"
-          variant="gradient"
-          color={sidenavColor}
-          fullWidth
-        >
-          upgrade to pro
-        </MDButton>
-      </MDBox>
     </SidenavRoot>
   );
 }

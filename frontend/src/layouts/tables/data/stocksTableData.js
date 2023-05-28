@@ -65,7 +65,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                     </MDBox>
                 ),
                 accessor: 'stockName',
-                width: '25%',
+                width: '15%',
                 align: 'left',
             },
             {
@@ -133,14 +133,15 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                     <MDBox ml={-1}>
                         <MDButton
                             onClick={() => handleSortingValue('sortBy=debtToEquityRate&orderBy=asc')}
-                            badgeContent="Stock Name"
+                            badgeContent="Debt to Equity Rate"
                             color="info"
                             variant="gradient"
-                            size="lg"
+                            size="sm"
+                            width="5%"
                         >
 
                             <MDTypography variant="h6" color="white">
-                                Debt/Equity
+                                D/E Rate
                             </MDTypography>{' '}
                             <Sort />
                         </MDButton>
@@ -154,13 +155,13 @@ const StocksTableData = (stockValues, handleSortingValue) => {
                     <MDBox ml={-1}>
                         <MDButton
                             onClick={() => handleSortingValue('sortBy=returnOnEquityRate&orderBy=desc')}
-                            badgeContent="Stock Name"
+                            badgeContent="Return on Equity Ratio"
                             color="info"
                             variant="gradient"
                             size="lg"
                         >
                             <MDTypography variant="h6" color="white">
-                                Return/Equity
+                                ROE
                             </MDTypography>{' '}
                             <Sort />
                         </MDButton>

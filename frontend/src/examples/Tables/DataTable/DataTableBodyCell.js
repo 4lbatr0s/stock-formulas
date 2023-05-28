@@ -25,7 +25,7 @@ function DataTableBodyCell({ noBorder, align, children }) {
       component="td"
       textAlign={align}
       py={1.5}
-      px={3}
+      px={1}
       sx={({ palette: { light }, typography: { size }, borders: { borderWidth } }) => ({
         fontSize: size.sm,
         borderBottom: noBorder ? "none" : `${borderWidth[1]} solid ${light.main}`,

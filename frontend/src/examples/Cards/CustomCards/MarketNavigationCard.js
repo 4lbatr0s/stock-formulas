@@ -8,7 +8,7 @@ function MarketNavigationCard({ content, market}) {
     <Card
       className='flag-box'
       sx={{
-        maxWidth: 600,
+        maxWidth: 500,
         maxHeight:100,
         borderRadius: 2,
         boxShadow: '0px 5px 20px rgba(0, 0, 0, 0.1)', // add shadow
@@ -20,7 +20,7 @@ function MarketNavigationCard({ content, market}) {
       <Grid container sx={{ position: 'relative' }}>
         <Grid item xs={12}>
           <MDBox p={4} sx={{ position: 'relative' }}>
-            <MDTypography variant="h5" fontSize="25px" sx={{ textAlign: 'center' }}>
+            <MDTypography variant="h5" fontSize="inherit" sx={{ textAlign: 'center' }}>
               {content}
             </MDTypography>
           </MDBox>
