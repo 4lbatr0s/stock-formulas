@@ -34,16 +34,20 @@ const StocksTableData = (stockValues, handleSortingValue) => {
   //       </MDBox>
   //   );
 
-
   const Stock = ({ name, symbol }) => (
-    <MDBox
-      component={MDButton}
+    <MDButton
+      py={0}
+      component={MDBox}
+      display="flex"
+      alignItems="stretch"
+      justifyContent="stretch"
+      variant="text"
+      color="info"
       sx={{
         width: "100%",
         height: "100%",
-        py: 0,
-        borderRadius: "4px",
         cursor: "pointer",
+        borderRadius: "4px",
         "&:hover": {
           opacity: 0.9,
         },
@@ -51,8 +55,6 @@ const StocksTableData = (stockValues, handleSortingValue) => {
           boxShadow: "0px 0px 8px 3px rgba(0,0,0,0.3)",
         },
       }}
-      variant="text"
-      color="info"
     >
       <MDBox
         flex="1"
@@ -67,8 +69,9 @@ const StocksTableData = (stockValues, handleSortingValue) => {
         </MDTypography>
         <MDTypography variant="caption">{symbol}</MDTypography>
       </MDBox>
-    </MDBox>
+    </MDButton>
   );
+
   return {
     columns: [
       {
@@ -89,7 +92,7 @@ const StocksTableData = (stockValues, handleSortingValue) => {
           </MDBox>
         ),
         accessor: "stockName",
-        width: "15%",
+        width: "12%",
         align: "left",
       },
       {

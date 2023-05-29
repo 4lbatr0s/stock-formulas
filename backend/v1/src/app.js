@@ -11,6 +11,7 @@ import httpStatus from "http-status";
 import Messages from "./scripts/utils/constants/Messages.js";
 import croneJobs from "./scripts/events/cronActions.js";
 import appConfig from "./config/app.js";
+import configureWebSockets from "./scripts/events/webSockets.js";
 const __filename = fileURLToPath(import.meta.url);//get all name
 const __dirname = path.dirname(__filename); //get dir name from it.
 
@@ -21,6 +22,7 @@ croneJobs();
 
 const app = express();
 appConfig(app);
+configureWebSockets(app);
 app.use('/uploads', express.static(path.join(__dirname, './', 'uploads')));
 
 loadRoutes(app); //import route usings from another module.
