@@ -1,9 +1,8 @@
-import { load } from 'cheerio';
+import cheerio, { load } from 'cheerio';
 import scrappingKeysAndElements from '../constants/ScrappingConstants.js';
 import ScriptHelper from '../helper.js';
 import ApiHelper from './ApiHelper.js';
 import UrlHelper from './UrlHelper.js';
-import cheerio from 'cheerio';
 import { publicRequest } from './AxiosHelper.js';
 import redisClient from '../../../config/caching/redisConfig.js';
 import Caching from '../constants/Caching.js';
@@ -102,6 +101,13 @@ class ScrappingHelper {
             console.error(error);
         }
     }
+
+    getContentFromNews(news) {
+        const newsContent = news.content;
+        const $ = cheerio.load(news);
+        const textContent = $.text();
+        console.log(textContent);
+      }      
 }
 
 export default new ScrappingHelper();

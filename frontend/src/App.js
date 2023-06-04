@@ -63,6 +63,8 @@ export default function App() {
   const { pathname } = useLocation();
 
 
+  console.log("darkMode:", darkMode);
+  console.log("sideNavColor:", sidenavColor);
   // Open sidenav when mouse enter on mini sidenav
   const handleOnMouseEnter = () => {
     if (miniSidenav && !onMouseEnter) {
@@ -78,11 +80,6 @@ export default function App() {
       setOnMouseEnter(false);
     }
   };
-
-  useEffect(() => {
-    console.log("miniSidenav:", miniSidenav);
-    console.log("onMouseEnter:", onMouseEnter);
-  }, [miniSidenav, onMouseEnter]);
 
 
   // Setting the dir attribute for the body element
@@ -118,7 +115,7 @@ export default function App() {
           <Sidenav
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-            brandName="Material Dashboard 2"
+            brandName="ZuuFinn"
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}

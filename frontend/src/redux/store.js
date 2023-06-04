@@ -2,7 +2,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 // import cartReducer from "./cartRedux"; //INFO: We basically imported cartSlice.reducer value
 import materialUIReducer from "./materialUISlice.js";
 import stockSlice from "./stockSlice.js";
-
+import newsSlice from "./newsSlice.js";
 import { 
     persistStore,
     persistReducer,
@@ -23,7 +23,7 @@ const persistConfig = {
   storage,
 }
 
-const rootReducer = combineReducers({materialUI:materialUIReducer, stocks:stockSlice,}); //INFO: How to combine reducers.
+const rootReducer = combineReducers({materialUI:materialUIReducer, stocks:stockSlice, news:newsSlice}); //INFO: How to combine reducers.
 
 const persistedReducer = persistReducer(persistConfig, rootReducer); //TIP: persist userReducer, in this way user info in the userRedux does not go away.
 

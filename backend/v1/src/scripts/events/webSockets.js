@@ -1,6 +1,7 @@
 import WebSocket, { WebSocketServer } from "ws";
 import http from "http";
-
+import NewsService from "../../services/NewsService.js";
+import ScrappingHelper from "../utils/helpers/ScrappingHelper.js";
 const configureWebSockets = (app) => {
   const server = http.createServer(app);
   const wss = new WebSocketServer({ server });
@@ -9,9 +10,7 @@ const configureWebSockets = (app) => {
 
   // Function to establish the WebSocket connection
   const connectToNewsWebSocket = () => {
-    newsWebSocket = new WebSocket(
-      "wss://stream.data.alpaca.markets/v1beta1/news"
-    );
+    newsWebSocket = new WebSocket(process.env.ALPACA_WSS_STREAM_URL);
 
     newsWebSocket.onopen = () => {
       console.log("Connected to the news WebSocket.");
@@ -30,14 +29,37 @@ const configureWebSockets = (app) => {
       newsWebSocket.send(subscriptionMessage);
     };
 
-    newsWebSocket.onmessage = (event) => {
-      const newsData = JSON.parse(event.data);
-      console.log(`New data arrived: ${JSON.stringify(newsData)}`);
-      wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify(newsData));
+    newsWebSocket.onmessage = async (event) => {
+      try {
+        const newsData = JSON.parse(event.data);
+        const newsDataString = JSON.stringify(newsData); // Convert parsed JSON object to a string
+
+        // Exclude specific messages from being saved to the database
+        if (
+          (newsData[0]?.T === "success" &&
+            (newsData[0]?.msg === "authenticated" ||
+              newsData[0]?.msg === "connected")) ||
+          newsData[0]?.T === "subscription"
+        ) {
+          console.log("Excluded message:", newsDataString);
+          return; // Skip saving the excluded message to the database
         }
-      });
+
+        console.log("===================================================\n");
+        ScrappingHelper.getContentFromNews(newsDataString);
+        console.log("===================================================\n");
+        await NewsService.add(newsData);
+        console.log(`New data arrived: ${newsDataString}`);
+
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(newsDataString);
+          }
+        });
+      } catch (error) {
+        // Handle any errors that occur during the asynchronous operations
+        console.error("Error occurred while processing news data:", error);
+      }
     };
 
     newsWebSocket.onerror = (error) => {
