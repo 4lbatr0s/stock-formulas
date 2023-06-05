@@ -20,8 +20,9 @@ const WebSocketListener = () => {
       if (recentNews.length >= 10) {
         await popNewsCall(dispatch);
       }
-      await pushNewsCall(dispatch, newsData);
-      console.log("Received news data:", newsData);
+      await pushNewsCall(dispatch, newsData[0]);
+      
+      console.log("Received news data:", newsData[0]);
     };
 
     socketRef.current.onerror = (error) => {

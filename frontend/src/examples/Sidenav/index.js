@@ -26,6 +26,11 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     whiteSidenav,
     darkMode,
   } = controller;
+
+  const newsController = useSelector((state) => state.news);
+
+  const { recentNews } = newsController;
+
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
 
@@ -36,6 +41,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   } else if (whiteSidenav && darkMode) {
     textColor = "inherit";
   }
+
+  console.log("recentNews:", recentNews);
 
   const closeSidenav = () => setMiniSidenavCall(dispatch, true);
 
@@ -118,13 +125,16 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         }
       />
 
-      <div style={{ padding: "10px" }}>
-        <NewsInfoCard
-          title="news"
-          color="secondary"
-          description="Belong Insdsdteasdasdasdasdasdasdasdaractive"
-        />
-      </div>
+      {recentNews &&
+        recentNews.map((news) => (
+          <div style={{ padding: "4px" }} key={news[0].id}>
+            <NewsInfoCard
+              title={`${news[0]?.headline}`}
+              color="secondary"
+              description={`${news[0]?.summary}`}
+            />
+          </div>
+        ))}
     </SidenavRoot>
   );
 }

@@ -1,55 +1,21 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useState, useEffect, useMemo } from "react";
-
-// react-router components
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-
-// @mui material components
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import Icon from "@mui/material/Icon";
-
-// Material Dashboard 2 React components
-import MDBox from "components/MDBox";
-
-// Material Dashboard 2 React example components
 import Sidenav from "examples/Sidenav";
-
-// Material Dashboard 2 React themes
 import theme from "assets/theme";
-
-// Material Dashboard 2 React Dark Mode themes
 import themeDark from "assets/theme-dark";
-
-
-// Material Dashboard 2 React routes
 import routes from "routes";
-
-// Material Dashboard 2 React contexts
-import { setMiniSidenavCall,  } from "redux/apiCalls/materialUISlice.js";
-// Images
+import { setMiniSidenavCall } from "redux/apiCalls/materialUISlice.js";
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 import { useDispatch, useSelector } from "react-redux";
+import MDSnackbar from "components/MDSnackbar";
+import { Grid } from "@mui/material";
 
 export default function App() {
-
   const dispatch = useDispatch();
-  const controller = useSelector(state=> state.materialUI);
+  const controller = useSelector((state) => state.materialUI);
   const {
     miniSidenav,
     direction,
@@ -59,9 +25,39 @@ export default function App() {
     whiteSidenav,
     darkMode,
   } = controller;
+
+  const newsController = useSelector((state) => state.news);
+  const { recentNews } = newsController;
+
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const { pathname } = useLocation();
 
+  /**
+   * @useStates
+   */
+  
+  const [infoSB, setInfoSB] = useState(false);
+  const openInfoSB = () => setInfoSB(true);
+  const closeInfoSB = () => setInfoSB(false);
+
+  const renderInfoSB = (title, content) =>  (
+    <MDSnackbar
+      icon="notifications"
+      title="Material Dashboard"
+      content="Hello, world! This is a notification message"
+      dateTime="11 mins ago"
+      open={infoSB}
+      onClose={closeInfoSB}
+      close={closeInfoSB}
+    />
+  );
+
+  const handleNewsPopUp = () => {
+    openInfoSB();
+    setTimeout(() => {
+      closeInfoSB();
+    }, 1500);
+  };
 
   console.log("darkMode:", darkMode);
   console.log("sideNavColor:", sidenavColor);
@@ -81,13 +77,15 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    let {headline:title, summary:content} = recentNews[0];
+    handleNewsPopUp(title, content);
+  }, [recentNews]);
 
-  // Setting the dir attribute for the body element
   useEffect(() => {
     document.body.setAttribute("dir", direction);
   }, [direction]);
 
-  // Setting page scroll to 0 when changing the route
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
@@ -100,21 +98,34 @@ export default function App() {
       }
 
       if (route.route) {
-        return <Route exact path={route.route} element={route.component} key={route.key} />;
+        return (
+          <Route
+            exact
+            path={route.route}
+            element={route.component}
+            key={route.key}
+          />
+        );
       }
 
       return null;
     });
 
-
-  return  (
+  return (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />
+      <Grid item xs={12} sm={6} lg={3}>
+        {renderInfoSB}
+      </Grid>
       {layout === "dashboard" && (
         <>
           <Sidenav
             color={sidenavColor}
-            brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
+            brand={
+              (transparentSidenav && !darkMode) || whiteSidenav
+                ? brandDark
+                : brandWhite
+            }
             brandName="ZuuFinn"
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
