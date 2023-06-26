@@ -82,6 +82,14 @@ class StockController {
         }
     }
 
+    async getNewsForStock(req, res, next) {
+        try {
+            const result = await StockService.getNewsForStock(req.params?.stockSymbol);
+            return res.status(httpStatus.OK).send(result);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
     async scrapSP500Symbols(req, res, next) {
         try {
             const result = await StockService.scrapSP500Symbols();

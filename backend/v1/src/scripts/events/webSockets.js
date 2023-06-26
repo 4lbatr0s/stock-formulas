@@ -65,6 +65,24 @@ const configureWebSockets = (app) => {
       }
     };
 
+
+    const isConnectionError = (error) => {
+      // Check if the error is a connection error
+      // You can customize this logic based on your specific requirements
+    
+      if (error && error.code) {
+        // Check if the error has a 'code' property
+        // Here you can add conditions to identify specific error codes as connection errors
+        if (error.code === 'ECONNRESET' || error.code === 'ECONNREFUSED') {
+          return true;
+        }
+      }
+    
+      // If none of the conditions matched, return false
+      return false;
+    };
+    
+
     newsWebSocket.onclose = (event) => {
       console.log("WebSocket connection closed:", event.code, event.reason);
       connectToNewsWebSocket(); // Attempt to reconnect

@@ -57,6 +57,10 @@ class UrlHelper {
     scrapBist100SymbolsURL(){
         return `https://uzmanpara.milliyet.com.tr/canli-borsa/bist-100-hisseleri/`;
     }
+
+    getNewsForStockURL(symbol){
+        return `${URL.ALPACA_NEWS}/${symbol}`
+    }
 }
 
 export default new UrlHelper();

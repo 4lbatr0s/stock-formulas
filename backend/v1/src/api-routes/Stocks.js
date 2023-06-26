@@ -4,12 +4,14 @@ import redisCaching from "../middlewares/caching/redis.js";
 import apiKeySetter from '../middlewares/apiKeySetter.js';
 const router = express.Router();
 
+//alpaca
+router.get("/single/news/:stockSymbol", StocksController.getNewsForStock)
+
 //yfinance package
 router.get("/multiple/rates", redisCaching, StocksController.getRates);
 router.get("/multiple/sp500-concurrent", redisCaching, StocksController.getSP500Concurrent);
 router.get("/multiple/bist100-concurrent", redisCaching, StocksController.getBIST100Concurrent);
 router.get("/single/yahoo/:stockSymbol", StocksController.getSingleStockInfoFromYahoo);
-
 
 //finnhub api
 router.get("/single/finnhub/:stockSymbol", StocksController.getSingleStockInfoFromFinnhub);

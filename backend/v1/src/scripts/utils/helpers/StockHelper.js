@@ -39,6 +39,8 @@ class StockHelper {
       return {};
     }
   }
+
+
   async getPriceToBookRate(json) {
     if (json.hasOwnProperty("priceToBook")) {
       return json.priceToBook;
@@ -66,7 +68,7 @@ class StockHelper {
     return (
       finnhubStocksArray?.peTTM ||
       finnhubStocksArray?.peAnnual ||
-      CalculationHelper.calculatePriceToEarningRate(json, finnhubStocksArray)
+      await CalculationHelper.calculatePriceToEarningRate(json)
     );
   }
 
@@ -111,6 +113,33 @@ class StockHelper {
     return financialValues?.roeTTM || null;
   }
 
+  async getEarningsPerShareRate(json) {
+    let epsRate = await this.getEpsRate(json);
+    return (
+      epsRate || CalculationHelper.calculateEarningsPerShare(json)
+    );
+  }
+
+  async getDividendYieldRate(json){
+    let dividendYield = await this.getDividendYield(json);
+    return (
+      dividendYield || CalculationHelper.calculateDividendYield(json)
+    );
+  }
+
+  async getReturnOnAssetsRate(yahooJson){
+    let returnOnAssetsRate = yahooJson?.returnOnAssetsRate;
+    let finnhubStocksArray;
+    if(!returnOnAssetsRate){
+      finnhubStocksArray = await this.getFromFinnhubFinancial(yahooJson, [
+        "roaTTM",
+      ]);
+      returnOnAssetsRate = finnhubStocksArray?.roaTTM;
+    }
+    return returnOnAssetsRate || null;
+  }
+
+
   getEbitda(json) {
     let ebitda = json?.ebitda;
     return ebitda || null;
@@ -121,16 +150,39 @@ class StockHelper {
     return ebitdaMargins || null;
   }
 
+
+
   getBookValue(yahooJson, finnhubJson) {
     let bookValue =
       yahooJson?.bookValue || finnhubJson?.bookValuePerShareAnnual;
     return bookValue || null;
   }
 
-  getEpsRate(yahooJson, finnhubJson) {
-    let epsRate = yahooJson.trailingEps || finnhubJson.epsAnnual;
-    return epsRate || null;
+  async getEpsRate(yahooJson) {
+    let epsRate = yahooJson.trailingEps
+    let finnhubStocksArray;
+    if(!epsRate){
+      finnhubStocksArray = await this.getFromFinnhubFinancial(yahooJson, [
+        "epsAnnual",
+        "epsTTM",
+      ]);
+      return finnhubStocksArray?.epsAnnual || finnhubStocksArray?.epsTTM || null;
+    }
+    return epsRate;
   }
+
+  async getDividendYield(yahooJson) {
+    let dividendYield = yahooJson.dividendYield || yahooJson.fiveYearAvgDividendYield
+    let finnhubStocksArray;
+    if(!dividendYield){
+      finnhubStocksArray = await this.getFromFinnhubFinancial(yahooJson, [
+        "currentDividendYieldTTM",
+      ]);
+      dividendYield = finnhubStocksArray?.currentDividendYieldTTM;
+    }
+    return dividendYield || null;
+  }
+
 
   getMarketPricePerShare(yahooJson, finnhubJson) {
     if ("currentPrice" in yahooJson) return yahooJson.currentPrice;
@@ -166,15 +218,26 @@ class StockHelper {
       ebitdaMargins: parseFloat(
         Number(await this.getEbitdaMargins(jsonSource)).toFixed(3)
       ),
+      earningsPerShareRate: parseFloat(
+        Number(await this.getEarningsPerShareRate(jsonSource)).toFixed(3)
+      ),
+      returnOnAssetsRate: parseFloat(
+        Number(await this.getReturnOnAssetsRate(jsonSource)).toFixed(3)
+      ),
+      dividendYieldsRate: parseFloat(
+        Number(await this.getDividendYieldRate(jsonSource)).toFixed(3)
+      ),
+      
     };
     return result;
   }
-  
+
   async getAskPropertiesFromYfinance(jsonSource) {
-    const filteredArray = await Promise.all(jsonSource.map(json => this.bringValues(json)));
+    const filteredArray = await Promise.all(
+      jsonSource.map((json) => this.bringValues(json))
+    );
     return filteredArray;
   }
-  
 }
 
 export default new StockHelper();

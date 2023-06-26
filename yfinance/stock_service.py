@@ -6,6 +6,8 @@ from flask_cors import CORS
 import threading
 import pandas_datareader as pdr
 import datetime
+import news_service
+import sentiment_service
 
 app = Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE': 'simple', 'CACHE_TIMEOUT':3600})
@@ -187,6 +189,21 @@ def get_balance_sheet_for_stock(ticker):
 
     # Return the ticker info from the cache
     return jsonify({ticker: ticker_info})
+
+
+
+@app.route('/stock-news-alpaca/<ticker>', methods=['GET'])
+@cache.cached(timeout=3600)
+def get_stock_news_sentiments_alpaca(ticker):
+    return news_service.get_stock_news_alpaca(ticker)
+
+
+
+@app.route('/sentiment-analysis/<ticker>', methods=['POST'])
+@cache.cached(timeout=3600)
+def get_stock_news_sentiments(ticker):
+    news = news_service.get_stock_news_alpaca(ticker)
+    return sentiment_service.sentiment_analysis_generate_text(news)
 
 
 if __name__ == '__main__':

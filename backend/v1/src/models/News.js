@@ -1,19 +1,22 @@
 import { Schema, model } from 'mongoose';
 
-const NewsSchema = new Schema({
-  T: String,
-  id: Number,
-  headline: String,
-  summary: String,
-  author: String,
-  created_at_news: Date,
-  updated_at_news: Date,
-  url: String,
-  content: String,
-  symbols: [String],
-  source: String,
-  semanticAnalysis: { type: Schema.Types.Mixed }
-}, {timestamps:true, versionKey:false});
+const NewsSchema = new Schema(
+  {
+    T: String,
+    id: Number,
+    headline: String,
+    summary: String,
+    author: String,
+    url: String,
+    content: String,
+    symbols: [String],
+    source: String,
+    semanticAnalysis: { type: Schema.Types.Mixed },
+  },
+  { timestamps: true, versionKey: false }
+);
+
+NewsSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 60 });
 
 const News = model('News', NewsSchema);
 

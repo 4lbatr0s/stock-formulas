@@ -1,6 +1,6 @@
 import eventEmitter from "./eventEmitter.js"
 import nodemailer from "nodemailer";
-
+import databaseActions from "./databaseActions.js";
 export default () => { 
     eventEmitter.on("send_email", (emailData)=>{
         let transporter = nodemailer.createTransport({
@@ -20,5 +20,7 @@ export default () => {
 
         console.log(info);
 
-    })
+    });
+
+    databaseActions();
 }

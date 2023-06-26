@@ -27,6 +27,11 @@ class Helper{
         return uuid.v4().split("-")[0] || `usr-${new Date().getTime()}`;
     }
 
+    generateRandomNumber() {
+        return Math.floor(Math.random() * 10000000);
+      }
+      
+
     clearStockSymbols(symbols){
         let cleanSymbols = symbols.trim();
         if(symbols.startsWith(","))

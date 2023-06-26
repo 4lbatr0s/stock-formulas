@@ -4,12 +4,18 @@ import redisClient from '../../config/caching/redisConfig.js';
 import Caching from '../utils/constants/Caching.js';
 import ApiHelper from '../utils/helpers/ApiHelper.js';
 import UrlHelper from '../utils/helpers/UrlHelper.js';
-
 const executeStockSymbols = async () => {
   try {
-    console.log('executeStockSymbols');
-    const sp500 = await StockService.scrapSP500Symbols();
-    const bist100 = await StockService.scrapBIST100Symbols();
+    const sp500Symbols = JSON.parse(await redisClient.get(Caching.SYMBOLS.SPFH));
+    if(!sp500Symbols || sp500Symbols.length<500){
+      const sp500 = await StockService.scrapSP500Symbols();
+      console.log('executeStockSymbols:SP500');
+    } 
+    const bist100Symbols = JSON.parse(await redisClient.get(Caching.SYMBOLS.BISTHUND_SYMBOLS));
+    if(!bist100Symbols || bist100Symbols.length<100){
+      const bist100 = await StockService.scrapBIST100Symbols();
+      console.log('executeStockSymbols:BIST100');
+    } 
   } catch (error) {
     console.log(error);
   }

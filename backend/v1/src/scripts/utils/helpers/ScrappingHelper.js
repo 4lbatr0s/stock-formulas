@@ -6,6 +6,7 @@ import UrlHelper from './UrlHelper.js';
 import { publicRequest } from './AxiosHelper.js';
 import redisClient from '../../../config/caching/redisConfig.js';
 import Caching from '../constants/Caching.js';
+import TickerService from '../../../services/TickerService.js';
 class ScrappingHelper {
     constructor() {}
     createStockInfos = (rawScrappingData) => {
@@ -70,6 +71,15 @@ class ScrappingHelper {
                 Caching.SYMBOLS.SPFH,
                 JSON.stringify(symbols)
             );
+            const tickers = symbols.map((symbol) => ({
+                symbol,
+                totalSentimentScore: 0,
+                averageSentimentScore: 0,
+                numberOfNews: 0,
+              }));
+            
+            await TickerService.insertMany(tickers);
+
             return symbols;
         } catch (error) {
             console.log(error);
@@ -96,6 +106,15 @@ class ScrappingHelper {
                 Caching.SYMBOLS.BISTHUND_SYMBOLS,
                 JSON.stringify(stockSymbols)
             );
+
+            const tickers = stockSymbols.map((symbol) => ({
+                symbol,
+                totalSentimentScore: 0,
+                averageSentimentScore: 0,
+                numberOfNews: 0,
+              }));
+            
+            await TickerService.insertMany(tickers);
             return stockSymbols;
         } catch (error) {
             console.error(error);

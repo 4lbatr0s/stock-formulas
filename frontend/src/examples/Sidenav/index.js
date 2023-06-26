@@ -126,8 +126,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
       />
 
       {recentNews &&
-        recentNews.map((news) => (
-          <div style={{ padding: "4px" }} key={news[0].id}>
+        recentNews.map((news, index) => (
+          <div style={{ padding: "4px" }} key={index}>
             <NewsInfoCard
               title={`${news[0]?.headline}`}
               color="secondary"
