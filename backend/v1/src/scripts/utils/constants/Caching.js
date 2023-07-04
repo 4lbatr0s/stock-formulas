@@ -21,6 +21,9 @@ const Caching={
                 SPFH:'SPFIVEHUND_SYMBOLS',
                 BISTHUND_SYMBOLS:'BISTHUND_SYMBOLS'
         }, 
+        NEWS:{
+                FETCHED_OR_NOT:"NEWS_FETCHED_OR_NOT",
+        },
         PARAMETERS:'parameters'
 }
 

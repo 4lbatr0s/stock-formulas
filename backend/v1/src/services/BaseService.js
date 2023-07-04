@@ -18,12 +18,19 @@ class BaseService{
     async find(itemId=1){
         return await this.model.findById(itemId);
     }
+    async deleteAll(property, value) {
+        const filter = { [property]: value };
+        return await this.model.deleteMany(filter);
+    
+    }
+      
     async update(where, updateInfo){
         return await this.model.findOneAndUpdate(where,updateInfo, {
             new:true, //INFO: response should contain the updated object
             runValidators:true //INFO: update should run the validation rules.
         });
     }
+
 }
 
 export default BaseService;

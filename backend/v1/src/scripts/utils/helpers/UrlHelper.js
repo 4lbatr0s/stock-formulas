@@ -61,6 +61,9 @@ class UrlHelper {
     getNewsForStockURL(symbol){
         return `${URL.ALPACA_NEWS}/${symbol}`
     }
+    getSentimentAnalysisForFinancialText(){
+        return `${URL.SENTIMENT_ANALYSIS}`
+    }
 }
 
 export default new UrlHelper();

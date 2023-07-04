@@ -13,6 +13,7 @@ import CalculationHelper from '../scripts/utils/helpers/CalculationHelper.js';
 import helper from '../scripts/utils/helper.js';
 import News from '../models/News.js';
 import NewsService from './NewsService.js';
+import TickerService from './TickerService.js';
 
 class StockService extends BaseService {
 
@@ -112,8 +113,6 @@ class StockService extends BaseService {
         }
     }
 
-
-
     async getRates(req) {
         try {
             await this.getSP500Concurrent();
@@ -138,37 +137,53 @@ class StockService extends BaseService {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
-
     async getNewsForStock(symbol) {
         try {
-            const result = await ApiHelper.getStockInfoAsync(
-                UrlHelper.getNewsForStockURL(symbol)
-            );
-            const savePromises = result.map(async (news) => {
-                const newsItem = new News({
-                  summary: news,
-                  symbols: [symbol]
-                });
-              
-                try {
-                  await NewsService.saveItem(newsItem)
-                  console.log('Item saved:', newsItem);
-                } catch (error) {
-                  console.error('Error saving item:', error);
-                  // Handle the error appropriately
-                }
+          const result = await ApiHelper.getStockInfoAsync(
+            UrlHelper.getNewsForStockURL(symbol)
+          );
+      
+          const savePromises = [];
+          const tickerUpdatePromises = [];
+      
+          for (const item of result) {
+            const newsItem = new News({
+              summary: item?.news,
+              symbols: [symbol],
+              semanticAnalysis: {
+                sentiment: item?.sentiment,
+                sentimentScore: item?.score,
+              },
             });
-              
-            await Promise.all(savePromises);
-              
-
-            return result;
+      
+            savePromises.push(NewsService.saveItem(newsItem));
+            tickerUpdatePromises.push(TickerService.updateTickerFields(symbol, newsItem.semanticAnalysis.sentimentScore));
+          }
+      
+          await Promise.all(savePromises);
+          await Promise.all(tickerUpdatePromises);
+      
+          console.log('Items saved:', result.length);
+      
+          return result.map((item) => {
+            const newsItem = new News({
+              summary: item?.news,
+              symbols: [symbol],
+              semanticAnalysis: {
+                sentiment: item?.sentiment,
+                sentimentScore: item?.score,
+              },
+            });
+      
+            return newsItem;
+          });
         } catch (error) {
-            throw new ApiError(error?.message, error?.statusCode);
+          throw new ApiError(error?.message, error?.statusCode);
         }
-    }
-
-
+      }
+      
+      
+      
     async scrapSP500Symbols() {
         try {
             const result = await ScrappingHelper.scrapSP500Symbols();

@@ -24,9 +24,11 @@ def get_stock_news(symbol):
 
 
 def get_stock_news_alpaca(symbols):
-    # Define the date range for the last year
+
+    # Define the date range for the last 24 hours
     today = datetime.date.today().strftime("%Y-%m-%d")
-    one_year_ago = (datetime.date.today() - datetime.timedelta(days=365)).strftime("%Y-%m-%d")
+    one_day_ago = (datetime.date.today() - datetime.timedelta(days=365)).strftime("%Y-%m-%d")
+
 
     url = 'https://data.alpaca.markets/v1beta1/news'
     headers = {
@@ -34,7 +36,7 @@ def get_stock_news_alpaca(symbols):
         'Apca-Api-Secret-Key': config.get_alpaca_secret(),
     }
     query_params = {
-        'start': one_year_ago,
+        'start': one_day_ago,
         'end': today,
         'symbols': symbols,
     }

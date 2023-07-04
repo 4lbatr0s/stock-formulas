@@ -11,7 +11,11 @@ const NewsSchema = new Schema(
     content: String,
     symbols: [String],
     source: String,
-    semanticAnalysis: { type: Schema.Types.Mixed },
+    semanticAnalysis: { 
+      sentiment:String,
+      sentimentScore:Number
+     },
+     isDeleted:Boolean
   },
   { timestamps: true, versionKey: false }
 );

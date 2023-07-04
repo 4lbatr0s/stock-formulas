@@ -11,6 +11,10 @@ class NewsService extends BaseService{
     async saveItem(item){
         return await item.save();
     }
+    
+    async softDelete(itemId){ 
+        return await  this.update({_id:itemId}, {isDeleted:true});
+    }
 }
 
 export default new NewsService(); //INFO: we can use the "this" keywod in the BaseService, because we create object instance here.

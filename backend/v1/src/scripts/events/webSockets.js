@@ -2,6 +2,11 @@ import WebSocket, { WebSocketServer } from "ws";
 import http from "http";
 import NewsService from "../../services/NewsService.js";
 import ScrappingHelper from "../utils/helpers/ScrappingHelper.js";
+import News from "../../models/News.js";
+import TickerService from "../../services/TickerService.js";
+import NewsController from "../../controllers/News.js";
+import { publicRequest } from "../utils/helpers/AxiosHelper.js";
+import UrlHelper from "../utils/helpers/UrlHelper.js";
 
 const configureWebSockets = (app) => {
   const server = http.createServer(app);
@@ -42,7 +47,7 @@ const configureWebSockets = (app) => {
         ScrappingHelper.getContentFromNews(event.data);
         console.log("===================================================\n");
 
-        await saveNewsToDatabase(newsData);
+        await saveNewsToDatabase(newsData[0]);
         console.log(`New data arrived: ${event.data}`);
 
         broadcastNewsData(event.data);
@@ -58,30 +63,30 @@ const configureWebSockets = (app) => {
         console.log("Retrying connection in 5 seconds...");
         setTimeout(connectToNewsWebSocket, 5000);
       } else {
-        console.log("WebSocket connection encountered an error. Closing the connection.");
+        console.log(
+          "WebSocket connection encountered an error. Closing the connection."
+        );
         newsWebSocket.close();
 
         // Additional recovery logic here...
       }
     };
 
-
     const isConnectionError = (error) => {
       // Check if the error is a connection error
       // You can customize this logic based on your specific requirements
-    
+
       if (error && error.code) {
         // Check if the error has a 'code' property
         // Here you can add conditions to identify specific error codes as connection errors
-        if (error.code === 'ECONNRESET' || error.code === 'ECONNREFUSED') {
+        if (error.code === "ECONNRESET" || error.code === "ECONNREFUSED") {
           return true;
         }
       }
-    
+
       // If none of the conditions matched, return false
       return false;
     };
-    
 
     newsWebSocket.onclose = (event) => {
       console.log("WebSocket connection closed:", event.code, event.reason);
@@ -100,7 +105,22 @@ const configureWebSockets = (app) => {
   };
 
   const saveNewsToDatabase = async (newsData) => {
-    await NewsService.add(newsData);
+    const result= await publicRequest.post(UrlHelper.getSentimentAnalysisForFinancialText(), {text:newsData})
+    const data = {result};
+    const newsItem = new News({
+      summary: data?.news,
+      symbols: newsData?.symbols,
+      semanticAnalysis:{
+        sentiment:data?.sentiment,
+        sentimentScore:data?.score
+      }
+    });
+    await NewsService.saveItem(newsItem);
+    const tickerUpdatePromises = [];
+    for(const symbol of newsItem?.symbols){
+      tickerUpdatePromises.push(TickerService.updateTickerFields(symbol, newsItem?.semanticAnalysis?.sentimentScore));
+    }
+    await Promise.all(tickerUpdatePromises);
   };
 
   const broadcastNewsData = (newsDataString) => {

@@ -1,11 +1,10 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 import yfinance as yf
 from flask_caching import Cache
 import stock_symbols as symbls
 from flask_cors import CORS
 import threading
 import pandas_datareader as pdr
-import datetime
 import news_service
 import sentiment_service
 
@@ -195,14 +194,16 @@ def get_balance_sheet_for_stock(ticker):
 @app.route('/stock-news-alpaca/<ticker>', methods=['GET'])
 @cache.cached(timeout=3600)
 def get_stock_news_sentiments_alpaca(ticker):
-    return news_service.get_stock_news_alpaca(ticker)
-
-
-
-@app.route('/sentiment-analysis/<ticker>', methods=['POST'])
-@cache.cached(timeout=3600)
-def get_stock_news_sentiments(ticker):
     news = news_service.get_stock_news_alpaca(ticker)
+    return sentiment_service.sentiment_analysis_generate_text(news)
+
+
+@app.route('/sentiment-analysis', methods=['POST'])
+@cache.cached(timeout=3600)
+def get_stock_news_sentiments():
+    request_body = request.json
+    news = request_body.get("text")
+    print("news", news)
     return sentiment_service.sentiment_analysis_generate_text(news)
 
 
