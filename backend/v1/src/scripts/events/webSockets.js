@@ -46,8 +46,9 @@ const configureWebSockets = (app) => {
         console.log("===================================================\n");
         ScrappingHelper.getContentFromNews(event.data);
         console.log("===================================================\n");
-
-        await saveNewsToDatabase(newsData[0]);
+        const {headline, summary, content} = newsData[0];
+        const mergedText = headline.concat(". ").concat(summary).concat(". ").concat(content);
+        await saveNewsToDatabase(mergedText);
         console.log(`New data arrived: ${event.data}`);
 
         broadcastNewsData(event.data);

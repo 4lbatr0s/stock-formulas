@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "flask",
             "env": {
-                "FLASK_APP": "./services/stock_service.py",
+                "FLASK_APP": "./stock_service.py",
                 "FLASK_DEBUG": "1"
             },
             "args": [

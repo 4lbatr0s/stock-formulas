@@ -44,8 +44,10 @@ def get_stock_news_alpaca(symbols):
     response = requests.get(url, params=query_params, headers=headers)
     parsed_response = json.loads(response.text)
     for news in parsed_response['news']:
-        combined_text = news['headline'] + '. ' + news['summary']
+        print("news:", news)
+        combined_text = news['headline'] + '. ' + news['summary'] + '. ' + news['content']
         combined_news.append(combined_text)
+        print("combined_news:", combined_news)
     # Process the response
     if response.status_code == 200:
         return combined_news

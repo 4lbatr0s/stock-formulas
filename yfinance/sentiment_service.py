@@ -1,10 +1,29 @@
 from concurrent import futures
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+import re
 
+from html import unescape
 
 tokenizer = AutoTokenizer.from_pretrained("mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis")
 model = AutoModelForSequenceClassification.from_pretrained("mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis")
 nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
+
+
+def clean_text(text):
+    # Remove Unicode escape sequences
+    clean_text = re.sub(r'u[0-9a-fA-F]{4}', '', text)
+    # Remove HTML tags
+    clean_text = re.sub('<.*?>', '', clean_text)
+    # Decode HTML entities
+    clean_text = unescape(clean_text)
+    # Remove special characters and symbols
+    clean_text = re.sub('[^a-zA-Z0-9\s]', '', clean_text)
+    # Remove remaining meaningless texts
+    clean_text = re.sub('nbspat|nbsp|xa|xa0', '', clean_text)
+    # Remove extra whitespaces
+    clean_text = re.sub('\s+', ' ', clean_text).strip()
+    
+    return clean_text
 
 def analyze_sentiment(sentences):
     results = nlp(sentences)
@@ -16,7 +35,7 @@ def sentiment_analysis_generate_text(texts):
     if isinstance(texts, list):
         sentences = [text.split('|') for text in texts]
     else:
-        sentences.append(texts)
+        sentences.append(clean_text(texts))
     print("sentences:", sentences)
     # Create a list to store the results
     results = []

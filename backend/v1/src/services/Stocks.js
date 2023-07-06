@@ -10,7 +10,6 @@ import PagedList from '../models/shared/RequestFeatures/PagedList.js';
 import StockExtensions from './extensions/StockExtensions.js';
 import RequestHelper from '../scripts/utils/helpers/RequestHelper.js';
 import CalculationHelper from '../scripts/utils/helpers/CalculationHelper.js';
-import helper from '../scripts/utils/helper.js';
 import News from '../models/News.js';
 import NewsService from './NewsService.js';
 import TickerService from './TickerService.js';
