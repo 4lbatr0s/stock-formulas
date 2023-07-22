@@ -193,15 +193,16 @@ class StockService extends BaseService {
         }
     }
 
-    async scrapBIST100Symbols() {
+    async scrapeInvestingForRatios(stockSymbol, valuesToScrap){
         try {
-            const result = await ScrappingHelper.scrapBIST100Symbols();
-            return result;
+            const result = await ScrappingHelper.scrapeInvestingForRatios(stockSymbol, valuesToScrap);
+            return res.status(httpStatus.OK).send(result);
         } catch (error) {
             throw new ApiError(error?.message, error?.statusCode);
         }
     }
-}
+
+    }
 
 export default new StockService();
 

@@ -4,10 +4,8 @@ import NewsService from "../../services/NewsService.js";
 import ScrappingHelper from "../utils/helpers/ScrappingHelper.js";
 import News from "../../models/News.js";
 import TickerService from "../../services/TickerService.js";
-import NewsController from "../../controllers/News.js";
-import { publicRequest } from "../utils/helpers/AxiosHelper.js";
 import UrlHelper from "../utils/helpers/UrlHelper.js";
-
+import axios from "axios";
 const configureWebSockets = (app) => {
   const server = http.createServer(app);
   const wss = new WebSocketServer({ server });
@@ -48,7 +46,7 @@ const configureWebSockets = (app) => {
         console.log("===================================================\n");
         const {headline, summary, content} = newsData[0];
         const mergedText = headline.concat(". ").concat(summary).concat(". ").concat(content);
-        await saveNewsToDatabase(mergedText);
+        // await saveNewsToDatabase(mergedText);
         console.log(`New data arrived: ${event.data}`);
 
         broadcastNewsData(event.data);
@@ -105,25 +103,37 @@ const configureWebSockets = (app) => {
     );
   };
 
-  const saveNewsToDatabase = async (newsData) => {
-    const result= await publicRequest.post(UrlHelper.getSentimentAnalysisForFinancialText(), {text:newsData})
-    const data = {result};
-    const newsItem = new News({
-      summary: data?.news,
-      symbols: newsData?.symbols,
-      semanticAnalysis:{
-        sentiment:data?.sentiment,
-        sentimentScore:data?.score
-      }
-    });
-    await NewsService.saveItem(newsItem);
-    const tickerUpdatePromises = [];
-    for(const symbol of newsItem?.symbols){
-      tickerUpdatePromises.push(TickerService.updateTickerFields(symbol, newsItem?.semanticAnalysis?.sentimentScore));
-    }
-    await Promise.all(tickerUpdatePromises);
-  };
-
+  // const saveNewsToDatabase = async (newsData) => {
+  //   const newsItem = newsData; // Get the first news item from the array
+  
+  //   const result = await axios.post(
+  //     UrlHelper.getSentimentAnalysisForFinancialText(),
+  //     { text: newsItem } // Pass the news item as a string
+  //   );
+    
+  //   const { news, sentiment, score } = result.data[0]; // Assuming the result contains properties like news, sentiment, and score
+    
+  //   const newsItemData = {
+  //     summary: news,
+  //     symbols: newsItem.symbols,
+  //     semanticAnalysis: {
+  //       sentiment,
+  //       sentimentScore: score
+  //     }
+  //   };
+  
+  //   const newsItemModel = new News(newsItemData);
+  //   await NewsService.saveItem(newsItemModel);
+  
+  //   const tickerUpdatePromises = [];
+  //   for (const symbol of newsItemData.symbols) {
+  //     tickerUpdatePromises.push(
+  //       TickerService.updateTickerFields(symbol, newsItemData.semanticAnalysis.sentimentScore)
+  //     );
+  //   }
+  //   await Promise.all(tickerUpdatePromises);
+  // };
+  
   const broadcastNewsData = (newsDataString) => {
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {

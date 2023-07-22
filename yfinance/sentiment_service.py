@@ -8,7 +8,6 @@ tokenizer = AutoTokenizer.from_pretrained("mrm8488/distilroberta-finetuned-finan
 model = AutoModelForSequenceClassification.from_pretrained("mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis")
 nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
 
-
 def clean_text(text):
     # Remove Unicode escape sequences
     clean_text = re.sub(r'u[0-9a-fA-F]{4}', '', text)

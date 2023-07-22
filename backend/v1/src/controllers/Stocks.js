@@ -106,6 +106,14 @@ class StockController {
             return next(new ApiError(error?.message, error?.statusCode));
         }
     }
+    async scrapeInvestingForRatios(req, res, next){
+        try {
+            const result = await StockService.scrapeInvestingForRatios(req.params.stockSymbol, req.body.valuesToScrape);
+            return res.status(httpStatus.OK).send(result);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
 }
 
 export default new StockController();
