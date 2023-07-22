@@ -1,0 +1,264 @@
+[33mcommit 2096a310f6b8c41a86ed84f948f518f2bc61dd47[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Fri Jul 7 00:34:36 2023 +0300
+
+    UPDATE flask/news_service.py, ADD content to sentiment analysis
+
+[33mcommit 490b4b2eadb6b65e45be9b987214d61fd3ccb418[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Wed Jul 5 01:14:42 2023 +0300
+
+    UPDATE News service/controller,
+    FIX sentiment analysis in ws,
+    UPDATE database actions
+
+[33mcommit fb10cd31dc1da1798368d4002023076f9003da74[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Tue Jun 27 17:46:10 2023 +0300
+
+    FIX sentiment analysis service
+
+[33mcommit 6ffb33de84d54ca51bf89dd1d35c832c069e7f2b[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Tue Jun 27 02:03:58 2023 +0300
+
+    UPDATE a lot
+
+[33mcommit 2dbb0f588f81eeafcf839eb297b3c85526bfdb01[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Tue Jun 6 02:41:46 2023 +0300
+
+    UPDATE websocket, create notification for news
+
+[33mcommit c28e6cdc4a13f69f92b14d020cb7da7f883da95f[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Mon Jun 5 00:21:24 2023 +0300
+
+    CREATE real time news update on frontend
+
+[33mcommit 42b85f0518cd68398782ecd183135e79d70767d3[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Mon May 29 03:14:08 2023 +0300
+
+    CREATE alpaca news integration /wss
+
+[33mcommit f9487f90125eaee2c55dab58f1f3705a4c921ae0[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Mon May 29 02:10:12 2023 +0300
+
+    UPDATE Button style
+
+[33mcommit 72920704f63fc4306ad5ed822b30b45b960055d5[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Mon May 29 01:22:25 2023 +0300
+
+    UPDATE DataTable, Stocks, Navbar
+
+[33mcommit caff6dfbcfe6a829aecc02f1a125ae5302720c97[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Fri May 26 00:52:50 2023 +0300
+
+    UPDATE Overall calculation
+
+[33mcommit 0df5de5c2158d06e27744d3f2ff20cc63bcbd882[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Wed May 24 02:44:00 2023 +0300
+
+    UPDATE StockHelper
+
+[33mcommit 1ae25c4c92156892acb420f8e438000ce89072cb[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Mon May 22 06:27:11 2023 +0300
+
+    UPDATE Ratio calculations
+
+[33mcommit a6b0a7afcfa25ce05737596dec2fd644b6e79d0c[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Mon May 15 02:57:45 2023 +0300
+
+    CREATE stock_service.py, UPDATE Pagination, CREATE BIST100
+
+[33mcommit bffe743dbb89383559d8f2fb4fad633432f32e40[m
+Merge: 00c6346 2c2622e
+Author: 4lbatr0s <82971869+4lbatr0s@users.noreply.github.com>
+Date:   Wed May 3 00:02:20 2023 +0300
+
+    Merge pull request #7 from 4lbatr0s/frontend-redux
+    
+    Frontend redux
+
+[33mcommit 2c2622eab72e7c0412f2a814ba45f58d91e785f0[m[33m ([m[1;31morigin/frontend-redux[m[33m)[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Tue May 2 23:42:13 2023 +0300
+
+    UPDATE
+
+[33mcommit fb053a67d3e207557c707a6debdb8a25c89c443e[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Wed Apr 12 02:34:11 2023 +0300
+
+    FIX Configurator,  Sidenav components
+
+[33mcommit a7162bdcd60d007f44eede1578937e556d7e250d[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Mon Apr 10 03:06:45 2023 +0300
+
+    UPDATE state management ContextAPI-->Redux
+
+[33mcommit 00c63467732fd5566c3abcec3b2591e28c557acb[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Sun Apr 9 22:56:26 2023 +0300
+
+    INIT client
+
+[33mcommit 47da75758a660cfd1e7dd0307c4fb3af5130bc6c[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Sat Apr 8 02:21:01 2023 +0300
+
+    UPDATE cacheData, getRates controller, ADD X-Pagination header
+
+[33mcommit eb25443b0b325d5f0cd3728583a76bfd786e937a[m[33m ([m[1;31morigin/serhat/sorting-new[m[33m)[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Sat Apr 8 02:09:32 2023 +0300
+
+    UPDATE getAskedPropertiesFromJson, O(n2) to O(n) time complexity
+
+[33mcommit 515c56579cd927640d309cc18b21e61b51fd0235[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Sat Apr 8 02:06:47 2023 +0300
+
+    UPDATE sortStocksByDebtToEquities, getAskedPropertiesFromJson
+
+[33mcommit 134f2e6337a1dbcc90d0349f7b70dcdbd0ca72f6[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Sat Apr 8 00:37:49 2023 +0300
+
+    UPDATE sorting
+
+[33mcommit 25a153184f104a36cf0e9ce0bc45632aadebbd51[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Sat Apr 8 00:20:49 2023 +0300
+
+    UPDATE sorting
+
+[33mcommit dc8106d73ab0e5f0a6b262fd5ef5ea7a0c5609d2[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Fri Apr 7 19:35:33 2023 +0300
+
+    UPDATE StockExtensions
+
+[33mcommit 3f145f816979bfbb3ebfe8ba08d64912a1c0d873[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Fri Apr 7 19:16:31 2023 +0300
+
+    UPDATE RequestHelper, Sorting, Caching
+
+[33mcommit 2a690faf3bf61aabcb949d34ca472553863648f7[m
+Merge: 47e2646 83c6cd5
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Fri Apr 7 02:17:12 2023 +0300
+
+    Merge branch 'paginate-filter-search-sort-II'
+
+[33mcommit 83c6cd5ba3609a280beeb5a3dfdc0764f60b04c2[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Fri Apr 7 02:16:44 2023 +0300
+
+    UPDATE Redis Middleware, getRates(), CREATE RequestHelper class
+
+[33mcommit e1f2d68596e8e467b919411b7dac8f394be954e7[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Fri Apr 7 01:50:24 2023 +0300
+
+    UPDATE Caching, StockService, ENABLE using Pre-sorting and dynamic sorting usage together
+
+[33mcommit 47e26466312f5bcfafed5be1ca93d1083c82a664[m
+Merge: 00f7ca1 264a023
+Author: 4lbatr0s <82971869+4lbatr0s@users.noreply.github.com>
+Date:   Thu Apr 6 23:31:43 2023 +0300
+
+    Merge pull request #6 from 4lbatr0s/paginate-filter-search-sort-II
+    
+    Paginate filter search sort ii
+
+[33mcommit 264a023a6f383cc598fd55e38294dc92a953c98e[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Thu Apr 6 20:34:53 2023 +0300
+
+    FIX Sorting
+
+[33mcommit 5ac7fc74ece0bbdd5e8e7928fb2c5349c894dfbb[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Wed Apr 5 20:42:36 2023 +0300
+
+    CREATE pagination
+
+[33mcommit 00f7ca17cfab24c5fc86440b907dee9ceb96907c[m
+Merge: 9f01108 6aa7525
+Author: 4lbatr0s <82971869+4lbatr0s@users.noreply.github.com>
+Date:   Wed Apr 5 20:03:18 2023 +0300
+
+    Merge pull request #5 from 4lbatr0s/sp500-sorting-calculating
+    
+    Sp500 sorting calculating
+
+[33mcommit 6aa75259bef17b5ea0fcefb42a3be48779b59966[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Wed Apr 5 20:02:30 2023 +0300
+
+    CHANGE project structure
+
+[33mcommit 4e875b4e062c9e8ec02324536143a5b5fb61ce19[m
+Merge: f59a101 9f01108
+Author: 4lbatr0s <82971869+4lbatr0s@users.noreply.github.com>
+Date:   Wed Apr 5 10:30:55 2023 +0300
+
+    Merge pull request #4 from 4lbatr0s/master
+    
+    merge
+
+[33mcommit 9f01108a5954b6b8bf683710081ffbf7a5fac0ec[m
+Merge: 0d0f6aa 1769a6d
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Wed Apr 5 10:29:08 2023 +0300
+
+    Merge branch 'master' of https://github.com/4lbatr0s/stock-formulas
+
+[33mcommit 1769a6d2b97377fcd336a8ba3ac75706e9ed4e8a[m
+Merge: 66554bb f59a101
+Author: 4lbatr0s <82971869+4lbatr0s@users.noreply.github.com>
+Date:   Wed Apr 5 10:28:08 2023 +0300
+
+    Merge pull request #3 from 4lbatr0s/sp500-sorting-calculating
+    
+    FIXED, StockHelper.js stockValues reference issue
+
+[33mcommit 0d0f6aa93d7450f9eadc754e15eaa1a3ef916d61[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Wed Apr 5 10:26:35 2023 +0300
+
+    UPDATE launch.json
+
+[33mcommit 04e1ed89dd47e10d98292677dec365820f5de07d[m
+Merge: 0cec793 f59a101
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Wed Apr 5 10:25:59 2023 +0300
+
+    sync
+
+[33mcommit f59a1017616ec901b5c772c7db1f1a8a475cfe24[m
+Author: 4lbatr0s <serhatoner@protonmail.com>
+Date:   Wed Apr 5 00:34:28 2023 +0300
+
+    FIXED, StockHelper.js stockValues reference issue
+
+[33mcommit 66554bb9f4fc8429154458c6a7807cb414dadfc1[m
+Merge: fdfca62 7b003d9
+Author: 4lbatr0s <82971869+4lbatr0s@users.noreply.github.com>
+Date:   Wed Apr 5 00:14:29 2023 +0300
+
+    Merge pull request #2 from 4lbatr0s/sp500-sorting-calculating
+    
+    FIX nodemon crash problem
+
+[33mco

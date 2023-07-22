@@ -13,7 +13,6 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple', 'CACHE_TIMEOUT':3600})
 CORS(app, origins=["http://localhost:3000"])
 
 # Set user agent to avoid being blocked by Yahoo Finance
-yf.pdr_override()
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
 }
@@ -209,3 +208,13 @@ def get_stock_news_sentiments():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
+
+
+
+@app.route("/text-emotion", methods=['POST','GET'])
+def get_text_emotion():
+    request_body = request.json
+    sentence = request_body.sentence
+    emotion_detection = nlp(sentence)
+    return emotion_detection
