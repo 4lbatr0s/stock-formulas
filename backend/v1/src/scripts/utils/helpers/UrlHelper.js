@@ -64,6 +64,9 @@ class UrlHelper {
     getSentimentAnalysisForFinancialText(){
         return `${URL.SENTIMENT_ANALYSIS}`
     }
+    scrapInvestingForRatioUrls(countryName){
+        return `https://www.investing.com/equities/${countryName}`
+    }
 }
 
 export default new UrlHelper();
