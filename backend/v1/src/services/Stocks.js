@@ -193,10 +193,17 @@ class StockService extends BaseService {
         }
     }
 
-    async scrapeInvestingForRatios(stockSymbol, valuesToScrap){
+    async scrapeInvestingForRatios(companyName){
         try {
-            const result = await ScrappingHelper.scrapeInvestingForRatios(stockSymbol, valuesToScrap);
-            return res.status(httpStatus.OK).send(result);
+            return await ScrappingHelper.scrapeInvestingForRatios(companyName);
+        } catch (error) {
+            throw new ApiError(error?.message, error?.statusCode);
+        }
+    }
+
+    async scrapRatioRoutesFromInvesting(countryName, marketName){
+        try {
+            return await ScrappingHelper.scrapeInvestingForRatioUrls(countryName, marketName);
         } catch (error) {
             throw new ApiError(error?.message, error?.statusCode);
         }

@@ -108,12 +108,22 @@ class StockController {
     }
     async scrapeInvestingForRatios(req, res, next){
         try {
-            const result = await StockService.scrapeInvestingForRatios(req.params.stockSymbol, req.body.valuesToScrape);
+            const result = await StockService.scrapeInvestingForRatios(req.params.companyName);
             return res.status(httpStatus.OK).send(result);
         } catch (error) {
             return next(new ApiError(error?.message, error?.statusCode));
         }
     }
+
+    async scrapRatioRoutesFromInvesting(req, res, next){
+        try {
+            const result = await StockService.scrapRatioRoutesFromInvesting(req.params.countryName, req.params.marketName);
+            return res.status(httpStatus.OK).send(result);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
+    
 }
 
 export default new StockController();
