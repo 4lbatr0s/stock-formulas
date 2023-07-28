@@ -1,13 +1,18 @@
 from concurrent import futures
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+from flask import request
 import re
 
 from html import unescape
 
-tokenizer = AutoTokenizer.from_pretrained("mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis")
-model = AutoModelForSequenceClassification.from_pretrained("mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis")
-nlp = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
-
+tokenizer = AutoTokenizer.from_pretrained("zafercavdar/distilbert-base-turkish-cased-emotion")
+model = AutoModelForSequenceClassification.from_pretrained("zafercavdar/distilbert-base-turkish-cased-emotion")
+nlp = pipeline(
+    "text-classification",
+    model=model,
+    tokenizer=tokenizer,
+    return_all_scores=True
+)
 def clean_text(text):
     # Remove Unicode escape sequences
     clean_text = re.sub(r'u[0-9a-fA-F]{4}', '', text)
@@ -26,7 +31,9 @@ def clean_text(text):
 
 def analyze_sentiment(sentences):
     results = nlp(sentences)
+
     return results
+
 
 def sentiment_analysis_generate_text(texts):
     # Split the input text into individual sentences
