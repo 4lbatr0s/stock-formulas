@@ -4,6 +4,9 @@ const investingCom = {
     },
     MARKETS:{
         SP_500:"S&P 500"
+    }, 
+    RATIO_URL_STOCK_PAIRS:{
+        
     }
 }
 

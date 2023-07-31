@@ -147,58 +147,138 @@ class ScrappingHelper {
     });
   }
 
-  async scrapeInvestingForRatios(companyName) {
-    const browser = await puppeteer.launch({
-      headless: true,
-      defaultViewport: null,
-    });
-    const page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0')
-    await page.goto(`https://www.investing.com/equities/${companyName}-ratios`, {
-      waitUntil:'networkidle2' //networkidle2: be sure there aren't more than 2 connections working in the background some page is fully loaded.
-    });
-    await this.closePopUpsInInvesting(page);
-    // Wait for the table to load (you may need to adjust the selector if necessary)
-    await page.waitForSelector("table.genTbl.reportTbl", {
-      waitUntil:"networkidle2",
-      visible:true,
-      timeout:60000
-    });
+  async selectOptionById(page, selectElementId, optionId) {
+    // Get the option value based on the option id
+    const optionValue = await page.$eval(
+      `#${selectElementId} option[id="${optionId}"]`,
+      (option) => option.value
+    );
 
-    const data = await page.evaluate(() => {
-      const tableRows = document.querySelectorAll(
-        "table.genTbl.reportTbl tbody tr.child"
-      );
-
-      const tableData = [];
-
-      tableRows.forEach((row) => {
-        const key = row.querySelector("td span").textContent.trim();
-        const values = Array.from(
-          row.querySelectorAll("td:not(:first-child)")
-        ).map((td) => td.textContent.trim());
-
-        tableData.push({ key, values });
-      });
-
-      return tableData;
-    });
-    return data;
+    // Select the option in the dropdown
+    await page.select(`#${selectElementId}`, optionValue);
   }
 
+  async scrapeInvestingForRatios(companyName) {
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      ignoreHTTPSErrors: true, // Ignore HTTPS errors
+      defaultViewport: null, // Set your custom viewport dimensions if needed
+      args: [
+        "--no-sandbox", // Add more args as needed
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-setuid-sandbox",
+        "--blink-settings=imagesEnabled=false"
+      ],
+    });
+  
+    const page = await browser.newPage();
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+    );
+  
+    // Enable request interception
+    await page.setRequestInterception(true);
+  
+    // Listen for the request event to block unnecessary resources
+    page.on("request", (request) => {
+      const resourceType = request.resourceType();
+      if (
+        resourceType === "image" ||
+        resourceType === "stylesheet" ||
+        resourceType === "font" ||
+        resourceType === "media"
+      ) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+
+    await page.goto(`https://www.investing.com/equities/${companyName}-ratios`, {
+      waitUntil: "networkidle2",
+      timeout: 60000, // Increase the timeout value to 60 seconds.
+    });
+    
+    await this.closePopUpsInInvesting(page);
+  
+    // Wait for the table to load (you may need to adjust the selector if necessary)
+    await page.waitForSelector("table.genTbl.reportTbl", {
+      waitUntil: "networkidle2",
+      visible: true,
+    });
+    
+    const data = await page.evaluate(() => {
+      const tableData = [];
+      const tableRows = document.querySelectorAll("table.genTbl.reportTbl tbody tr.child");
+      tableRows.forEach((row) => {
+        const key = row.querySelector("td span").textContent.trim();
+        const values = Array.from(row.querySelectorAll("td:not(:first-child)")).map((td) => td.textContent.trim());
+        tableData.push({ key, values });
+      });  
+      return tableData;
+    });
+  
+    return data;
+  }
+  
   async scrapeInvestingForRatioUrls(countryName, marketName) {
     const browser = await puppeteer.launch({
-      headless: false,
+      headless: "new",
+      ignoreHTTPSErrors: true,
       defaultViewport: null,
+      args: [
+        "--no-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-setuid-sandbox",
+        "--blink-settings=imagesEnabled=false"
+      ],
     });
+
     const page = await browser.newPage();
-    await page.goto(
-      UrlHelper.scrapInvestingForRatioUrls(investingCom.COUNTRIES[countryName])
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
     );
-    await this.closePopUpsInInvesting(page);
-    await page.waitForSelector("#stocksFilter");
-    await page.select("#stocksFilter", investingCom.MARKETS[marketName]);
-    // Use page.$$eval() to extract the href values from the "a" elements
+
+    // Enable request interception
+    await page.setRequestInterception(true);
+
+    // Listen for the request event to block unnecessary resources
+    page.on("request", (request) => {
+      const resourceType = request.resourceType();
+      if (
+        resourceType === "image" ||
+        resourceType === "stylesheet" ||
+        resourceType === "font" ||
+        resourceType === "media"
+      ) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+
+    await page.goto(
+      UrlHelper.scrapInvestingForRatioUrls(investingCom.COUNTRIES[countryName]),
+      {
+        waitUntil: "networkidle2",
+      }
+    );
+
+    // Wait for the select element to be ready
+    await page.waitForSelector("select#stocksFilter.selectBox", {
+      visible: true,
+    });
+    await page.select(
+      "select#stocksFilter.selectBox",
+      investingCom.MARKETS[marketName]
+    );
+    // await page.waitForTimeout(1000); // Adjust this timeout as needed
+    await page.waitForSelector("#cross_rate_markets_stocks_1 tbody tr", {
+      visible: true,
+    });
+
     const hrefValues = await page.$$eval(
       "#cross_rate_markets_stocks_1 tbody tr",
       (rows) => {
@@ -209,6 +289,8 @@ class ScrappingHelper {
         });
       }
     );
+
+    await browser.close(); // Close the browser when done
 
     return hrefValues;
   }

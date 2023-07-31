@@ -4,7 +4,8 @@ const TickerSchema = new Schema({
     symbol:{type:String, unique:true},
     totalSentimentScore:Number,
     averageSentimentScore:Number,
-    numberOfNews:Number
+    numberOfNews:Number,
+    
 }, {timestamps:true, versionKey:false});
 
 
