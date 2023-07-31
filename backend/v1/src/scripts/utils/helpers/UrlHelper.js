@@ -67,6 +67,9 @@ class UrlHelper {
     scrapInvestingForRatioUrls(countryName){
         return `https://www.investing.com/equities/${countryName}`
     }
+    scrapInvestingForRatioValues(companyName){
+        return `https://www.investing.com/equities/${companyName}-ratios`
+    }
 }
 
 export default new UrlHelper();

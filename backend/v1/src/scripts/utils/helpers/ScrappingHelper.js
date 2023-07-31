@@ -9,7 +9,8 @@ import Caching from "../constants/Caching.js";
 import TickerService from "../../../services/TickerService.js";
 import puppeteer from "puppeteer";
 import investingCom from "../constants/InvestingCom.js";
-import axios from "axios";
+import InvestingScrapingModel from "../../../models/InvestingScrapping.js";
+
 class ScrappingHelper {
   constructor() {}
   createStockInfos = (rawScrappingData) => {
@@ -195,7 +196,7 @@ class ScrappingHelper {
       }
     });
 
-    await page.goto(`https://www.investing.com/equities/${companyName}-ratios`, {
+    await page.goto(UrlHelper.scrapInvestingForRatioValues(companyName), {
       waitUntil: "networkidle2",
       timeout: 60000, // Increase the timeout value to 60 seconds.
     });
@@ -203,22 +204,44 @@ class ScrappingHelper {
     await this.closePopUpsInInvesting(page);
   
     // Wait for the table to load (you may need to adjust the selector if necessary)
-    await page.waitForSelector("table.genTbl.reportTbl", {
-      waitUntil: "networkidle2",
-      visible: true,
-    });
-    
+    await Promise.all([
+      page.waitForSelector("table.genTbl.reportTbl", {
+        waitUntil: "networkidle2",
+        visible: true,
+      }),
+      page.waitForSelector("h1.float_lang_base_1", {
+        waitUntil: "networkidle2",
+        visible: true,
+      })
+    ]);
+
     const data = await page.evaluate(() => {
-      const tableData = [];
+      const result = {}; // Create an empty object to store the data
+      // Get the stockSymbol and store it in the result object
+      const stockSymbolElement = document.querySelector("h1.float_lang_base_1.relativeAttr");
+      const regex = /\((.*?)\)/;
+      const matches =  stockSymbolElement?.textContent.match(regex);
+      if(matches && matches.length>=2)
+        result.stockSymbol = matches[1];
+      else
+        result.stockSymbol = null;    
+      // Initialize the tableData property as an empty array in the result object
+      result.tableData = [];
+      // Loop through the table rows and extract the data
       const tableRows = document.querySelectorAll("table.genTbl.reportTbl tbody tr.child");
       tableRows.forEach((row) => {
         const key = row.querySelector("td span").textContent.trim();
         const values = Array.from(row.querySelectorAll("td:not(:first-child)")).map((td) => td.textContent.trim());
-        tableData.push({ key, values });
-      });  
-      return tableData;
+        result.tableData.push({ key, values });
+      });
+    
+      return result;
     });
-  
+    const ticker = await TickerService.findOne({symbol:data.stockSymbol});
+    await InvestingScrapingModel.create({
+      ticker:ticker.id,
+      ratioLink:UrlHelper.scrapInvestingForRatioValues(companyName)
+    })
     return data;
   }
   
