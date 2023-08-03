@@ -7,8 +7,7 @@ const InvestingScrapingSchema = new Schema({
         unique:true
     },
     ticker: {
-      type: Schema.Types.ObjectId,
-      ref: 'Ticker',
+      type: String,
     }
   }, { timestamps: true, versionKey: false });
   

@@ -7,6 +7,7 @@ import InvestingScrapingModel from "../../models/InvestingScrapping.js";
 import TickerService from "../../services/TickerService.js";
 import ScrappingHelper from "../utils/helpers/ScrappingHelper.js";
 import browserPromise from "../../loaders/puppeteer.js";
+import mongoose from "mongoose";
 const executeStockSymbols = async () => {
   try {
     const sp500Symbols = JSON.parse(
@@ -35,19 +36,21 @@ const getStockRatiosFromInvesting = async ()=> {
   let currentDelay = 0;
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const investingRatios = [];
+  const browser = await browserPromise();
   for (const model of models){
-    let result = await ScrappingHelper.scrapeInvestingForRatios(model.ratioLink.concat("-ratios"));
+    let result =  await ScrappingHelper.scrapeInvestingForRatios(model.ratioLink.concat("-ratios"), browser);
     investingRatios.push(result);
-    let ticker = await TickerService.find(model.ticker);
+    let tickerId = mongoose.Types.ObjectId(model.ticker);
+    let ticker = await TickerService.find(tickerId);
     console.log(`waiting for ${currentDelay}`)
     await delay(currentDelay); // Delay before sending the request
-    if(currentDelay% 20000 === 0 && currentDelay!==0){
+    if(currentDelay% 2000 === 0 && currentDelay!==0){
       currentDelay=0;
     } else {
       currentDelay+= 100;
     }
   }
-  await browserPromise.close(); // Close the browser when done
+  await browser.close(); // Close the browser when done
   await redisClient.set("investinRatios", JSON.stringify(investingRatios));
 }
 
