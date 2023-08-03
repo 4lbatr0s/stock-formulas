@@ -1,9 +1,12 @@
-import cron from "node-cron";
 import StockService from "../../services/Stocks.js";
 import redisClient from "../../config/caching/redisConfig.js";
 import Caching from "../utils/constants/Caching.js";
 import ApiHelper from "../utils/helpers/ApiHelper.js";
 import UrlHelper from "../utils/helpers/UrlHelper.js";
+import InvestingScrapingModel from "../../models/InvestingScrapping.js";
+import TickerService from "../../services/TickerService.js";
+import ScrappingHelper from "../utils/helpers/ScrappingHelper.js";
+import browserPromise from "../../loaders/puppeteer.js";
 const executeStockSymbols = async () => {
   try {
     const sp500Symbols = JSON.parse(
@@ -24,6 +27,29 @@ const executeStockSymbols = async () => {
     console.log(error);
   }
 };
+
+ 
+const getStockRatiosFromInvesting = async ()=> {
+   console.log("getStockRatiosFromInvesting is started");
+  const models = await InvestingScrapingModel.find({});
+  let currentDelay = 0;
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const investingRatios = [];
+  for (const model of models){
+    let result = await ScrappingHelper.scrapeInvestingForRatios(model.ratioLink.concat("-ratios"));
+    investingRatios.push(result);
+    let ticker = await TickerService.find(model.ticker);
+    console.log(`waiting for ${currentDelay}`)
+    await delay(currentDelay); // Delay before sending the request
+    if(currentDelay% 20000 === 0 && currentDelay!==0){
+      currentDelay=0;
+    } else {
+      currentDelay+= 100;
+    }
+  }
+  await browserPromise.close(); // Close the browser when done
+  await redisClient.set("investinRatios", JSON.stringify(investingRatios));
+}
 
 const getFinancialDataForSP500AndBIST100 = async () => {
   try {
@@ -162,6 +188,7 @@ const getNewsForStocks = async () => {
 const initialJob = async () => {
   console.log("Sending request INITIAL...");
   try {
+    await getStockRatiosFromInvesting();
     await executeStockSymbols();
     await getFinancialDataForSP500AndBIST100();
     await getNewsForStocks();

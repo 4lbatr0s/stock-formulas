@@ -22,7 +22,7 @@ croneJobs();
 
 const app = express();
 appConfig(app);
-configureWebSockets(app);
+// configureWebSockets(app);
 app.use('/uploads', express.static(path.join(__dirname, './', 'uploads')));
 
 loadRoutes(app); //import route usings from another module.

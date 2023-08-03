@@ -3,11 +3,12 @@ import { Schema, model } from "mongoose";
 const InvestingScrapingSchema = new Schema({
     ratioLink: {
         type:String,
-        required:true
+        required:true,
+        unique:true
     },
     ticker: {
       type: Schema.Types.ObjectId,
-      ref: 'Ticker'
+      ref: 'Ticker',
     }
   }, { timestamps: true, versionKey: false });
   

@@ -26,7 +26,7 @@ class BaseService{
         return await this.model.deleteMany(filter);
     
     }
-      
+    
     async update(where, updateInfo){
         return await this.model.findOneAndUpdate(where,updateInfo, {
             new:true, //INFO: response should contain the updated object

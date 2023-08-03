@@ -1,20 +1,38 @@
 import Mongoose from "mongoose";
 
-const db = Mongoose.connection;
 
-db.once("open", ()=>{
-    console.log("Successfully connected to mongodb");
-})
-
-
-const connectDB =  async () => {
-    console.log(process.env.DB_HOST,process.env.DB_PORT, process.env.DB_NAME )
+const connectDB = async () => {
+  console.log(process.env.DB_HOST, process.env.DB_PORT, process.env.DB_NAME);
+  try {
     await Mongoose.connect(`mongodb+srv://serhat:jXgcx2Mu1r3ojLww@cluster0.9jvil.mongodb.net/zufindb`, {
-        useNewUrlParser:true, //tells mongoose to use the latest url parser.
-        useUnifiedTopology:true //tells mongoose to use the newest server discovery and monitoring engine
-    });     
-}
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
-export {connectDB} 
+    console.log('Connected to MongoDB');
 
+    Mongoose.connection.on('error', (err) => {
+      console.error('Error connecting to MongoDB:', err);
+    });
 
+    Mongoose.connection.on('disconnected', () => {
+      console.log('Disconnected from MongoDB');
+    });
+
+    process.once('SIGINT', async () => {
+      try {
+        await Mongoose.connection.close();
+        console.log('MongoDB connection closed due to application termination');
+        process.exit(0);
+      } catch (err) {
+        console.error('Error closing MongoDB connection:', err);
+        process.exit(1);
+      }
+    });
+
+  } catch (err) {
+    console.error('Error connecting to MongoDB:', err);
+  }
+};
+
+export { connectDB };

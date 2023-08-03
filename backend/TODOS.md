@@ -1,30 +1,25 @@
-## SORTING
-1. Stocklari sort edip cache'de mi tutacaksin ? yoksa sort edilmemis stocklari sorting query ile mi sort edeceksin karar verilmeli. SIMDILIK IKISI BERABER KULLANILIYOR
-2. rates/parameters?...diyerek queryleri girebiliyoruz, eger parameters yerine bir rate ismi girersek direk cacheden sort edilmis degerler getiriyoruz.ILERDE CACHE'E SORT EDILMIS VERI ATMAYI TAMAMEN KALDIRABILIRIM.
-## STRUCTURE
-2. Scrap the values from a single or multiple websites.
-4. You can put a SortingValues property to each stockValue object and do sortings based on these values, for instance AAPL:{SortingValues: {graham:5, ebitda:241, ...., p/b:123}}
- 
-## CODE
-1. Create a global logger middleware.
-3. CREATE A SINGLE REDIS CLIENT, DO NOT CALL REDISCONFIG EVERWHERE. USE THE SAME CLIENT EVERYWHERE. THIS IS A PROBLEM ORIGINATE FROM EXPORTING AN ASYNCHRONOUS FUNCTION IN configs/caching/redis.js file.
-4. TRY TO USE REDIS BY PASSING IT FROM BaseController to the inherited controllers.
-5. REDIS EXPIRATION DOES NOT WORK, PROBABLY BECAUSE OF THE REASON ABOVE: ITS NOT WORKING BECAUSE EVERY TIME YOU EXECUTE THE FUNCTION, ITS A NEW REDIS CLIENT, SO EXPIRATION DATES DISAPPEAR INTO THE SPACE :)
-6. CATCH BLOCKS IN THE SERVICES DOES NOT NEED TO HAVE NEXT, THEY JUST NEED TO THROW EXCEPTIONS!
+## SP500 LISTELERININ DEGISIMINE GORE YENI RATIOLARI CEKMEK
+SUANDA ScrappingHelper.scrapeInvestingForRatios() methodunda, asagidaki gibi bir kod blogu var:
+```
+ const ticker = await TickerService.findOne({symbol:data.stockSymbol});
+    if (ticker) {
+      if (investingModel) {
+        await InvestingScrapingModel.findOneAndUpdate(
+          { ratioLink },
+          { ticker: ticker._id }
+        );
+      }
+    }
+```
+Bu kod blogu bir ticker'a bakiyor, eger ticker varsa ve investingModel varsa, investingModelin ticker degerini guncelliyor.
+### Sorun: 
+- SP500 listesi degisebilir, bu nedenle hem ticker collectiondaki degerler hem de  investingModel collectionundaki url'ler de degisecektir.
+- SP500 listesi degisirse hem urlleri degistirmek hem de tickerlari degistirmek gerekecek, 
+- Dolayisiyla, bu koddaki investingModel var mi kontrolu if(investingModel) ya da if(ticker) kontrolleri mantikli kontroller degil
+cunku urller bir kere cekildi mi hep db de kalacaklar dolayisiyla hep true donecek. 
+- buraya SP500 listeleri yenilendi mi diye bir parametre koymak gerek, eger yenilendiyse hem url'yi hem de tickeri update etmek gerek.
+- bunu da ScrappingHelper.scrapeInvestingForRatioUrls() endpointinde yapmak gerek.
 
 ## IDEAS:
 - A USER SHOULD BE ABLE TO CHOOSE SORTING OPTIONS. FOR INSTANCE, A USER MIGHT WANT TO SORT STOCKS BASE OF OVERALL EVALUATION OF FOUR DIFFERENT STOCK CHOOSING STRATEGIES.
 -- USER CHOOSES GRAHAM NUMBER, EBITDA ..2 MORE AND WE ONLY RETURN THE OVERALL EVALUATION OF FOUR DIFFERENT STOCK CHOOSING STRATEGIES.
-
-### GRAHAM VALUE
-- BRING STOCK INFO WITH GRAHAM VALUE.
-- BRING MAXIMUM PRICE YOU SHOULD PAY FOR THE STOCK
-- BRING ATTRACTIVE, AVOID.
-
-
-# PROBLEMS
-2. BIST HISSELERI YAHOODAN CEKILEMIYOR. BASKA BIR YONTEM BULMAK GEREK
-
-# MESSAGE BROKER - RABBITMQ
-- CONSUMER'A GELEN MESAJLAR ACAYIP BIR SACMALIKLA DONUYOR. YAPILARI BOZULUYOR, IC ICE OBJELER GELIYOR. COZ.
-- SIMDILIK MESSAGE BROKER YERINE PROMISE ALL KULLANIYORUM. BUNUN DEGISMESI GEREKIYOR.

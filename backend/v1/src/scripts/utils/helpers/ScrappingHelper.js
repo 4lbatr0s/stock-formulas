@@ -10,7 +10,8 @@ import TickerService from "../../../services/TickerService.js";
 import puppeteer from "puppeteer";
 import investingCom from "../constants/InvestingCom.js";
 import InvestingScrapingModel from "../../../models/InvestingScrapping.js";
-
+import browserPromise from "../../../loaders/puppeteer.js";
+import mongoose from "mongoose";
 class ScrappingHelper {
   constructor() {}
   createStockInfos = (rawScrappingData) => {
@@ -159,20 +160,8 @@ class ScrappingHelper {
     await page.select(`#${selectElementId}`, optionValue);
   }
 
-  async scrapeInvestingForRatios(companyName) {
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      ignoreHTTPSErrors: true, // Ignore HTTPS errors
-      defaultViewport: null, // Set your custom viewport dimensions if needed
-      args: [
-        "--no-sandbox", // Add more args as needed
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-        "--disable-setuid-sandbox",
-        "--blink-settings=imagesEnabled=false"
-      ],
-    });
-  
+  async scrapeInvestingForRatios(url) {
+    const browser = await browserPromise;
     const page = await browser.newPage();
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -196,7 +185,7 @@ class ScrappingHelper {
       }
     });
 
-    await page.goto(UrlHelper.scrapInvestingForRatioValues(companyName), {
+    await page.goto(url, {
       waitUntil: "networkidle2",
       timeout: 60000, // Increase the timeout value to 60 seconds.
     });
@@ -204,16 +193,19 @@ class ScrappingHelper {
     await this.closePopUpsInInvesting(page);
   
     // Wait for the table to load (you may need to adjust the selector if necessary)
-    await Promise.all([
-      page.waitForSelector("table.genTbl.reportTbl", {
+    try {
+      await page.waitForSelector("table.genTbl.reportTbl", {
         waitUntil: "networkidle2",
         visible: true,
-      }),
-      page.waitForSelector("h1.float_lang_base_1", {
+      });
+
+      await page.waitForSelector("h1.float_lang_base_1", {
         waitUntil: "networkidle2",
         visible: true,
-      })
-    ]);
+      });
+    } catch (error) {
+      console.error("Error waiting for h1 selector:", error);
+    }
 
     const data = await page.evaluate(() => {
       const result = {}; // Create an empty object to store the data
@@ -237,28 +229,30 @@ class ScrappingHelper {
     
       return result;
     });
-    const ticker = await TickerService.findOne({symbol:data.stockSymbol});
-    await InvestingScrapingModel.create({
-      ticker:ticker.id,
-      ratioLink:UrlHelper.scrapInvestingForRatioValues(companyName)
-    })
+
+    let ratioLink = url.replace("-ratios", "");
+    const investingModel = await InvestingScrapingModel.findOne({ ratioLink });
+    try {
+      if(investingModel && !investingModel.ticker){
+        const ticker = await TickerService.findOne({symbol:data.stockSymbol});
+        if (ticker) {
+          const {_id = null} = ticker._doc;
+          const tickerId = _id ? mongoose.Types.ObjectId(_id.toString().trim()) : null;          
+            console.log("id is:", _id);
+            await InvestingScrapingModel.findOneAndUpdate(
+              { ratioLink:investingModel.ratioLink },
+              { ticker: tickerId }
+            );
+          }
+      }
+    } catch(err) {
+      console.log(err);
+    }
     return data;
   }
   
   async scrapeInvestingForRatioUrls(countryName, marketName) {
-    const browser = await puppeteer.launch({
-      headless: "new",
-      ignoreHTTPSErrors: true,
-      defaultViewport: null,
-      args: [
-        "--no-sandbox",
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-        "--disable-setuid-sandbox",
-        "--blink-settings=imagesEnabled=false"
-      ],
-    });
-
+    const browser = await browserPromise;
     const page = await browser.newPage();
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -314,8 +308,15 @@ class ScrappingHelper {
     );
 
     await browser.close(); // Close the browser when done
-
-    return hrefValues;
+    await Promise.all(
+      hrefValues.map(async (item) => {
+        const investingModel = await InvestingScrapingModel.findOne({ ratioLink: item });
+        if (!investingModel) {
+          await InvestingScrapingModel.create({ ratioLink: item });
+        }
+      })
+    );
+   return hrefValues;
   }
 
   async scrapingWorker(stock, valueToScrape) {
