@@ -123,6 +123,15 @@ class StockController {
             return next(new ApiError(error?.message, error?.statusCode));
         }
     }
+    async scrapRatioValues (req, res, next){
+        try {
+            const result = await StockService.scrapRatioValues(req?.params.companyName);
+            return res.status(httpStatus.OK).send(result);
+        } catch (error) {
+            return next(new ApiError(error?.message, error?.statusCode));
+        }
+    }
+    
     
 }
 

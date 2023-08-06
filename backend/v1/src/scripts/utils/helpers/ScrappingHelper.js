@@ -7,11 +7,11 @@ import { publicRequest } from "./AxiosHelper.js";
 import redisClient from "../../../config/caching/redisConfig.js";
 import Caching from "../constants/Caching.js";
 import TickerService from "../../../services/TickerService.js";
-import puppeteer from "puppeteer";
 import investingCom from "../constants/InvestingCom.js";
 import InvestingScrapingModel from "../../../models/InvestingScrapping.js";
-import browserPromise from "../../../loaders/puppeteer.js";
 import mongoose from "mongoose";
+import ApiError from "../../../errors/ApiError.js";
+
 class ScrappingHelper {
   constructor() {}
   createStockInfos = (rawScrappingData) => {
@@ -160,97 +160,134 @@ class ScrappingHelper {
     await page.select(`#${selectElementId}`, optionValue);
   }
 
-  async scrapeInvestingForRatios(url, browser) {
-    const page = await browser.newPage();
-    await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-    );
-  
-    // Enable request interception
-    await page.setRequestInterception(true);
-  
-    // Listen for the request event to block unnecessary resources
-    page.on("request", (request) => {
-      const resourceType = request.resourceType();
-      if (
-        resourceType === "image" ||
-        resourceType === "stylesheet" ||
-        resourceType === "font" ||
-        resourceType === "media"
-      ) {
-        request.abort();
-      } else {
-        request.continue();
-      }
-    });
+  // Listen for the request event to block unnecessary resources
+  requestHandler = (request) => {
+    const resourceType = request.resourceType();
+    if (
+      resourceType === "image" ||
+      resourceType === "stylesheet" ||
+      resourceType === "font" ||
+      resourceType === "media"
+    ) {
+      request.abort();
+    } else {
+      request.continue();
+    }
+  };
 
-    await page.goto(url, {
-      waitUntil: "networkidle2",
-      timeout: 60000, // Increase the timeout value to 60 seconds.
-    });
-    
-    await this.closePopUpsInInvesting(page);
-  
-    // Wait for the table to load (you may need to adjust the selector if necessary)
+  async scrapeInvestingForRatios(page, url) {
     try {
+      await page.setUserAgent(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+      );
+
+      // Enable request interception
+      await page.setRequestInterception(true);
+
+      // Listen for the request event to block unnecessary resources
+      page.on("request", this.requestHandler);
+      console.log(`Part 0 done: went to page ${url}`);
+
+      await page.goto(url, {
+        waitUntil: "networkidle2",
+        timeout: 120000, // Increase the timeout value to 60 seconds.
+        requestInterception: false,
+      });
+
+      console.log(`Part 1 done: went to page ${url}`);
+
+      await this.closePopUpsInInvesting(page);
+
+      // Wait for the table to load (you may need to adjust the selector if necessary)
       await page.waitForSelector("table.genTbl.reportTbl", {
         waitUntil: "networkidle2",
         visible: true,
+        timeout: 60000,
       });
 
       await page.waitForSelector("h1.float_lang_base_1", {
         waitUntil: "networkidle2",
         visible: true,
+        timeout: 60000,
       });
-    } catch (error) {
-      console.error("Error waiting for h1 selector:", error);
-    }
 
-    const data = await page.evaluate(() => {
-      const result = {}; // Create an empty object to store the data
-      // Get the stockSymbol and store it in the result object
-      const stockSymbolElement = document.querySelector("h1.float_lang_base_1.relativeAttr");
-      const regex = /\((.*?)\)/;
-      const matches =  stockSymbolElement?.textContent.match(regex);
-      if(matches && matches.length>=2)
-        result.stockSymbol = matches[1];
-      else
-        result.stockSymbol = null;    
-      // Initialize the tableData property as an empty array in the result object
-      result.tableData = [];
-      // Loop through the table rows and extract the data
-      const tableRows = document.querySelectorAll("table.genTbl.reportTbl tbody tr.child");
-      tableRows.forEach((row) => {
-        const key = row.querySelector("td span").textContent.trim();
-        const values = Array.from(row.querySelectorAll("td:not(:first-child)")).map((td) => td.textContent.trim());
-        result.tableData.push({ key, values });
+      console.log(`Part 2 done: waited for selectors`);
+
+      const data = await page.evaluate(() => {
+        const result = {}; // Create an empty object to store the data
+        // Get the stockSymbol and store it in the result object
+        const stockSymbolElement = document.querySelector(
+          "h1.float_lang_base_1.relativeAttr"
+        );
+        const regex = /\((.*?)\)/;
+        const matches = stockSymbolElement?.textContent.match(regex);
+        if (matches && matches.length >= 2) result.stockSymbol = matches[1];
+        else result.stockSymbol = null;
+        // Initialize the tableData property as an empty array in the result object
+        result.tableData = [];
+        // Loop through the table rows and extract the data
+        const tableRows = document.querySelectorAll(
+          "table.genTbl.reportTbl tbody tr.child"
+        );
+        tableRows.forEach((row) => {
+          const key = row.querySelector("td span").textContent.trim();
+          const values = Array.from(
+            row.querySelectorAll("td:not(:first-child)")
+          ).map((td) => td.textContent.trim());
+          result.tableData.push({ key, values });
+        });
+
+        return result;
       });
-    
-      return result;
-    });
 
-    let ratioLink = url.replace("-ratios", "");
-    const investingModel = await InvestingScrapingModel.findOne({ ratioLink });
+      let ratioLink = url.replace("-ratios", "");
+      const investingModel = await InvestingScrapingModel.findOne({
+        ratioLink,
+      });
 
-    try {
+      const modifiedData = {};
+      data.tableData.forEach((item) => {
+        if (item?.values.length > 0) {
+          if (item.key !== "stockSymbol") {
+            modifiedData[investingCom.KEY_MAPPING[item.key]] = {
+              values: item.values,
+            };
+          }
+        }
+      });
+
+      const finalData = {
+        stockSymbol: data.stockSymbol,
+        ...modifiedData,
+      };
+      console.log(`Part 3 done:finalData created for ${data.stockSymbol}`);
+
       if (investingModel && !investingModel.ticker) {
-        const ticker = await TickerService.findOne({ symbol: data.stockSymbol });
+        const ticker = await TickerService.findOne({
+          symbol: data.stockSymbol,
+        });
         if (ticker) {
           const tickerId = String(ticker._doc._id);
           console.log("id is:", tickerId);
-          await InvestingScrapingModel.findOneAndUpdate(
-            { ratioLink: investingModel.ratioLink },
-            { ticker: tickerId }
+          finalData.ticker = tickerId;
+          (finalData.ratioLink = investingModel.ratioLink),
+            await InvestingScrapingModel.findOneAndUpdate(
+              { ratioLink: investingModel.ratioLink },
+              { finalData }
+            );
+          console.log(
+            `Part 4 done: values saved to db for ${data.stockSymbol}`
           );
         }
       }
-    } catch (err) {
-      console.log(err);
+      return finalData;
+    } catch (error) {
+      throw new ApiError(error?.message, error?.statusCode);
+    } finally {
+      await page.close(); // Close the page after each attempt
     }
-    
-    return data;
   }
-  
+
   async scrapeInvestingForRatioUrls(countryName, marketName) {
     const browser = await browserPromise();
     const page = await browser.newPage();
@@ -270,7 +307,7 @@ class ScrappingHelper {
         resourceType === "font" ||
         resourceType === "media"
       ) {
-        request.abort();
+        return request.abort();
       } else {
         request.continue();
       }
@@ -310,14 +347,16 @@ class ScrappingHelper {
     await browser.close(); // Close the browser when done
     await Promise.all(
       hrefValues.map(async (item) => {
-        const investingModel = await InvestingScrapingModel.findOne({ ratioLink: item });
+        const investingModel = await InvestingScrapingModel.findOne({
+          ratioLink: item,
+        });
         if (!investingModel) {
           await InvestingScrapingModel.create({ ratioLink: item });
         }
       })
     );
-    
-   return hrefValues;
+
+    return hrefValues;
   }
 
   async scrapingWorker(stock, valueToScrape) {

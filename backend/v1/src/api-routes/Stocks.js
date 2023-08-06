@@ -26,7 +26,7 @@ router.get("/bring-sp500-symbols", StocksController.scrapSP500Symbols);
 router.get("/bring-bist100-symbols", StocksController.scrapBIST100Symbols);
 router.get("/scrap-investing/:companyName", StocksController.scrapeInvestingForRatios);
 router.get('/scrap-ratio-routes-from-investing/:countryName/:marketName', StocksController.scrapRatioRoutesFromInvesting)
-
+router.get('/scrap-ratio-values-from-investing/:companyName', StocksController.scrapRatioValues)
 
 router.get("/test/:symbol", StocksController.test);
 

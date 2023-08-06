@@ -6,8 +6,10 @@ import UrlHelper from "../utils/helpers/UrlHelper.js";
 import InvestingScrapingModel from "../../models/InvestingScrapping.js";
 import TickerService from "../../services/TickerService.js";
 import ScrappingHelper from "../utils/helpers/ScrappingHelper.js";
-import browserPromise from "../../loaders/puppeteer.js";
+import {getClusterInstance} from "../../loaders/puppeteer.js";
 import mongoose from "mongoose";
+import { Cluster } from "puppeteer-cluster";
+import ApiError from "../../errors/ApiError.js";
 const executeStockSymbols = async () => {
   try {
     const sp500Symbols = JSON.parse(
@@ -28,31 +30,69 @@ const executeStockSymbols = async () => {
     console.log(error);
   }
 };
+const clusterTask = async ({ page, data: url }) => {
+  const maxRetries = 1; // Set the maximum number of retries
+  const retryDelay = 1000; // Set the delay between retries (in milliseconds)
 
- 
-const getStockRatiosFromInvesting = async ()=> {
-   console.log("getStockRatiosFromInvesting is started");
-  const models = await InvestingScrapingModel.find({});
-  let currentDelay = 0;
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const investingRatios = [];
-  const browser = await browserPromise();
-  for (const model of models){
-    let result =  await ScrappingHelper.scrapeInvestingForRatios(model.ratioLink.concat("-ratios"), browser);
-    investingRatios.push(result);
-    let tickerId = mongoose.Types.ObjectId(model.ticker);
-    let ticker = await TickerService.find(tickerId);
-    console.log(`waiting for ${currentDelay}`)
-    await delay(currentDelay); // Delay before sending the request
-    if(currentDelay% 2000 === 0 && currentDelay!==0){
-      currentDelay=0;
-    } else {
-      currentDelay+= 100;
+  for (let retryCount = 0; retryCount <= maxRetries; retryCount++) {
+    try {
+      const result = await ScrappingHelper.scrapeInvestingForRatios(page, url);
+      console.log(`action done for:${result.stockSymbol}`);
+      return result;
+    } catch (error) {
+      console.error(`Error on attempt ${retryCount + 1}:`, error);
+      if (retryCount < maxRetries) {
+        console.log(`Retrying after ${retryDelay} ms...`);
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      } else {
+        throw new ApiError(error?.message, error?.statusCode);
+      }
     }
   }
-  await browser.close(); // Close the browser when done
-  await redisClient.set("investinRatios", JSON.stringify(investingRatios));
-}
+};
+
+const getStockRatiosFromInvesting = async () => {
+  console.log("getStockRatiosFromInvesting is started");
+  const startTime = performance.now();
+  const models = await InvestingScrapingModel.find({});
+  const investingRatios = [];
+
+  const batchSize = 3; // Set the batch size
+  const cluster = await getClusterInstance();
+
+  // Add the task function to the cluster
+  await cluster.task(clusterTask);
+
+  // Divide models into batches
+  const batches = [];
+  for (let i = 0; i < models.length; i += batchSize) {
+    const batch = models.slice(i, i + batchSize);
+    batches.push(batch);
+  }
+
+  // Process each batch sequentially
+  for (const batch of batches) {
+    console.log(`Processing batch with ${batch.length} models`);
+    await Promise.all(
+      batch.map(async (model) => {
+        try {
+          const url = model.ratioLink.concat("-ratios");
+          const result = await cluster.execute(url); // Use cluster.execute to process the task
+          investingRatios.push(result);
+        } catch (error) {
+          console.error("Error processing model:", error);
+        }
+      })
+    );
+  }
+  
+  await cluster.idle();
+  await cluster.close();
+  await redisClient.set("investingRatios", JSON.stringify(investingRatios));
+  const endTime = performance.now();
+  console.log(`Total time took for entire process: ${endTime - startTime}`);
+};
+
 
 const getFinancialDataForSP500AndBIST100 = async () => {
   try {
@@ -68,7 +108,6 @@ const getFinancialDataForSP500AndBIST100 = async () => {
       const bist100Symbols = JSON.parse(
         await redisClient.get(Caching.SYMBOLS.BISTHUND_SYMBOLS)
       );
-
       const chunkSize = 20;
       const delayBetweenChunks = 1000; // Delay between each chunk of requests (in milliseconds)
       const delayBetweenRequests = 100; // Delay between each individual request (in milliseconds)

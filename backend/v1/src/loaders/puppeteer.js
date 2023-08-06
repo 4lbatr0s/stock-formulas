@@ -1,20 +1,26 @@
-import puppeteer from "puppeteer";
+import { Cluster } from 'puppeteer-cluster';
+import { restrictionConfig } from "../config/puppeteer.js";
 
-const launchBrowser = async () => {
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    ignoreHTTPSErrors: true,
-    defaultViewport: null,
-    args: [
-      "--no-sandbox",
-      "--disable-gpu",
-      "--disable-dev-shm-usage",
-      "--disable-setuid-sandbox",
-      "--blink-settings=imagesEnabled=false"
-    ],
-  });
+let clusterInstance = null;
 
-  return browser;
+const getClusterInstance = async () => {
+  if (!clusterInstance) {
+    clusterInstance = await Cluster.launch({
+      
+      concurrency: Cluster.CONCURRENCY_PAGE, 
+      maxConcurrency: 3, 
+      puppeteerOptions: {
+        headless: "new",
+        ignoreHTTPSErrors: true,
+        defaultViewport: null,
+        args: restrictionConfig.args,
+        userDataDir: restrictionConfig.userDataDir,
+      },
+      timeout:200000,
+    });
+  }
+  return clusterInstance;
 };
 
-export default launchBrowser;
+
+export { getClusterInstance };
