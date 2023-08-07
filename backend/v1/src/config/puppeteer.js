@@ -1,5 +1,5 @@
 const restrictionConfig  = {
-    headless: "new",
+    headless: 'new',
     ignoreHTTPSErrors: true, // Ignore HTTPS errors
     defaultViewport: null, // Set your custom viewport dimensions if needed
     userDataDir:'../static/puppeteer',

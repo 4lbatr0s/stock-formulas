@@ -4,12 +4,11 @@ import Caching from "../utils/constants/Caching.js";
 import ApiHelper from "../utils/helpers/ApiHelper.js";
 import UrlHelper from "../utils/helpers/UrlHelper.js";
 import InvestingScrapingModel from "../../models/InvestingScrapping.js";
-import TickerService from "../../services/TickerService.js";
 import ScrappingHelper from "../utils/helpers/ScrappingHelper.js";
-import {getClusterInstance} from "../../loaders/puppeteer.js";
-import mongoose from "mongoose";
-import { Cluster } from "puppeteer-cluster";
 import ApiError from "../../errors/ApiError.js";
+import { restrictionConfig } from "../../config/puppeteer.js";
+import PuppeteerManager from "../utils/managers/PuppeteerManager.js";
+import fs from "fs";
 const executeStockSymbols = async () => {
   try {
     const sp500Symbols = JSON.parse(
@@ -30,38 +29,42 @@ const executeStockSymbols = async () => {
     console.log(error);
   }
 };
-const clusterTask = async ({ page, data: url }) => {
-  const maxRetries = 1; // Set the maximum number of retries
-  const retryDelay = 1000; // Set the delay between retries (in milliseconds)
-
-  for (let retryCount = 0; retryCount <= maxRetries; retryCount++) {
-    try {
-      const result = await ScrappingHelper.scrapeInvestingForRatios(page, url);
-      console.log(`action done for:${result.stockSymbol}`);
-      return result;
-    } catch (error) {
-      console.error(`Error on attempt ${retryCount + 1}:`, error);
-      if (retryCount < maxRetries) {
-        console.log(`Retrying after ${retryDelay} ms...`);
-        await new Promise((resolve) => setTimeout(resolve, retryDelay));
-      } else {
-        throw new ApiError(error?.message, error?.statusCode);
-      }
-    }
+const clusterTask = async (page, url) => {
+  try {
+    const result = await ScrappingHelper.scrapeInvestingForRatios(page, url);
+    console.log(`action done for:${result.stockSymbol}`);
+    return result;
+  } catch (error) {
+    throw new ApiError(error?.message, error?.statusCode);
   }
+  
+  // const maxRetries = 1; // Set the maximum number of retries
+  // const retryDelay = 1000; // Set the delay between retries (in milliseconds)
+
+
+  // for (let retryCount = 0; retryCount <= maxRetries; retryCount++) {
+  //   try {
+
+  //   } catch (error) {
+  //     console.error(`Error on attempt ${retryCount + 1}:`, error);
+  //     if (retryCount < maxRetries) {
+  //       console.log(`Retrying after ${retryDelay} ms...`);
+  //       await new Promise((resolve) => setTimeout(resolve, retryDelay));
+  //     } else {
+  //       throw new ApiError(error?.message, error?.statusCode);
+  //     }
+  //   }
+  // }
 };
 
 const getStockRatiosFromInvesting = async () => {
   console.log("getStockRatiosFromInvesting is started");
   const startTime = performance.now();
   const models = await InvestingScrapingModel.find({});
-  const investingRatios = [];
+  let investingRatios = [];
 
   const batchSize = 3; // Set the batch size
-  const cluster = await getClusterInstance();
-
-  // Add the task function to the cluster
-  await cluster.task(clusterTask);
+  let waitingTime = 100; // Initial waiting time in milliseconds
 
   // Divide models into batches
   const batches = [];
@@ -69,30 +72,29 @@ const getStockRatiosFromInvesting = async () => {
     const batch = models.slice(i, i + batchSize);
     batches.push(batch);
   }
-
-  // Process each batch sequentially
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const puppeteerManager = new PuppeteerManager(batchSize, restrictionConfig);
+  // Process each batch sequentially with waitings
   for (const batch of batches) {
     console.log(`Processing batch with ${batch.length} models`);
-    await Promise.all(
-      batch.map(async (model) => {
-        try {
-          const url = model.ratioLink.concat("-ratios");
-          const result = await cluster.execute(url); // Use cluster.execute to process the task
-          investingRatios.push(result);
-        } catch (error) {
-          console.error("Error processing model:", error);
-        }
-      })
-    );
+    const links = batch.map(b => `${b?.ratioLink}-ratios`);
+    const results = await puppeteerManager.runBatchJobs(links, clusterTask);
+    investingRatios.push(...results);
+    // Wait for the specified waiting time
+    await delay(waitingTime);
+    console.log(`waiting for ${waitingTime} milliseconds`)
+    waitingTime = waitingTime>=2000 ? 0 : waitingTime+100; 
   }
-  
-  await cluster.idle();
-  await cluster.close();
-  await redisClient.set("investingRatios", JSON.stringify(investingRatios));
+
+  await puppeteerManager.close();
+  // Write the updated data back to the JSON file
+  fs.writeFile('./batch_results.json', JSON.stringify(investingRatios), err=> {
+    if(err) console.log(err)
+  });
+
   const endTime = performance.now();
   console.log(`Total time took for entire process: ${endTime - startTime}`);
 };
-
 
 const getFinancialDataForSP500AndBIST100 = async () => {
   try {
