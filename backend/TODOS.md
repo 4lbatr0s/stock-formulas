@@ -12,6 +12,11 @@ SUANDA ScrappingHelper.scrapeInvestingForRatios() methodunda, asagidaki gibi bir
     }
 ```
 Bu kod blogu bir ticker'a bakiyor, eger ticker varsa ve investingModel varsa, investingModelin ticker degerini guncelliyor.
+
+## DB'YE KAYDETMEME SORUNU:
+ScrappingHelper.scrapInvestingForRatios() methodunda db'ye kayit yapmiyor. buna bakman gerek!
+
+
 ### Sorun: 
 - SP500 listesi degisebilir, bu nedenle hem ticker collectiondaki degerler hem de  investingModel collectionundaki url'ler de degisecektir.
 - SP500 listesi degisirse hem urlleri degistirmek hem de tickerlari degistirmek gerekecek, 

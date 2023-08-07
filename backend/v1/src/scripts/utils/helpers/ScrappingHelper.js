@@ -164,16 +164,18 @@ class ScrappingHelper {
   requestHandler = (request) => {
     const resourceType = request.resourceType();
     if (
-      resourceType === "image" ||
       resourceType === "stylesheet" ||
       resourceType === "font" ||
-      resourceType === "media"
+      resourceType === "media" ||
+      resourceType === "script" || // Add more resource types here if needed
+      resourceType === "xhr"
     ) {
       request.abort();
     } else {
       request.continue();
     }
   };
+  
 
   async scrapeInvestingForRatios(page, url) {
     try {
@@ -186,12 +188,11 @@ class ScrappingHelper {
 
       // Listen for the request event to block unnecessary resources
       page.on("request", this.requestHandler);
-      console.log(`Part 0 done: went to page ${url}`);
+      console.log(`Part 0 done: requestInterception for ${url}`);
 
       await page.goto(url, {
-        waitUntil: "networkidle2",
+        waitUntil: "networkidle0",
         timeout: 120000, // Increase the timeout value to 60 seconds.
-        requestInterception: false,
       });
 
       console.log(`Part 1 done: went to page ${url}`);
