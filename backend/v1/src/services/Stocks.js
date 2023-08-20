@@ -18,6 +18,7 @@ import InvestingScrapingModel from '../models/InvestingScrapping.js';
 import PuppeteerManagerBuilder from '../scripts/utils/managers/puppeteer/PuppeteerManager.js';
 import { restrictionConfig } from '../config/puppeteer.js';
 import { propertiesToGetFromDB } from '../scripts/utils/constants/Calculations.js';
+import investingCom from '../scripts/utils/constants/InvestingCom.js';
 
 class StockService extends BaseService {
   async getSP500Concurrent() {
@@ -222,17 +223,6 @@ class StockService extends BaseService {
     }
   }
 
-  async scrapRatioRoutesFromInvesting(countryName, marketName) {
-    try {
-      return await ScrappingHelper.scrapeInvestingForRatioUrls(
-        countryName,
-        marketName,
-      );
-    } catch (error) {
-      throw new ApiError(error?.message, error?.statusCode);
-    }
-  }
-
   async scrapRatioValues(goto) {
     // Use a random user agent to avoid 403 errors
     const userAgents = [
@@ -283,9 +273,6 @@ class StockService extends BaseService {
   async getInvestingSP500(req) {
     try {
       const selectedProperties = propertiesToGetFromDB;
-
-      // const rawDocuments = await redisClient.get(Caching.VALUES.INVESTING_SP500_VALUES_UNSORTED);
-      // const documents = JSON.parse(rawDocuments);
       const documents = await InvestingScrapingModel.find({}).select(`-_id ${selectedProperties.join(' ')}`);
       const selectedValuesArray = documents.map((document) => {
         const selectedValues = {};
@@ -299,48 +286,11 @@ class StockService extends BaseService {
         });
         return selectedValues;
       });
-
       const results = CalculationHelper.allOverallValues(selectedValuesArray);
-
       await redisClient.set(
         Caching.VALUES.INVESTING_SP500_VALUES_SORTED,
         JSON.stringify(results),
       );
-
-      const options = RequestHelper.setOptions(req);
-      const responseManipulation = StockExtensions.manipulationChaining(
-        results,
-        options,
-      );
-
-      const paginatedResult = PagedList.ToPagedList(
-        responseManipulation,
-        req?.query.pageNumber,
-        req?.query.pageSize,
-      );
-
-      return {
-        fromCache: false,
-        data: paginatedResult,
-      };
-    } catch (error) {
-      throw new ApiError(error?.message, error?.statusCode);
-    }
-  }
-
-  async getInvestingBIST100(req) {
-    try {
-      const results = CalculationHelper.allOverallValues(
-        JSON.parse(
-          await redisClient.get(
-            Caching.VALUES.INVESTING_BIST100_VALUES_UNSORTED,
-          ),
-        ),
-      );
-      await redisClient.set(
-        Caching.VALUES.INVESTING_BIST100_VALUES_SORTED,
-        JSON.stringify(results),
-      );
       const options = RequestHelper.setOptions(req);
       const responseManipulation = StockExtensions.manipulationChaining(
         results,
@@ -358,14 +308,6 @@ class StockService extends BaseService {
     } catch (error) {
       throw new ApiError(error?.message, error?.statusCode);
     }
-  }
-
-  hasQuestionMarkAndEqual(str) {
-    if (str.includes('?') && str.includes('=')) {
-      const splitted = str.split('?');
-      return splitted[0].concat('-ratios?').concat(splitted[1]);
-    }
-    return `${str}-ratios`;
   }
 
   hasQuestionMarkAndEqual(str) {
@@ -495,6 +437,8 @@ class StockService extends BaseService {
   //Redise buradan getirdigin semboller icin deger set et.
   async getStockSymbolsFromInvesting(routes){
     try {
+      console.log('Fetching stock symbols for all stocks is started!');
+      const startTime = performance.now();
       const batchSize = 15; // Set the batch size
       let waitingTime = 100; // Initial waiting time in milliseconds
       const batches = [];
@@ -517,30 +461,28 @@ class StockService extends BaseService {
         await delay(waitingTime);
         // console.log(`waiting for ${waitingTime} millisecondc`)
         waitingTime = waitingTime >= 2000 ? 0 : waitingTime + 100;
-      }
+      } 
+      await redisClient.set(Caching.SYMBOLS.ALL_STOCK_SYMBOLS, JSON.stringify(symbols));
       await TickerService.upsertMany(symbols);
       await puppeteerManager.close();
-      // await redisClient.set(
-      //   Caching.VALUES.INVESTING_SP500_VALUES_UNSORTED,
-      //   JSON.stringify(investingRatios)
-      // );
+      const endTime = performance.now();
+      const timeDiff = endTime - startTime;
+      console.log(`Time passed:${timeDiff}`);
       console.log(`Total time took for entire process: ${endTime - startTime}`);
     } catch (error) {
-      console.log(error);
+      throw new ApiError(error?.message, error?.statusCode);
     }
   }
-
-
     //TODO: bu method altinda, aldigin butun semboller icin bir Ticker model instance yarat.
     async getAllStockSymbolsFromInvesting(){
       try {
-        const sp500Routes = StockService.scrapRatioRoutesFromInvesting(investingCom.COUNTRIES.UNITED_STATES, investingCom.MARKETS.SP_500);
-        const bistAll = StockService.scrapRatioRoutesFromInvesting(investingCom.COUNTRIES.TURKEY, investingCom.MARKETS.BIST_ALL_SHARES);
+        const sp500Routes = await ScrappingHelper.scrapeInvestingForRatioUrls(investingCom.COUNTRIES.UNITED_STATES, investingCom.MARKETS.SP_500);
+        const bistAll = await ScrappingHelper.scrapeInvestingForRatioUrls(investingCom.COUNTRIES.TURKEY, investingCom.MARKETS.BIST_ALL_SHARES);
         let routes = [...sp500Routes, ...bistAll];
         await this.getStockSymbolsFromInvesting(routes);
         return routes;
       } catch (error) {
-        console.log(error);
+        throw new ApiError(error?.message, error?.statusCode);
       }
     }
 }
