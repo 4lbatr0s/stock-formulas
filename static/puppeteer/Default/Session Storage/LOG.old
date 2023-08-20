@@ -1,3 +1,39 @@
-2023/08/08-00:53:37.852 bd7c Reusing MANIFEST C:\Users\apple\OneDrive\Masaüstü\Documents\Coding\stock-formulas\static\puppeteer\Default\Session Storage/MANIFEST-000001
-2023/08/08-00:53:37.857 bd7c Recovering log #23
-2023/08/08-00:53:37.864 bd7c Reusing old log C:\Users\apple\OneDrive\Masaüstü\Documents\Coding\stock-formulas\static\puppeteer\Default\Session Storage/000023.log 
+2023/08/16-01:38:29.776 3504 Reusing MANIFEST C:\Users\apple\OneDrive\Masaüstü\Documents\Coding\stock-formulas\static\puppeteer\Default\Session Storage/MANIFEST-000001
+2023/08/16-01:38:29.784 3504 Recovering log #371
+2023/08/16-01:38:29.797 3504 Reusing old log C:\Users\apple\OneDrive\Masaüstü\Documents\Coding\stock-formulas\static\puppeteer\Default\Session Storage/000371.log 
+2023/08/16-01:39:26.449 3504 Level-0 table #375: started
+2023/08/16-01:39:26.457 3504 Level-0 table #375: 14937 bytes OK
+2023/08/16-01:39:26.460 3504 Delete type=0 #371
+2023/08/16-01:41:04.274 3504 Level-0 table #377: started
+2023/08/16-01:41:04.311 3504 Level-0 table #377: 16446 bytes OK
+2023/08/16-01:41:04.315 3504 Delete type=0 #374
+2023/08/16-01:41:04.325 3504 Compacting 4@0 + 1@1 files
+2023/08/16-01:41:04.494 3504 Generated table #378@0: 32876 keys, 1413622 bytes
+2023/08/16-01:41:04.494 3504 Compacted 4@0 + 1@1 files => 1413622 bytes
+2023/08/16-01:41:04.511 3504 compacted to: files[ 0 1 1 0 0 0 0 ]
+2023/08/16-01:41:04.512 3504 Delete type=2 #366
+2023/08/16-01:41:04.512 3504 Delete type=2 #369
+2023/08/16-01:41:04.512 3504 Delete type=2 #372
+2023/08/16-01:41:04.512 3504 Delete type=2 #375
+2023/08/16-01:41:04.513 3504 Delete type=2 #377
+2023/08/16-01:43:20.050 3504 Level-0 table #380: started
+2023/08/16-01:43:20.065 3504 Level-0 table #380: 16570 bytes OK
+2023/08/16-01:43:20.070 3504 Delete type=0 #376
+2023/08/16-01:45:01.245 3504 Level-0 table #382: started
+2023/08/16-01:45:01.269 3504 Level-0 table #382: 16444 bytes OK
+2023/08/16-01:45:01.287 3504 Delete type=0 #379
+2023/08/16-01:46:48.912 3504 Level-0 table #384: started
+2023/08/16-01:46:48.927 3504 Level-0 table #384: 16639 bytes OK
+2023/08/16-01:46:48.930 3504 Delete type=0 #381
+2023/08/16-01:48:31.785 3504 Level-0 table #386: started
+2023/08/16-01:48:31.810 3504 Level-0 table #386: 16508 bytes OK
+2023/08/16-01:48:31.815 3504 Delete type=0 #383
+2023/08/16-01:48:31.828 3504 Compacting 4@0 + 1@1 files
+2023/08/16-01:48:32.122 3504 Generated table #387@0: 33800 keys, 1455071 bytes
+2023/08/16-01:48:32.122 3504 Compacted 4@0 + 1@1 files => 1455071 bytes
+2023/08/16-01:48:32.124 3504 compacted to: files[ 0 1 1 0 0 0 0 ]
+2023/08/16-01:48:32.126 3504 Delete type=2 #378
+2023/08/16-01:48:32.126 3504 Delete type=2 #380
+2023/08/16-01:48:32.126 3504 Delete type=2 #382
+2023/08/16-01:48:32.126 3504 Delete type=2 #384
+2023/08/16-01:48:32.126 3504 Delete type=2 #386

@@ -41,6 +41,24 @@ def get_financial_ratios():
     return jsonify(tickers_list)
 
 
+@app.route('/sp500-stock-values/<stock_symbols>', methods=['GET'])
+@cache.cached(timeout=3600, key_prefix='sp500_stock_infos')
+def get_financial_ratios_sp500(stock_symbols):
+    symbol_list = stock_symbols.split(',')  # Split the symbols into a list
+    tickers = yf.Tickers(symbol_list)
+    tickers_list = []
+
+    threads = [] #to keep track of all threads
+    for ticker in tickers.tickers:
+        thread = threading.Thread(target=fetch_ticker_info, args=(ticker, tickers_list, tickers))
+        thread.start() #start the thread
+        threads.append(thread) #to keep track of all threads
+
+    for thread in threads:
+        thread.join()  #to ensure the main thread waits for all the threads to complete before returning tickers_list
+
+    return jsonify(tickers_list)
+
 @app.route('/bist100-stocks/<stock_symbols>', methods=['GET'])
 @cache.cached(timeout=3600, key_prefix='bist100_stock_infos')
 def get_financial_ratios_bist100(stock_symbols):
@@ -65,7 +83,6 @@ def get_financial_ratios_bist100(stock_symbols):
 @cache.cached(timeout=3600, key_prefix='stock_infos_filtered')
 def get_filtered_financial_ratios():
     stock_infos = cache.get('stock_infos')
-
     if stock_infos is None:
         # if stock_infos not in cache, call get_financial_ratios to generate and store it in cache
         stock_infos = get_financial_ratios()

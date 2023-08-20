@@ -1,5 +1,5 @@
-import serverConfig from "./server.js";
+import serverConfig from './server.js';
 
-export default ()=>{
-    serverConfig();
-}
+export default () => {
+  serverConfig();
+};

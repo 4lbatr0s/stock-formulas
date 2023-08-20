@@ -1,6 +1,5 @@
-import {connectDB} from "./db.js";
+import { connectDB } from './db.js';
 
-
-export default ()=>{
-    connectDB();
-}
+export default () => {
+  connectDB();
+};

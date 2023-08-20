@@ -1,9 +1,45 @@
-2023/08/08-00:54:16.902 7dac Reusing MANIFEST C:\Users\apple\OneDrive\Masaüstü\Documents\Coding\stock-formulas\static\puppeteer\Default\Session Storage/MANIFEST-000001
-2023/08/08-00:54:16.912 7dac Recovering log #23
-2023/08/08-00:54:16.932 7dac Reusing old log C:\Users\apple\OneDrive\Masaüstü\Documents\Coding\stock-formulas\static\puppeteer\Default\Session Storage/000023.log 
-2023/08/08-00:56:23.729 7dac Level-0 table #27: started
-2023/08/08-00:56:23.748 7dac Level-0 table #27: 17448 bytes OK
-2023/08/08-00:56:23.753 7dac Delete type=0 #23
-2023/08/08-01:02:11.195 7dac Level-0 table #29: started
-2023/08/08-01:02:11.208 7dac Level-0 table #29: 16382 bytes OK
-2023/08/08-01:02:11.213 7dac Delete type=0 #26
+2023/08/17-00:20:54.003 2210 Reusing MANIFEST C:\Users\apple\OneDrive\Masaüstü\Documents\Coding\stock-formulas\static\puppeteer\Default\Session Storage/MANIFEST-000001
+2023/08/17-00:20:54.025 2210 Recovering log #385
+2023/08/17-00:20:54.030 2210 Reusing old log C:\Users\apple\OneDrive\Masaüstü\Documents\Coding\stock-formulas\static\puppeteer\Default\Session Storage/000385.log 
+2023/08/17-00:21:30.682 d10 Level-0 table #390: started
+2023/08/17-00:21:30.725 d10 Level-0 table #390: 17123 bytes OK
+2023/08/17-00:21:30.729 d10 Delete type=0 #385
+2023/08/17-00:22:56.774 d10 Level-0 table #392: started
+2023/08/17-00:22:56.785 d10 Level-0 table #392: 16554 bytes OK
+2023/08/17-00:22:56.789 d10 Delete type=0 #389
+2023/08/17-00:24:17.491 d10 Level-0 table #394: started
+2023/08/17-00:24:17.516 d10 Level-0 table #394: 16564 bytes OK
+2023/08/17-00:24:17.525 d10 Delete type=0 #391
+2023/08/17-00:25:29.842 d10 Level-0 table #396: started
+2023/08/17-00:25:29.858 d10 Level-0 table #396: 16703 bytes OK
+2023/08/17-00:25:29.862 d10 Delete type=0 #393
+2023/08/17-00:25:29.872 d10 Compacting 4@0 + 1@1 files
+2023/08/17-00:25:29.942 d10 Generated table #397@0: 34741 keys, 1497483 bytes
+2023/08/17-00:25:29.942 d10 Compacted 4@0 + 1@1 files => 1497483 bytes
+2023/08/17-00:25:29.943 d10 compacted to: files[ 0 1 1 0 0 0 0 ]
+2023/08/17-00:25:29.945 d10 Delete type=2 #387
+2023/08/17-00:25:29.945 d10 Delete type=2 #390
+2023/08/17-00:25:29.945 d10 Delete type=2 #392
+2023/08/17-00:25:29.945 d10 Delete type=2 #394
+2023/08/17-00:25:29.945 d10 Delete type=2 #396
+2023/08/17-00:26:50.544 d10 Level-0 table #399: started
+2023/08/17-00:26:50.558 d10 Level-0 table #399: 16598 bytes OK
+2023/08/17-00:26:50.561 d10 Delete type=0 #395
+2023/08/17-00:28:23.419 d10 Level-0 table #401: started
+2023/08/17-00:28:23.442 d10 Level-0 table #401: 16529 bytes OK
+2023/08/17-00:28:23.446 d10 Delete type=0 #398
+2023/08/17-00:29:56.304 d10 Level-0 table #403: started
+2023/08/17-00:29:56.317 d10 Level-0 table #403: 16557 bytes OK
+2023/08/17-00:29:56.321 d10 Delete type=0 #400
+2023/08/17-00:31:23.592 d10 Level-0 table #405: started
+2023/08/17-00:31:23.663 d10 Level-0 table #405: 16487 bytes OK
+2023/08/17-00:31:23.667 d10 Delete type=0 #402
+2023/08/17-00:31:23.668 d10 Compacting 4@0 + 1@1 files
+2023/08/17-00:31:23.784 d10 Generated table #406@0: 35666 keys, 1537677 bytes
+2023/08/17-00:31:23.784 d10 Compacted 4@0 + 1@1 files => 1537677 bytes
+2023/08/17-00:31:23.786 d10 compacted to: files[ 0 1 1 0 0 0 0 ]
+2023/08/17-00:31:23.788 d10 Delete type=2 #397
+2023/08/17-00:31:23.788 d10 Delete type=2 #399
+2023/08/17-00:31:23.788 d10 Delete type=2 #401
+2023/08/17-00:31:23.788 d10 Delete type=2 #403
+2023/08/17-00:31:23.788 d10 Delete type=2 #405
