@@ -2,7 +2,6 @@ const restrictionConfig = {
   headless: 'new',
   ignoreHTTPSErrors: true, // Ignore HTTPS errors
   defaultViewport: null, // Set your custom viewport dimensions if needed
-  userDataDir: '../static/puppeteer',
   args: [
     '--autoplay-policy=user-gesture-required',
     '--disable-background-networking',
