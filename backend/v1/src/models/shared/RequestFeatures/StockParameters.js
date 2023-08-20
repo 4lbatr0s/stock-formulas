@@ -1,6 +1,6 @@
-import RequestParameters from "./RequestParameters";
+import RequestParameters from './RequestParameters';
 
-class StockParameters extends RequestParameters{
+class StockParameters extends RequestParameters {
 
 }
 

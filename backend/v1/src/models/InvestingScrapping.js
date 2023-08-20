@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose';
 
 const InvestingScrapingSchema = new Schema(
   {
@@ -7,16 +7,31 @@ const InvestingScrapingSchema = new Schema(
       required: true,
       unique: true,
     },
+    currentPrice: {
+      type: String,
+    },
+    priceMomentum: {
+      type: Number,
+    },
+    industry: {
+      type: String,
+    },
     ticker: {
       type: String,
     },
     stockSymbol: {
       type: String,
     },
-    pERatioTTM: {
+    country: {
+      type: String,
+    },
+    market: {
+      type: String,
+    },
+    priceToEarningRate: {
       values: [String],
     },
-    priceToSalesTTM: {
+    priceToSalesRate: {
       values: [String],
     },
     priceToCashFlowMRQ: {
@@ -25,19 +40,19 @@ const InvestingScrapingSchema = new Schema(
     priceToFreeCashFlowTTM: {
       values: [String],
     },
-    priceToBookMRQ: {
+    priceToBookRate: {
       values: [String],
     },
     priceToTangibleBookMRQ: {
       values: [String],
     },
-    grossMarginTTM: {
+    grossMarginRate: {
       values: [String],
     },
     grossMargin5YA: {
       values: [String],
     },
-    operatingMarginTTM: {
+    operatingMarginRate: {
       values: [String],
     },
     operatingMargin5YA: {
@@ -49,7 +64,7 @@ const InvestingScrapingSchema = new Schema(
     pretaxMargin5YA: {
       values: [String],
     },
-    netProfitMarginTTM: {
+    netProfitMarginRate: {
       values: [String],
     },
     netProfitMargin5YA: {
@@ -58,7 +73,7 @@ const InvestingScrapingSchema = new Schema(
     revenueShareTTM: {
       values: [String],
     },
-    basicEPSANN: {
+    earningsPerShareRate: {
       values: [String],
     },
     dilutedEPSANN: {
@@ -76,19 +91,19 @@ const InvestingScrapingSchema = new Schema(
     cashFlowShareTTM: {
       values: [String],
     },
-    returnOnEquityTTM: {
+    returnOnEquityRate: {
       values: [String],
     },
     returnOnEquity5YA: {
       values: [String],
     },
-    returnOnAssetsTTM: {
+    returnOnAssetsRate: {
       values: [String],
     },
     returnOnAssets5YA: {
       values: [String],
     },
-    returnOnInvestmentTTM: {
+    returnOnInvestmentRate: {
       values: [String],
     },
     returnOnInvestment5YA: {
@@ -106,7 +121,7 @@ const InvestingScrapingSchema = new Schema(
     salesMRQvsQtr1YrAgoMRQ: {
       values: [String],
     },
-    salesTTMvsTTM1YrAgoTTM: {
+    salesGrowthRate: {
       values: [String],
     },
     yearSalesGrowth5YA: {
@@ -115,16 +130,16 @@ const InvestingScrapingSchema = new Schema(
     yearCapitalSpendingGrowth5YA: {
       values: [String],
     },
-    quickRatioMRQ: {
+    quickRatioRate: {
       values: [String],
     },
-    currentRatioMRQ: {
+    currentRatioRate: {
       values: [String],
     },
     lTDebtToEquityMRQ: {
       values: [String],
     },
-    totalDebtToEquityMRQ: {
+    debtToEquityRate: {
       values: [String],
     },
     assetTurnoverTTM: {
@@ -142,7 +157,7 @@ const InvestingScrapingSchema = new Schema(
     receivableTurnoverTTM: {
       values: [String],
     },
-    dividendYieldANN: {
+    returnOnInvestmentRate: {
       values: [String],
     },
     dividendYield5YearAvg5YA: {
@@ -155,11 +170,11 @@ const InvestingScrapingSchema = new Schema(
       values: [String],
     },
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true, versionKey: false },
 );
 
 const InvestingScrapingModel = model(
-  "InvestingScraping",
-  InvestingScrapingSchema
+  'InvestingScraping',
+  InvestingScrapingSchema,
 );
 export default InvestingScrapingModel;

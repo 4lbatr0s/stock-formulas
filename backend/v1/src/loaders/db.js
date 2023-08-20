@@ -1,10 +1,9 @@
-import Mongoose from "mongoose";
-
+import Mongoose from 'mongoose';
 
 const connectDB = async () => {
   console.log(process.env.DB_HOST, process.env.DB_PORT, process.env.DB_NAME);
   try {
-    await Mongoose.connect(`mongodb+srv://serhat:jXgcx2Mu1r3ojLww@cluster0.9jvil.mongodb.net/zufindb`, {
+    await Mongoose.connect('mongodb+srv://serhat:jXgcx2Mu1r3ojLww@cluster0.9jvil.mongodb.net/zufindb', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -29,7 +28,6 @@ const connectDB = async () => {
         process.exit(1);
       }
     });
-
   } catch (err) {
     console.error('Error connecting to MongoDB:', err);
   }

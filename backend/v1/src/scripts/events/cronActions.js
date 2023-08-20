@@ -1,114 +1,34 @@
-import StockService from "../../services/Stocks.js";
-import redisClient from "../../config/caching/redisConfig.js";
-import Caching from "../utils/constants/Caching.js";
-import ApiHelper from "../utils/helpers/ApiHelper.js";
-import UrlHelper from "../utils/helpers/UrlHelper.js";
-import InvestingScrapingModel from "../../models/InvestingScrapping.js";
-import ScrappingHelper from "../utils/helpers/ScrappingHelper.js";
-import ApiError from "../../errors/ApiError.js";
-import { restrictionConfig } from "../../config/puppeteer.js";
-import PuppeteerManager from "../utils/managers/PuppeteerManager.js";
-import fs from "fs";
+import StockService from '../../services/Stocks.js';
+import redisClient from '../../config/caching/redisConfig.js';
+import Caching from '../utils/constants/Caching.js';
+import ApiHelper from '../utils/helpers/ApiHelper.js';
+import UrlHelper from '../utils/helpers/UrlHelper.js';
+import investingCom from '../utils/constants/InvestingCom.js';
+
 const executeStockSymbols = async () => {
   try {
-    const sp500Symbols = JSON.parse(
-      await redisClient.get(Caching.SYMBOLS.SPFH)
-    );
-    if (!sp500Symbols || sp500Symbols.length < 500) {
-      const sp500 = await StockService.scrapSP500Symbols();
-      console.log("executeStockSymbols:SP500");
-    }
-    const bist100Symbols = JSON.parse(
-      await redisClient.get(Caching.SYMBOLS.BISTHUND_SYMBOLS)
-    );
-    if (!bist100Symbols || bist100Symbols.length < 100) {
-      const bist100 = await StockService.scrapBIST100Symbols();
-      console.log("executeStockSymbols:BIST100");
-    }
+    await StockService.getAllStockSymbolsFromInvesting();
   } catch (error) {
     console.log(error);
   }
 };
-const clusterTask = async (page, url) => {
-  try {
-    const result = await ScrappingHelper.scrapeInvestingForRatios(page, url);
-    console.log(`action done for:${result.stockSymbol}`);
-    return result;
-  } catch (error) {
-    throw new ApiError(error?.message, error?.statusCode);
-  }
-  
-  // const maxRetries = 1; // Set the maximum number of retries
-  // const retryDelay = 1000; // Set the delay between retries (in milliseconds)
-
-
-  // for (let retryCount = 0; retryCount <= maxRetries; retryCount++) {
-  //   try {
-
-  //   } catch (error) {
-  //     console.error(`Error on attempt ${retryCount + 1}:`, error);
-  //     if (retryCount < maxRetries) {
-  //       console.log(`Retrying after ${retryDelay} ms...`);
-  //       await new Promise((resolve) => setTimeout(resolve, retryDelay));
-  //     } else {
-  //       throw new ApiError(error?.message, error?.statusCode);
-  //     }
-  //   }
-  // }
-};
 
 const getStockRatiosFromInvesting = async () => {
-  console.log("getStockRatiosFromInvesting is started");
-  const startTime = performance.now();
-  const models = await InvestingScrapingModel.find({});
-  let investingRatios = [];
-
-  const batchSize = 3; // Set the batch size
-  let waitingTime = 100; // Initial waiting time in milliseconds
-
-  // Divide models into batches
-  const batches = [];
-  for (let i = 0; i < models.length; i += batchSize) {
-    const batch = models.slice(i, i + batchSize);
-    batches.push(batch);
-  }
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const puppeteerManager = new PuppeteerManager(batchSize, restrictionConfig);
-  // Process each batch sequentially with waitings
-  for (const batch of batches) {
-    console.log(`Processing batch with ${batch.length} models`);
-    const links = batch.map(b => `${b?.ratioLink}-ratios`);
-    const results = await puppeteerManager.runBatchJobs(links, clusterTask);
-    investingRatios.push(...results);
-    // Wait for the specified waiting time
-    await delay(waitingTime);
-    console.log(`waiting for ${waitingTime} milliseconds`)
-    waitingTime = waitingTime>=2000 ? 0 : waitingTime+100; 
-  }
-
-  await puppeteerManager.close();
-  // Write the updated data back to the JSON file
-  fs.writeFile('./batch_results.json', JSON.stringify(investingRatios), err=> {
-    if(err) console.log(err)
-  });
-
-  const endTime = performance.now();
-  console.log(`Total time took for entire process: ${endTime - startTime}`);
 };
 
 const getFinancialDataForSP500AndBIST100 = async () => {
   try {
     const startTime = performance.now();
     const values = JSON.parse(
-      await redisClient.get(Caching.BIST100_SP500_FINANCIALS)
+      await redisClient.get(Caching.BIST100_SP500_FINANCIALS),
     );
     if (!values || Object.keys(values).length < 500) {
       const financialValues = {};
       const sp500Symbols = JSON.parse(
-        await redisClient.get(Caching.SYMBOLS.SPFH)
+        await redisClient.get(Caching.SYMBOLS.SPFH),
       );
       const bist100Symbols = JSON.parse(
-        await redisClient.get(Caching.SYMBOLS.BISTHUND_SYMBOLS)
+        await redisClient.get(Caching.SYMBOLS.BISTHUND_SYMBOLS),
       );
       const chunkSize = 20;
       const delayBetweenChunks = 1000; // Delay between each chunk of requests (in milliseconds)
@@ -132,11 +52,11 @@ const getFinancialDataForSP500AndBIST100 = async () => {
       for (const chunk of sp500Chunks) {
         currentDelay = 0;
         for (const symbol of chunk) {
-          console.log(`currentDelay:`, currentDelay);
+          console.log('currentDelay:', currentDelay);
           await delay(currentDelay); // Delay before sending the request
           const response = await ApiHelper.getStockInfoAsyncFinnhub(
             UrlHelper.getFinancialDataFromFinnhubUrl(symbol),
-            process.env.FINNHUB_API_KEY
+            process.env.FINNHUB_API_KEY,
           );
           financialValues[symbol] = response.metric;
           currentDelay += delayBetweenRequests; // Increase the delay for the next request
@@ -160,9 +80,9 @@ const getFinancialDataForSP500AndBIST100 = async () => {
       // Set the financialValues object in the Redis cache
       await redisClient.set(
         Caching.BIST100_SP500_FINANCIALS,
-        JSON.stringify(financialValues)
+        JSON.stringify(financialValues),
       );
-      console.log("Financial data has been fetched and stored in the cache.");
+      console.log('Financial data has been fetched and stored in the cache.');
       const endTime = performance.now();
       const timeDiff = endTime - startTime;
       console.log(`Time passed:${timeDiff}`);
@@ -173,66 +93,17 @@ const getFinancialDataForSP500AndBIST100 = async () => {
 };
 
 const getNewsForStocks = async () => {
-  const isNewsForEveryStockIsFetched = JSON.parse(await redisClient.get(
-    Caching.NEWS.FETCHED_OR_NOT
-  ));
-  if (!isNewsForEveryStockIsFetched) {
-    try {
-      const startTime = performance.now();
-      const sp500Symbols = JSON.parse(
-        await redisClient.get(Caching.SYMBOLS.SPFH)
-      );
-      const bist100Symbols = JSON.parse(
-        await redisClient.get(Caching.SYMBOLS.BISTHUND_SYMBOLS)
-      );
-
-      const chunkSize = 20;
-      const delayBetweenChunks = 1000; // Delay between each chunk of requests (in milliseconds)
-      const delayBetweenRequests = 100; // Delay between each individual request (in milliseconds)
-      let currentDelay = 0;
-
-      // Divide symbols into chunks of 20
-      const sp500Chunks = [];
-      const bist100Chunks = [];
-      for (let i = 0; i < sp500Symbols.length; i += chunkSize) {
-        sp500Chunks.push(sp500Symbols.slice(i, i + chunkSize));
-      }
-      for (let i = 0; i < bist100Symbols.length; i += chunkSize) {
-        bist100Chunks.push(bist100Symbols.slice(i, i + chunkSize));
-      }
-
-      // Define a helper function to delay execution
-      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-      let count = 1;
-      // Iterate over the chunks and send requests with a delay
-      for (const chunk of sp500Chunks) {
-        currentDelay = 0;
-        for (const symbol of chunk) {
-          console.log(`currentDelay:`, currentDelay);
-          await delay(currentDelay); // Delay before sending the request
-          await StockService.getNewsForStock(symbol);
-          currentDelay += delayBetweenRequests; // Increase the delay for the next request
-          console.log(`request sent for ${symbol}`);
-        }
-        console.log(`batch ${count} is done`);
-        count += 1;
-        await delay(delayBetweenChunks); // Delay between each chunk of requests
-      }
-      await redisClient.set(Caching.NEWS.FETCHED_OR_NOT, JSON.stringify(1));
-      console.log("Financial data has been fetched and stored in the cache.");
-      const endTime = performance.now();
-      const timeDiff = endTime - startTime;
-      console.log(`Time passed:${timeDiff}`);
-    } catch (error) {
-      console.log(error);
-    }
+  try {
+    await StockService.getNewsForAllStocks();
+  } catch (error) {
+    throw new ApiError(error?.message, error?.statusCode);
   }
 };
 
 const initialJob = async () => {
-  console.log("Sending request INITIAL...");
+  console.log('Sending request INITIAL...');
   try {
-    await getStockRatiosFromInvesting();
+    // await getStockRatiosFromInvesting();
     await executeStockSymbols();
     await getFinancialDataForSP500AndBIST100();
     await getNewsForStocks();

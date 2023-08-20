@@ -1,7 +1,7 @@
-import News from "../../models/News.js";
-import Ticker from "../../models/Tickers.js";
-import NewsService from "../../services/NewsService.js";
-import TickerService from "../../services/TickerService.js";
+import News from '../../models/News.js';
+import Ticker from '../../models/Tickers.js';
+import NewsService from '../../services/NewsService.js';
+import TickerService from '../../services/TickerService.js';
 
 const handleNewsSave = async (savedNews) => {
   // const { symbols } = savedNews?._doc; // Assuming 'T' represents the stock symbol
@@ -28,17 +28,15 @@ const handleNewsSave = async (savedNews) => {
   // }
 };
 
-
 const handleNewsRemove = async (removedNews) => {
-  const {symbols} = removedNews?.symbols;
-  for(const symbol of symbols){
-    const ticker = await Ticker.findOne({ symbol: symbol });
+  const { symbols } = removedNews?.symbols;
+  for (const symbol of symbols) {
+    const ticker = await Ticker.findOne({ symbol });
 
     if (ticker) {
       ticker.totalSentimentScore -= removedNews.semanticAnalysis?.sentimentScore;
       ticker.numberOfNews -= 1;
-      ticker.averageSentimentScore =
-        ticker.totalSentimentScore / ticker.numberOfNews;
+      ticker.averageSentimentScore = ticker.totalSentimentScore / ticker.numberOfNews;
 
       await ticker.save();
     }
@@ -46,10 +44,10 @@ const handleNewsRemove = async (removedNews) => {
 };
 
 const registerNewsEvents = async () => {
-  News.watch().on("change", async (change) => {
-    if (change.operationType === "update") {
+  News.watch().on('change', async (change) => {
+    if (change.operationType === 'update') {
       const removedNewsId = change.documentKey._id;
-      console.log("removedNewsId:", removedNewsId);
+      console.log('removedNewsId:', removedNewsId);
       const removedNews = await NewsService.delete(removedNewsId.toString());
       await handleNewsRemove(removedNews);
     }

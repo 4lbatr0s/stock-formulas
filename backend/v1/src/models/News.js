@@ -11,13 +11,13 @@ const NewsSchema = new Schema(
     content: String,
     symbols: [String],
     source: String,
-    semanticAnalysis: { 
-      sentiment:String,
-      sentimentScore:Number
-     },
-     isDeleted:Boolean
+    semanticAnalysis: {
+      sentiment: String,
+      sentimentScore: Number,
+    },
+    isDeleted: Boolean,
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true, versionKey: false },
 );
 
 NewsSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 60 });

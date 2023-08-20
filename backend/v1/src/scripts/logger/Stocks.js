@@ -12,7 +12,7 @@ const logger = createLogger({
     new _transports.File({ filename: 'v1/src/logs/stocks/error.log', level: 'error' }),
     new _transports.File({ filename: 'v1/src/logs/stocks/info.log', level: 'info' }),
     new _transports.File({ filename: 'v1/src/logs/stocks/combined.log' }),
-  ], 
+  ],
 });
 
 //
@@ -21,7 +21,7 @@ const logger = createLogger({
 //
 // if (process.env.NODE_ENV !== 'production') {
 //   logger.add(new _transports.Console({
-    // format: _format.simple(),
+// format: _format.simple(),
 //   }));
 // }
 
