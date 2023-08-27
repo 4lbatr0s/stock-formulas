@@ -24,12 +24,9 @@ def get_stock_news(symbol):
 
 
 def get_stock_news_alpaca(symbols):
-
     # Define the date range for the last 24 hours
     today = datetime.date.today().strftime("%Y-%m-%d")
     one_day_ago = (datetime.date.today() - datetime.timedelta(days=365)).strftime("%Y-%m-%d")
-
-
     url = 'https://data.alpaca.markets/v1beta1/news'
     headers = {
         'Apca-Api-Key-Id': config.get_alpaca_key(),
@@ -43,6 +40,7 @@ def get_stock_news_alpaca(symbols):
     combined_news = []
     response = requests.get(url, params=query_params, headers=headers)
     parsed_response = json.loads(response.text)
+    print('parsed_response:',parsed_response)
     for news in parsed_response['news']:
         print("news:", news)
         combined_text = news['headline'] + '. ' + news['summary'] + '. ' + news['content']

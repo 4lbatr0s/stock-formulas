@@ -3,13 +3,21 @@ const investingCom = {
     UNITED_STATES: "united-states",
     TURKEY: "turkey",
   },
+  COUNTRIES_INTERIOR_CALLS:{
+    UNITED_STATES:'UNITED_STATES',
+    TURKEY:'TURKEY'
+  },
   MARKETS: {
     SP_500: "S&P 500",
     BIST_100: "BIST 100",
     BIST_ALL_SHARES: "BIST All Shares",
   },
+  MARKETS_INTERIOR_CALLS:{
+      SP_500: "SP_500",
+      BIST_100: "BIST_100",
+      BIST_ALL_SHARES: "BIST_ALL_SHARES",
+  },
   RATIO_URL_STOCK_PAIRS: {},
-
   INDUSTRY_MAPPING: {
     "Aerospace & Defense": "aerospaceAndDefense",
     "Automobiles & Auto Parts": "automobilesAndAutoParts",
@@ -122,6 +130,9 @@ const investingCom = {
     "Dividend Growth Rate ANN": "dividendGrowthRateANN",
     "Payout Ratio TTM": "payoutRatioTTM",
   },
+  findKeyByValue(object, value){
+    return Object.keys(object).find(key=> object[key]===value);
+  }
 };
 
 export default investingCom;

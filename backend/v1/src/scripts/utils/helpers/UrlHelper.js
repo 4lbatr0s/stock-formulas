@@ -39,7 +39,7 @@ class UrlHelper {
   getYFinanceBist100Url(symbols) {
     return `http://192.168.1.46:5000/bist100-stocks/${symbols}`;
   }
-
+ 
   getYFinanceBist500Url(symbols) {
     return `http://192.168.1.46:5000/sp500-stock-values/${symbols}`;
   }
@@ -70,7 +70,7 @@ class UrlHelper {
   }
 
   getSentimentAnalysisForFinancialText() {
-    return `${URL.SENTIMENT_ANALYSIS}`;
+     return `${URL.SENTIMENT_ANALYSIS}`;
   }
 
   scrapInvestingForRatioUrls(countryName) {

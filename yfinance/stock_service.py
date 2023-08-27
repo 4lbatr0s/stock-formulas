@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import yfinance as yf
 from flask_caching import Cache
-import stock_symbols as symbls
 from flask_cors import CORS
 import threading
 import pandas_datareader as pdr
@@ -21,24 +20,6 @@ headers = {
 def fetch_ticker_info(ticker, tickers_list, tickers):
     ticker_info = tickers.tickers[ticker].info
     tickers_list.append(ticker_info)
-
-@app.route('/sp500-stocks', methods=['GET'])
-@cache.cached(timeout=3600, key_prefix='stock_infos')
-def get_financial_ratios():
-    symbol_list = symbls.five_hund()
-    tickers = yf.Tickers(symbol_list)
-    tickers_list = []   
-
-    threads = [] #to keep track of all threads
-    for ticker in tickers.tickers:
-        thread = threading.Thread(target=fetch_ticker_info, args=(ticker, tickers_list, tickers))
-        thread.start() #start the thread
-        threads.append(thread) #to keep track of all threads
-
-    for thread in threads:
-        thread.join()  #to ensure the main thread waits for all the threads to complete before returning tickers_list
-
-    return jsonify(tickers_list)
 
 
 @app.route('/sp500-stock-values/<stock_symbols>', methods=['GET'])
@@ -77,51 +58,6 @@ def get_financial_ratios_bist100(stock_symbols):
 
     return jsonify(tickers_list)
 
-
-
-@app.route('/sp500-stocks/filtered', methods=['GET'])
-@cache.cached(timeout=3600, key_prefix='stock_infos_filtered')
-def get_filtered_financial_ratios():
-    stock_infos = cache.get('stock_infos')
-    if stock_infos is None:
-        # if stock_infos not in cache, call get_financial_ratios to generate and store it in cache
-        stock_infos = get_financial_ratios()
-        cache.set('stock_infos', stock_infos)
-
-    # process each stock to get filtered financial ratios
-    filtered_financial_ratios = []
-    for stock_info in stock_infos:
-        try:
-            # Extract required financial ratios from stock information
-            eps = stock_info.get('trailingEps', None)
-            book_value = stock_info.get('bookValue', None)
-            pe_ratio = stock_info.get('trailingPE', None)
-            price_to_book_ratio = stock_info.get('priceToBook', None)
-
-            # Calculate Graham number and Price to Book ratio if possible
-            if eps and book_value:
-                graham_number = round((22.5 * eps * book_value) ** 0.5, 2)
-                if price_to_book_ratio is None:
-                    price_to_book_ratio = round(stock_info.get('currentPrice', 0) / book_value, 2)
-            else:
-                graham_number = None
-                price_to_book_ratio = None
-
-            # Add financial ratios to filtered_financial_ratios list
-            filtered_financial_ratios.append({
-                'symbol': stock_info['symbol'],
-                'name':stock_info['shortName'],
-                'Graham Number': float(graham_number),
-                'Price to Book Ratio': float(price_to_book_ratio),
-                'Price to Earnings Ratio': float(pe_ratio)
-            })
-        except Exception as e:
-            print(f'An error occurred: {e}')
-
-    # store filtered financial ratios in cache
-    cache.set('stock_infos_filtered', filtered_financial_ratios)
-
-    return jsonify(filtered_financial_ratios)
 
 
 
@@ -211,6 +147,7 @@ def get_balance_sheet_for_stock(ticker):
 @cache.cached(timeout=3600)
 def get_stock_news_sentiments_alpaca(ticker):
     news = news_service.get_stock_news_alpaca(ticker)
+    print("news:", news)
     return sentiment_service.sentiment_analysis_generate_text(news)
 
 
@@ -224,14 +161,4 @@ def get_stock_news_sentiments():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
-
-
-
-@app.route("/text-emotion", methods=['POST','GET'])
-def get_text_emotion():
-    request_body = request.json
-    sentence = request_body.sentence
-    emotion_detection = nlp(sentence)
-    return emotion_detection
+    app.run(host='0.0.0.0', port=5000, debug=True)

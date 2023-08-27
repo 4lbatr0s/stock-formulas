@@ -133,7 +133,7 @@ const initialJob = async () => {
 // });
 
 const jobStarter = async () => {
-  await initialJob();
+  //await initialJob();
   // quoteDataJobEveryFifteenMinutes.start();
   // financialDataJobEverHour.start();
 };

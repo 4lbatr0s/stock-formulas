@@ -12,6 +12,7 @@ import investingCom from "../constants/InvestingCom.js";
 import InvestingScrapingModel from "../../../models/InvestingScrapping.js";
 import ApiError from "../../../errors/ApiError.js";
 import { restrictionConfig } from "../../../config/puppeteer.js";
+import RegEasy from "../managers/regeasy/RegEasy.js";
 
 class ScrappingHelper {
   constructor() {}
@@ -133,9 +134,12 @@ class ScrappingHelper {
         else stockSymbol = null;
         return stockSymbol;
       });
+      console.log(`Symbol fetching is done for ${stockSymbol}`)
       return stockSymbol;
     } catch (error) {
       throw new ApiError(error?.message, error?.statusCode);
+    } finally { 
+      await page.close();
     }
   }
 
@@ -261,10 +265,48 @@ class ScrappingHelper {
       throw new ApiError(error?.message, error?.statusCode);
     }
   }
+  async scrapeInvestingForIndustry(page, url) {
+    try {
+      await page.setUserAgent(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+      );
 
-  async scrapeInvestingForRatioUrls(countryName, marketName) {
-    const browser = await puppeteer.launch(restrictionConfig);
-    const page = await browser.newPage();
+      // Enable request interception
+      await page.setRequestInterception(true);
+
+      // Listen for the request event to block unnecessary resources
+      page.on("request", this.requestHandler);
+      // console.log(`Part 0 done: requestInterception for ${url}`);
+
+      await page.goto(url, {
+        waitUntil: "networkidle0",
+        timeout: 120000, // Increase the timeout value to 60 seconds.
+      });
+
+      console.log(`Part 1 done: went to page ${url}`);
+
+      await this.closePopUpsInInvesting(page);
+
+      // Extract the Industry value
+      const industryValue = await page.evaluate(() => {
+        const industryElement = document.querySelector(
+          '.font-semibold a[href*="industry::"]'
+        );
+        return industryElement ? industryElement.textContent.trim() : null;
+      });
+
+      console.log(`Industry is fetched:${industryValue}`);
+      await InvestingScrapingModel.findOneAndUpdate(
+        { ratioLink: url },
+        { industry: investingCom.INDUSTRY_MAPPING[industryValue] }
+      );
+      return industryValue;
+    } catch (error) {
+      throw new ApiError(error?.message, error?.statusCode);
+    }
+  }
+
+  async scrapeInvestingForRatioUrls(page, countryName, marketName) {
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
     );
@@ -276,7 +318,6 @@ class ScrappingHelper {
     page.on("request", (request) => {
       const resourceType = request.resourceType();
       if (
-        resourceType === "image" ||
         resourceType === "stylesheet" ||
         resourceType === "font" ||
         resourceType === "media"
@@ -287,7 +328,7 @@ class ScrappingHelper {
     });
 
     await page.goto(
-      UrlHelper.scrapInvestingForRatioUrls(investingCom.COUNTRIES[countryName]),
+      UrlHelper.scrapInvestingForRatioUrls(countryName),
       {
         waitUntil: "networkidle2",
       }
@@ -296,18 +337,20 @@ class ScrappingHelper {
     // Wait for the select element to be ready
     await page.waitForSelector("select#stocksFilter.selectBox", {
       visible: true,
+      timeout:90000
     });
     await page.select(
       "select#stocksFilter.selectBox",
-      investingCom.MARKETS[marketName]
+      marketName
     );
-    // await page.waitForTimeout(1000); // Adjust this timeout as needed
-    await page.waitForSelector("#cross_rate_markets_stocks_1 tbody tr", {
+    await page.waitForTimeout(2000); // Adjust this timeout as needed
+    await page.waitForSelector("table#cross_rate_markets_stocks_1 tbody tr", {
       visible: true,
+      timeout:90000
     });
 
     const hrefValues = await page.$$eval(
-      "#cross_rate_markets_stocks_1 tbody tr",
+      "table#cross_rate_markets_stocks_1 tbody tr",
       (rows) =>
         rows.map((row) => {
           const secondTd = row.querySelector("td:nth-child(2)");
@@ -316,7 +359,7 @@ class ScrappingHelper {
         })
     );
 
-    await browser.close(); // Close the browser when done
+
     await Promise.all(
       hrefValues.map(async (item) => {
         const investingModel = await InvestingScrapingModel.findOneAndUpdate(
