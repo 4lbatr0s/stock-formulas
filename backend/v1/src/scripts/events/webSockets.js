@@ -10,9 +10,8 @@ import UrlHelper from '../utils/helpers/UrlHelper.js';
 const configureWebSockets = (app) => {
   const server = http.createServer(app);
   const wss = new WebSocketServer({ server });
-
   let newsWebSocket = null; // Track the WebSocket connection
-
+  
   const connectToNewsWebSocket = () => {
     newsWebSocket = new WebSocket(process.env.ALPACA_WSS_STREAM_URL);
 
@@ -45,9 +44,10 @@ const configureWebSockets = (app) => {
         console.log('===================================================\n');
         ScrappingHelper.getContentFromNews(event.data);
         console.log('===================================================\n');
-        const { headline, summary, content } = newsData[0];
+        const { headline, summary, content, symbols } = newsData[0];
         const mergedText = headline.concat('. ').concat(summary).concat('. ').concat(content);
-        await saveNewsToDatabase(mergedText);
+        const finalData = {mergedText, symbols}
+        await saveNewsToDatabase(finalData);
         console.log(`New data arrived: ${event.data}`);
 
         broadcastNewsData(event.data);
@@ -105,8 +105,7 @@ const configureWebSockets = (app) => {
   };
 
   const saveNewsToDatabase = async (newsData) => {
-    const newsItem = newsData; // Get the first news item from the array
-
+    const newsItem = newsData?.mergedText; // Get the first news item from the array
     const result = await axios.post(
       UrlHelper.getSentimentAnalysisForFinancialText(),
       { text: newsItem } // Pass the news item as a string
@@ -116,7 +115,7 @@ const configureWebSockets = (app) => {
 
     const newsItemData = {
       summary: news,
-      symbols: newsItem.symbols,
+      symbols: newsData.symbols ? newsData.symbols : [],
       semanticAnalysis: {
         sentiment,
         sentimentScore: score
@@ -127,12 +126,19 @@ const configureWebSockets = (app) => {
     await NewsService.saveItem(newsItemModel);
 
     const tickerUpdatePromises = [];
-    for (const symbol of newsItemData.symbols) {
+    if (Array.isArray(newsItemData.symbols)) {
+      for (const symbol of newsItemData.symbols) {
+        tickerUpdatePromises.push(
+          TickerService.updateTickerFields(symbol, newsItemData.semanticAnalysis.sentimentScore)
+        );
+      }
+    } else if (newsItemData.symbols) {
       tickerUpdatePromises.push(
-        TickerService.updateTickerFields(symbol, newsItemData.semanticAnalysis.sentimentScore)
+        TickerService.updateTickerFields(newsItemData.symbols, newsItemData.semanticAnalysis.sentimentScore)
       );
     }
     await Promise.all(tickerUpdatePromises);
+    
   };
 
   const broadcastNewsData = (newsDataString) => {

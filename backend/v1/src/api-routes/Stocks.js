@@ -1,12 +1,11 @@
 import express from 'express';
 import StocksController from '../controllers/Stocks.js';
 import redisCaching from '../middlewares/caching/redis.js';
-import apiKeySetter from '../middlewares/apiKeySetter.js';
 
 const router = express.Router();
 // alpaca
 router.get('/single/news/:stockSymbol', StocksController.getNewsForStock);
-router.get('/multiple/allNews', StocksController.getNewsForAllStocks);
+router.get('/multiple/all-news', StocksController.getNewsForAllStocks);
 
 // finnhub api
 router.get('/single/finnhub/:stockSymbol', StocksController.getSingleStockInfoFromFinnhub);
@@ -19,5 +18,10 @@ router.get('/multiple/investing-sp500', redisCaching, StocksController.getInvest
 router.get('/multiple/investing-bist100', redisCaching, StocksController.getInvestingBIST100);
 router.get('/get-stock-ratios-from-investing', StocksController.getStockRatiosFromInvesting);
 router.get('/multiple/stock-symbols', StocksController.getAllStockSymbolsFromInvesting)
+
+
+//TEST
+router.route('/multiple/create-ticker-documents').post(StocksController.createTickerDocuments)
+router.route('/single/wss').post(StocksController.webSocketMock)
 
 export default router;

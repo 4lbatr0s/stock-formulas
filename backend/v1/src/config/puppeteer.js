@@ -1,7 +1,8 @@
 const restrictionConfig = {
-  headless: 'new',
+  headless: false,
   ignoreHTTPSErrors: true, // Ignore HTTPS errors
   defaultViewport: null, // Set your custom viewport dimensions if needed
+  timeout:60000,
   args: [
     '--autoplay-policy=user-gesture-required',
     '--disable-background-networking',
@@ -40,7 +41,6 @@ const restrictionConfig = {
     '--use-mock-keychain',
   	  '--disable-gpu',
     '--memory-pressure-off',
-
   ],
 };
 

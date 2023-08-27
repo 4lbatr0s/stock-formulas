@@ -8,8 +8,16 @@ class TickerServicve extends BaseService {
     return await this.model.insertMany(items);
   }
   async upsertMany(items) {
-    return await this.model.updateMany({}, items, { upsert: true });
+    const bulkOperations = items.map((item) => ({
+      updateOne: {
+        filter: { symbol:item }, // You might need to adjust the filter criteria
+        update: { $set: {symbol:item}},
+        upsert: true,
+      },
+    }));
+    return await this.model.bulkWrite(bulkOperations);
   }
+  
   async updateTickerFields(symbol, sentimentScore) {
     try {
       const update = {
