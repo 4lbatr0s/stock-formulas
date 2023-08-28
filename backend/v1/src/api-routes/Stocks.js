@@ -13,9 +13,9 @@ router.get('/single/finnhub/:stockSymbol', StocksController.getSingleStockInfoFr
 router.get('/scrap-investing/:companyName', StocksController.scrapeInvestingForRatios);
 router.get('/scrap-ratio-routes-from-investing/:countryName/:marketName', StocksController.scrapRatioRoutesFromInvesting);
 router.get('/scrap-ratio-values-from-investing/:companyName', StocksController.scrapRatioValues);
+
 // investing
-router.get('/multiple/investing-sp500', redisCaching, StocksController.getInvestingSP500);
-router.get('/multiple/investing-bist100', redisCaching, StocksController.getInvestingBIST100);
+router.get('/multiple/get-calculated-ratios/:marketName', redisCaching, StocksController.getCalculatedStockJsons);
 router.get('/get-stock-ratios-from-investing', StocksController.getStockRatiosFromInvesting);
 router.get('/multiple/stock-symbols', StocksController.getAllStockSymbolsFromInvesting)
 

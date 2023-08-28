@@ -11,13 +11,10 @@ const configureWebSockets = (app) => {
   const server = http.createServer(app);
   const wss = new WebSocketServer({ server });
   let newsWebSocket = null; // Track the WebSocket connection
-  
   const connectToNewsWebSocket = () => {
     newsWebSocket = new WebSocket(process.env.ALPACA_WSS_STREAM_URL);
-
     newsWebSocket.onopen = () => {
       console.log('Connected to the news WebSocket.');
-
       const authMessage = JSON.stringify({
         action: process.env.ALPACA_ACTION,
         key: process.env.ALPACA_KEY,
@@ -31,16 +28,13 @@ const configureWebSockets = (app) => {
       });
       newsWebSocket.send(subscriptionMessage);
     };
-
     newsWebSocket.onmessage = async (event) => {
       try {
         const newsData = JSON.parse(event.data);
-
         if (shouldExcludeMessage(newsData)) {
           console.log('Excluded message:', event.data);
           return;
         }
-
         console.log('===================================================\n');
         ScrappingHelper.getContentFromNews(event.data);
         console.log('===================================================\n');
@@ -49,16 +43,13 @@ const configureWebSockets = (app) => {
         const finalData = {mergedText, symbols}
         await saveNewsToDatabase(finalData);
         console.log(`New data arrived: ${event.data}`);
-
         broadcastNewsData(event.data);
       } catch (error) {
         console.error('Error occurred while processing news data:', error);
       }
     };
-
     newsWebSocket.onerror = (error) => {
       console.error('WebSocket error:', error);
-
       if (isConnectionError(error)) {
         console.log('Retrying connection in 5 seconds...');
         setTimeout(connectToNewsWebSocket, 5000);
@@ -67,15 +58,12 @@ const configureWebSockets = (app) => {
           'WebSocket connection encountered an error. Closing the connection.',
         );
         newsWebSocket.close();
-
         // Additional recovery logic here...
       }
     };
-
     const isConnectionError = (error) => {
       // Check if the error is a connection error
       // You can customize this logic based on your specific requirements
-
       if (error && error.code) {
         // Check if the error has a 'code' property
         // Here you can add conditions to identify specific error codes as connection errors
@@ -83,7 +71,6 @@ const configureWebSockets = (app) => {
           return true;
         }
       }
-
       // If none of the conditions matched, return false
       return false;
     };
@@ -105,26 +92,22 @@ const configureWebSockets = (app) => {
   };
 
   const saveNewsToDatabase = async (newsData) => {
-    const newsItem = newsData?.mergedText; // Get the first news item from the array
+    const newsItem = newsData; // Get the first news item from the array
     const result = await axios.post(
       UrlHelper.getSentimentAnalysisForFinancialText(),
-      { text: newsItem } // Pass the news item as a string
-    );
-
+      { text: newsItem.mergedText } // Pass the news item as a string
+    );  
     const { news, sentiment, score } = result.data[0]; // Assuming the result contains properties like news, sentiment, and score
-
     const newsItemData = {
       summary: news,
-      symbols: newsData.symbols ? newsData.symbols : [],
+      symbols: newsItem.symbols ? newsItem.symbols : [],
       semanticAnalysis: {
         sentiment,
         sentimentScore: score
       }
     };
-
     const newsItemModel = new News(newsItemData);
     await NewsService.saveItem(newsItemModel);
-
     const tickerUpdatePromises = [];
     if (Array.isArray(newsItemData.symbols)) {
       for (const symbol of newsItemData.symbols) {
@@ -138,7 +121,6 @@ const configureWebSockets = (app) => {
       );
     }
     await Promise.all(tickerUpdatePromises);
-    
   };
 
   const broadcastNewsData = (newsDataString) => {

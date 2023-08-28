@@ -263,7 +263,7 @@ class StockService extends BaseService {
     }
   }
 
-  async getInvestingSP500(req) {
+  async getCalculatedStockJsons(req) {
     try {
       const selectedProperties = propertiesToGetFromDB;
       const documents = await InvestingScrapingModel.find({}).select(
@@ -285,12 +285,13 @@ class StockService extends BaseService {
         });
         return selectedValues;
       });
-      const results = CalculationHelper.allOverallValues(selectedValuesArray);
+      let results = CalculationHelper.allOverallValues(selectedValuesArray);
       await redisClient.set(
-        Caching.VALUES.INVESTING_SP500_VALUES_SORTED,
+        Caching.ALL_STOCKS_CALCULATED,
         JSON.stringify(results)
       );
       const options = RequestHelper.setOptions(req);
+      results = req.params.marketName ? results.filter(stock => stock.market === Caching[req.params.marketName]) : results;
       const responseManipulation = StockExtensions.manipulationChaining(
         results,
         options
