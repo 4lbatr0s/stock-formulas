@@ -30,11 +30,12 @@ const commonWeights = {
   quickRatioRate: 0.062,
   returnOnEquityRate: 0.123,
   returnOnAssetsRate: 0.103,
-  grossMarginRate: 0.062,
+  grossMarginRate: 0.052,
   operatingMarginRate: 0.062,
-  priceToSalesRate: 0.082,
+  priceToSalesRate: 0.052,
   earningsPerShareRate: 0.103,
-  netProfitMarginRate: 0.062,
+  netProfitMarginRate: 0.052,
+  averageSentimentScore:0.05
 };
 
 export const weightPreferences = {

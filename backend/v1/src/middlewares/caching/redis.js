@@ -2,12 +2,14 @@ import httpStatus from 'http-status';
 import ApiError from '../../errors/ApiError.js';
 import CachingHelper from '../../scripts/utils/helpers/CachingHelper.js';
 import RequestHelper from '../../scripts/utils/helpers/RequestHelper.js';
+import Caching from '../../scripts/utils/constants/Caching.js';
 
 async function cacheData(req, res, next) {
   try {
     const stockExchange = req.url.split('/');
     const stockExchangeType = stockExchange[stockExchange.length - 1];
     const options = RequestHelper.setOptions(req);
+    options.market = Caching[req.params?.marketName] || '';
     const sortedStocks = await CachingHelper.getStockSortings(options, stockExchangeType);
     if (sortedStocks && sortedStocks !== '') {
       res.set('X-Pagination', JSON.stringify(sortedStocks.MetaData));

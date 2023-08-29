@@ -19,7 +19,7 @@ const InvestingScrapingSchema = new Schema(
     ticker: {
       type: String,
     },
-    stockSymbol: {
+    stockSymbol: {  
       type: String,
     },
     country: {

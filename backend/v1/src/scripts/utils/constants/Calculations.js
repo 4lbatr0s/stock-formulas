@@ -26,6 +26,7 @@ export const commonRatiosToInclude = [
   "priceToSalesRate",
   "earningsPerShareRate",
   "netProfitMarginRate",
+  "averageSentimentScore"
 ];
 
 export const theSmallerTheBetter = [
@@ -44,4 +45,9 @@ export const theBiggerTheBetter = [
   "currentRatioRate",
   "quickRatioRate",
   "operatingMarginRate",
+  "averageSentimentScore"
 ];
+
+export const sentimentAnalysis = {
+  averageSentimentScore:'averageSentimentScore',
+}

@@ -17,7 +17,10 @@ import TickerService from "./TickerService.js";
 import InvestingScrapingModel from "../models/InvestingScrapping.js";
 import PuppeteerManagerBuilder from "../scripts/utils/managers/puppeteer/PuppeteerManager.js";
 import { restrictionConfig } from "../config/puppeteer.js";
-import { propertiesToGetFromDB } from "../scripts/utils/constants/Calculations.js";
+import {
+  propertiesToGetFromDB,
+  sentimentAnalysis,
+} from "../scripts/utils/constants/Calculations.js";
 import investingCom from "../scripts/utils/constants/InvestingCom.js";
 import puppeteer from "puppeteer";
 
@@ -269,6 +272,7 @@ class StockService extends BaseService {
       const documents = await InvestingScrapingModel.find({}).select(
         `-_id ${selectedProperties.join(" ")}`
       );
+      const tickers = await TickerService.findAll();
       const selectedValuesArray = documents.map((document) => {
         const selectedValues = {};
         selectedProperties.forEach((property) => {
@@ -283,6 +287,12 @@ class StockService extends BaseService {
             selectedValues[property] = document[property];
           }
         });
+        let ticker = tickers.find((ticker) => ticker.symbol === document.stockSymbol);
+        if(ticker?.numberOfNews>0){
+          selectedValues.averageSentimentScore = ticker.averageSentimentScore;            
+        } else {
+          selectedValues.averageSentimentScore = null;
+        }
         return selectedValues;
       });
       let results = CalculationHelper.allOverallValues(selectedValuesArray);
@@ -291,7 +301,11 @@ class StockService extends BaseService {
         JSON.stringify(results)
       );
       const options = RequestHelper.setOptions(req);
-      results = req.params.marketName ? results.filter(stock => stock.market === Caching[req.params.marketName]) : results;
+      results = req.params.marketName
+        ? results.filter(
+            (stock) => stock.market === Caching[req.params.marketName]
+          )
+        : results;
       const responseManipulation = StockExtensions.manipulationChaining(
         results,
         options
@@ -440,7 +454,7 @@ class StockService extends BaseService {
   //Redise buradan getirdigin semboller icin deger set et.
   async getStockSymbolsFromInvesting(routes) {
     try {
-      console.log("Method triggered:getStockSymbolsFromInvesting")
+      console.log("Method triggered:getStockSymbolsFromInvesting");
       const startTime = performance.now();
       const batchSize = 15; // Set the batch size
       let waitingTime = 100; // Initial waiting time in milliseconds
@@ -476,17 +490,19 @@ class StockService extends BaseService {
       await puppeteerManager.close();
       const endTime = performance.now();
       const timeDiff = endTime - startTime;
-      console.log("Method done:getStockSymbolsFromInvesting")
+      console.log("Method done:getStockSymbolsFromInvesting");
       console.log(`Time passed:${timeDiff}`);
       console.log(`Total time took for entire process: ${endTime - startTime}`);
     } catch (error) {
       throw new ApiError(error?.message, error?.statusCode);
     }
   }
- 
+
   async createTickerDocuments(symbols) {
     try {
-      const allSymbols = JSON.parse(await redisClient.get(Caching.SYMBOLS.ALL_STOCK_SYMBOLS));
+      const allSymbols = JSON.parse(
+        await redisClient.get(Caching.SYMBOLS.ALL_STOCK_SYMBOLS)
+      );
       TickerService.upsertMany(allSymbols);
     } catch (error) {
       throw new ApiError(error?.message, error?.statusCode);
@@ -499,24 +515,36 @@ class StockService extends BaseService {
       console.log("Method triggered: getAllStockSymbolsFromInvesting");
       const allRoutes = [];
       const browser = await puppeteer.launch(restrictionConfig);
-      const page1= await browser.newPage();
-      const page2= await browser.newPage();
+      const page1 = await browser.newPage();
+      const page2 = await browser.newPage();
       const [sp500Routes, bistAllRoutes] = await Promise.all([
-        this.scrapeInvestingForRatioUrls(page1, investingCom.COUNTRIES.UNITED_STATES, "Dow Jones Industrial Average"),
-      ]) 
-      this.scrapeInvestingForRatioUrls(page2, investingCom.COUNTRIES.TURKEY, investingCom.MARKETS.BIST_ALL_SHARES),
-      await browser.close();
+        this.scrapeInvestingForRatioUrls(
+          page1,
+          investingCom.COUNTRIES.UNITED_STATES,
+          "Dow Jones Industrial Average"
+        ),
+      ]);
+      this.scrapeInvestingForRatioUrls(
+        page2,
+        investingCom.COUNTRIES.TURKEY,
+        investingCom.MARKETS.BIST_ALL_SHARES
+      ),
+        await browser.close();
       allRoutes.push(...sp500Routes, ...bistAllRoutes);
       await this.getStockSymbolsFromInvesting(allRoutes);
       console.log("Method done: getAllStockSymbolsFromInvesting");
-      return allRoutes; 
+      return allRoutes;
     } catch (error) {
       throw new ApiError(error?.message, error?.statusCode);
     }
   }
-  
+
   async scrapeInvestingForRatioUrls(page, country, market) {
-    const routes = await ScrappingHelper.scrapeInvestingForRatioUrls(page, country, market);
+    const routes = await ScrappingHelper.scrapeInvestingForRatioUrls(
+      page,
+      country,
+      market
+    );
     return routes;
   }
 }
