@@ -1,33 +1,38 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.1.0
-=========================================================
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
+// scroll bar
+import 'simplebar/src/simplebar.css';
 
-Coded by www.creative-tim.com
+// third-party
+import { Provider as ReduxProvider } from 'react-redux';
 
- =========================================================
+// apex-chart
+import 'assets/third-party/apex-chart.css';
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
+// project import
+import App from './App';
+import { store } from 'store';
+import reportWebVitals from './reportWebVitals';
+import { CssBaseline } from '../node_modules/@mui/material/index';
 
-import React from "react";
-import ReactDOM from "react-dom";
-import { BrowserRouter } from "react-router-dom";
-import { Provider } from "react-redux";
-import {store, persistor} from "./redux/store";
-import App from "App";
-import { PersistGate } from "redux-persist/integration/react";
+// ==============================|| MAIN - REACT DOM RENDER  ||============================== //
 
-ReactDOM.render(
-  <BrowserRouter>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+const container = document.getElementById('root');
+const root = createRoot(container); // createRoot(container!) if you use TypeScript
+root.render(
+  <StrictMode>
+    <ReduxProvider store={store}>
+      <BrowserRouter>
+        <CssBaseline/>
         <App />
-      </PersistGate>
-    </Provider >
-  </BrowserRouter>,
-  document.getElementById("root")
+      </BrowserRouter>
+    </ReduxProvider>
+  </StrictMode>
 );
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
