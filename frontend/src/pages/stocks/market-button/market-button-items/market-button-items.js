@@ -15,7 +15,7 @@ const markets = [
     secondaryTitle: 'All S&P 500 stocks',
     icon: svgIcons.americanFlag,
     altText:'american-flag',
-    queryValue:'S&P 500'
+    queryValue:'SP_500'
   },
   {
     id: 'BIST',
@@ -23,7 +23,7 @@ const markets = [
     secondaryTitle: 'All BIST stocks',
     icon: svgIcons.turkishFlag,
     altText:'turkish-flag',
-    queryValue:'BIST ALL Shares'
+    queryValue:'BIST_ALL_SHARES'
   },
 ];
 

@@ -3,7 +3,6 @@ import axios from 'axios';
 class AxiosHelper {
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: process.env.REACT_APP_API_BASE_URL, // Set your API base URL
       timeout: 5000, // Set a timeout for requests (optional)
       headers: {
         'Content-Type': 'application/json'

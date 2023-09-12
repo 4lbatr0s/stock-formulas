@@ -5,6 +5,7 @@ import communicationAndNetworking from "../../../assets/images/icons/industries/
 import constructionAndEngineering from "../../../assets/images/icons/industries/construction-and-engineering.svg";
 import technology from "../../../assets/images/icons/industries/technology.svg";
 import investmentAndBanking from "../../../assets/images/icons/industries/investment-and-banking.svg";
+import all from "../../../assets/images/icons/industries/all.svg";
 
 // icons
 const svgIcons = {
@@ -15,9 +16,18 @@ const svgIcons = {
   constructionAndEngineering: constructionAndEngineering,
   technology: technology,
   investmentAndBanking: investmentAndBanking,
+  all:all,
 };
 
 const industries = [
+  {
+    id: 'All',
+    title: 'All Industries',
+    secondaryTitle: 'All Industries',
+    icon: svgIcons.all,
+    altText: 'all-industries-icon',
+    query:''
+  },
   {
     id: 'Aerospace',
     title: 'Aerospace',

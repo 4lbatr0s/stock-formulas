@@ -1,9 +1,12 @@
+import TabButton from "../tab-button/index";
+
 const MarketButton = ({
   title,
   secondaryTitle,
   svgIcon,
   altText,
   height,
+  isActive
 }) => {
   return (
     <TabButton
@@ -14,6 +17,7 @@ const MarketButton = ({
       height={height}
       padding={2}
       borderRadius={3}
+      isActive={isActive}
     />
   );
 };

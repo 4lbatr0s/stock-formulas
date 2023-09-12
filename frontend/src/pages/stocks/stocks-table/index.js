@@ -10,88 +10,25 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import { useTheme } from '@mui/material/styles';
 import SimpleBar from '../../../../node_modules/simplebar-react/dist/simplebar-react';
 import { Paper } from '../../../../node_modules/@mui/material/index';
-import { ratioLabels } from '../ratios/ratio-items/ratio-labels';
-export function createFinancialData(
-  symbol,
-  price,
-  pe,
-  pb,
-  de,
-  roe,
-  roa,
-  ps,
-  eps,
-  currentRatio,
-  quickRatio,
-  sentimentScore,
 
-  grossMargin,
-  operatingMargin,
+const namesToLabels = {
+  priceToEarningRate: 'P/E',
+  priceToBookRate: 'P/B',
+  debtToEquityRate: 'D/E',
+  currentRatioRate: 'Current Ratio',
+  quickRatioRate: 'Quick Ratio',
+  returnOnEquityRate: 'ROE',
+  returnOnAssetsRate: 'ROA',
+  grossMarginRate: 'Gross Margins',
+  operatingMarginRate: 'Operating Margin',
+  priceToSalesRate: 'P/S',
+  earningsPerShareRate: 'EPS',
+  netProfitMarginRate: 'Net Profit',
+  averageSentimentScore: 'Sentiment Score',
+  currentPrice: 'Price',
+};
 
-  netProfitMargin
-) {
-  return {
-    [ratioLabels.STOCK_SYMBOL]: symbol,
-    [ratioLabels.CURRENT_PRICE]: price,
-    [ratioLabels.PRICE_TO_EARNING]: pe,
-    [ratioLabels.PRICE_TO_BOOK]: pb,
-    [ratioLabels.DEBT_TO_EQUITY]: de,
-    [ratioLabels.RETURN_ON_EQUITY]: roe,
-    [ratioLabels.RETURN_ON_ASSETS]: roa,
-    [ratioLabels.PRICE_TO_SALES]: ps,
-    [ratioLabels.EARNINGS_PER_SHARE]: eps,
-    [ratioLabels.CURRENT_RATIO]: currentRatio,
-    [ratioLabels.QUICK_RATIO]: quickRatio,
-    [ratioLabels.AVERAGE_SENTIMENT_SCORE]: sentimentScore,
-    [ratioLabels.GROSS_MARGIN]: grossMargin,
-    [ratioLabels.OPERATING_MARGIN]: operatingMargin,
-    [ratioLabels.NET_PROFIT_MARGIN]: netProfitMargin
-  };
-}
-
-export const rows = [
-  createFinancialData('AAPL', 27.45, 8.29, 1.64, 1.15, 0.87, 103.67, 24.68, 39.07, 24.44, 7.41, 22.99, 0.212, 89.5, 148.56),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('MSFT', 37.23, 14.69, 0.49, 2.8, 2.22, 45.51, 15.8, 66.52, 40.22, 11.18, 9.48, 0.195, 78.3, 305.98),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89),
-  createFinancialData('GOOGL', 28.62, 5.08, 0.05, 2.85, 1.15, 16.76, 14.03, 56.05, 23.86, 6.15, 94.54, 0.198, 78.2, 2754.89)
-
-  // Add more financial data here
-];
-
-export default function SortableTable() {
+export default function SortableTable({ rows }) {
   const theme = useTheme();
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('calories');
@@ -113,6 +50,9 @@ export default function SortableTable() {
     setPage(0);
   };
 
+  // Create an array of keys from the first row to use as column headers
+  const columnHeaders = rows.length > 0 ? Object.keys(rows[0]) : [];
+
   // Sorting function
   const sortedRows = rows.slice().sort((a, b) => {
     const isAsc = order === 'asc';
@@ -125,11 +65,20 @@ export default function SortableTable() {
 
   return (
     <SimpleBar style={{ maxHeight: '100%', width: '100%' }}>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
       <TableContainer component={Paper} style={{ maxHeight: '100%' }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              {Object.keys(rows[0]).map((headCell) => (
+              {columnHeaders.map((headCell) => (
                 <TableCell key={headCell}>
                   <TableSortLabel
                     sx={{
@@ -143,7 +92,7 @@ export default function SortableTable() {
                     direction={orderBy === headCell ? order : 'asc'}
                     onClick={() => handleRequestSort(headCell)}
                   >
-                    {headCell}
+                    {namesToLabels[headCell] || headCell}
                   </TableSortLabel>
                 </TableCell>
               ))}
@@ -157,14 +106,14 @@ export default function SortableTable() {
                 tabIndex={-1}
                 sx={{ cursor: 'pointer', '&:hover': { backgroundColor: theme.palette.primary.lighter } }}
               >
-                {Object.keys(row).map((key) => (
+                {columnHeaders.map((key) => (
                   <TableCell key={key}>{row[key]}</TableCell>
                 ))}
               </TableRow>
             ))}
             {emptyRows > 0 && (
               <TableRow style={{ height: 33 * emptyRows }}>
-                <TableCell colSpan={Object.keys(rows[0]).length} />
+                <TableCell colSpan={columnHeaders.length} />
               </TableRow>
             )}
           </TableBody>

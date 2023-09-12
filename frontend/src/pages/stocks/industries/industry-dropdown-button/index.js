@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormControl, InputLabel, Select, MenuItem, ListItemAvatar, ListItemButton, ListItemText, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import industries from '../industry-items';
 
 const IndustryDropdownButton = ({ ...props }) => {
   const theme = useTheme();
@@ -15,11 +16,11 @@ const IndustryDropdownButton = ({ ...props }) => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    whiteSpace:'break-spaces',
+    whiteSpace: 'break-spaces',
     backgroundColor: props.backgroundColor || theme.palette.primary.lighter,
     transition: props.transition || 'background-color 0.3s, transform 0.3s ease-in-out',
     '&:hover': {
-      backgroundColor: props.hoverColor || theme.palette.primary[200],
+      backgroundColor: props.hoverColor || theme.palette.primary[200]
     }
   };
 
@@ -28,26 +29,27 @@ const IndustryDropdownButton = ({ ...props }) => {
     '&:hover': {
       backgroundColor: 'transparent' // Remove the transparent box when hovering
     },
-    margin:'0'
+    margin: '0'
   };
 
   // Custom styles for the text inside the Select
   const selectTextStyles = {
-    fontSize: 'small', // Adjust the font size as needed
+    fontSize: 'small' // Adjust the font size as needed
   };
 
   return (
     <FormControl fullWidth>
-      <InputLabel  id="industry-select-label">Select Industry</InputLabel>
+      <InputLabel id="industry-select-label">Select Industry</InputLabel>
       <Select
         labelId="industry-select-label"
         id="industry-select"
+        defaultValue={industries[0]}
         value={props.selectedValue}
-        onChange={props.onChange}
+        onChange={(e) => props.onChange(e.target.value)}
         sx={buttonStyles} // Apply your button styles to the Select component
         renderValue={(selected) => (
           <ListItemButton divider sx={menuItemStyles}>
-            <ListItemAvatar sx={{margin:0, padding:0}}>
+            <ListItemAvatar sx={{ margin: 0, padding: 0 }}>
               <img
                 src={selected.icon} // Use the selected item's icon
                 alt={selected.altText}
@@ -56,7 +58,7 @@ const IndustryDropdownButton = ({ ...props }) => {
               />
             </ListItemAvatar>
             <ListItemText
-              sx={{fontSize:'12px'}} // Apply text styles
+              sx={{ fontSize: '12px' }} // Apply text styles
               primary={<Typography variant="button">{selected.title}</Typography>}
               secondary={selected.secondaryTitle}
             />
@@ -73,10 +75,7 @@ const IndustryDropdownButton = ({ ...props }) => {
                 height={props.iconHeight || 24}
               />
             </ListItemAvatar>
-            <ListItemText
-              primary={<Typography variant="button">{option.title}</Typography>}
-              secondary={option.secondaryTitle}
-            />
+            <ListItemText primary={<Typography variant="button">{option.title}</Typography>} secondary={option.secondaryTitle} />
           </MenuItem>
         ))}
       </Select>

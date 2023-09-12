@@ -15,13 +15,14 @@ const TabButton = ({ ...props }) => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: props.backgroundColor || theme.palette.primary.lighter,
-    transition: props.transition || 'background-color 0.3s, transform 0.3s ease-in-out',
-    '&:hover': {
-      backgroundColor: props.hoverColor || theme.palette.primary[200],
-      transform: props.scaleOnHover || 'scale(1.1)' // Apply scale transformation if specified
+    backgroundColor: props.isActive ?  theme.palette.primary[400] : theme.palette.primary.lighter,
+    transition: 'background-color 0.3s, transform 0.3s ease-in-out',
+    transform: props.isActive ? 'scale(1.1)' : 'scale(1)', // Apply scale transformation if isActive is true
+    '&:hover':{
+      backgroundColor:props.isActive ?  theme.palette.primary[400] : theme.palette.primary[200]
     }
   };
+  
 
   return (
     <ListItemButton divider sx={buttonStyles}>
@@ -40,9 +41,9 @@ const TabButton = ({ ...props }) => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
-        primary={<Typography  variant="button">{props.title}</Typography>}
+        primary={<Typography variant="button">{props.title}</Typography>}
         secondary={props.secondaryTitle}
       />
     </ListItemButton>
