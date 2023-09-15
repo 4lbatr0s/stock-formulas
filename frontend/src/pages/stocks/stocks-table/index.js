@@ -12,6 +12,7 @@ import SimpleBar from '../../../../node_modules/simplebar-react/dist/simplebar-r
 import { Paper } from '../../../../node_modules/@mui/material/index';
 
 const namesToLabels = {
+  stockSymbol: 'Symbol',
   priceToEarningRate: 'P/E',
   priceToBookRate: 'P/B',
   debtToEquityRate: 'D/E',
@@ -26,6 +27,7 @@ const namesToLabels = {
   netProfitMarginRate: 'Net Profit',
   averageSentimentScore: 'Sentiment Score',
   currentPrice: 'Price',
+  overallScore: 'Overall Score'
 };
 
 export default function SortableTable({ rows }) {
@@ -51,8 +53,7 @@ export default function SortableTable({ rows }) {
   };
 
   // Create an array of keys from the first row to use as column headers
-  const columnHeaders = rows.length > 0 ? Object.keys(rows[0]) : [];
-
+  let columnHeaders = rows.length > 0 ? Object.keys(rows[0]) : [];
   // Sorting function
   const sortedRows = rows.slice().sort((a, b) => {
     const isAsc = order === 'asc';
@@ -63,10 +64,34 @@ export default function SortableTable({ rows }) {
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
   const paginatedRows = sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+  let filteredHeaders = columnHeaders.filter((header) => header !== 'market' && header !== 'country' && header !== 'industry');
+
+  const filteredRows = paginatedRows.filter((row) => {
+    return !['market', 'country', 'industry'].includes(row.stockSymbol);
+  });
+
+  const symbolCellStyle = {
+    '&:hover': {
+      backgroundImage: `linear-gradient(to right, ${theme.palette.primary[700]}, ${theme.palette.primary[200]})`,
+      borderRadius: '25px 0 0 25px',  // Set border radius for each corner
+      cursor: 'pointer',
+      fontSize: '16px',
+      transition: 'background-image 0.3s, font-size 0.3s, transform 0.3s ease-in-out'
+    }
+  };
+  
+
+  const tableRowStyles = {
+    '&:hover': {
+      backgroundColor: theme.palette.primary[200],
+      transition: 'background-color 0.3s, transform 0.3s ease-in-out',
+    }
+  };
+
   return (
     <SimpleBar style={{ maxHeight: '100%', width: '100%' }}>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 50]}
+        rowsPerPageOptions={[5, 10, 15, 25, 50]}
         component="div"
         count={rows.length}
         rowsPerPage={rowsPerPage}
@@ -78,7 +103,7 @@ export default function SortableTable({ rows }) {
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              {columnHeaders.map((headCell) => (
+              {filteredHeaders.map((headCell) => (
                 <TableCell key={headCell}>
                   <TableSortLabel
                     sx={{
@@ -99,21 +124,18 @@ export default function SortableTable({ rows }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedRows.map((row, index) => (
-              <TableRow
-                key={index}
-                hover
-                tabIndex={-1}
-                sx={{ cursor: 'pointer', '&:hover': { backgroundColor: theme.palette.primary.lighter } }}
-              >
-                {columnHeaders.map((key) => (
-                  <TableCell key={key}>{row[key]}</TableCell>
+            {filteredRows.map((row, index) => (
+              <TableRow key={index}  sx={tableRowStyles} tabIndex={-1}>
+                {filteredHeaders.map((key) => (
+                  <TableCell sx={key === 'stockSymbol' && symbolCellStyle} key={key}>
+                    {typeof row[key] === 'number' ? row[key].toFixed(3) : row[key] ? row[key] : 'N/A'}
+                  </TableCell>
                 ))}
               </TableRow>
             ))}
             {emptyRows > 0 && (
               <TableRow style={{ height: 33 * emptyRows }}>
-                <TableCell colSpan={columnHeaders.length} />
+                <TableCell colSpan={filteredHeaders.length} />
               </TableRow>
             )}
           </TableBody>

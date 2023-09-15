@@ -3,7 +3,7 @@ import axios from 'axios';
 class AxiosHelper {
   constructor() {
     this.axiosInstance = axios.create({
-      timeout: 5000, // Set a timeout for requests (optional)
+      timeout: 60000, // Set a timeout for requests (optional)
       headers: {
         'Content-Type': 'application/json'
       }

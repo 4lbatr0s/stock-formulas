@@ -287,9 +287,11 @@ class StockService extends BaseService {
             selectedValues[property] = document[property];
           }
         });
-        let ticker = tickers.find((ticker) => ticker.symbol === document.stockSymbol);
-        if(ticker?.numberOfNews>0){
-          selectedValues.averageSentimentScore = ticker.averageSentimentScore;            
+        let ticker = tickers.find(
+          (ticker) => ticker.symbol === document.stockSymbol
+        );
+        if (ticker?.numberOfNews > 0) {
+          selectedValues.averageSentimentScore = ticker.averageSentimentScore;
         } else {
           selectedValues.averageSentimentScore = null;
         }

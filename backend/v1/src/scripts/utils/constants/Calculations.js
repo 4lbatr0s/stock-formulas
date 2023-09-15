@@ -1,4 +1,5 @@
 export const propertiesToGetFromDB = [
+  "stockSymbol",
   "priceToEarningRate",
   "priceToBookRate",
   "earningsPerShareRate",
@@ -7,9 +8,7 @@ export const propertiesToGetFromDB = [
   "debtToEquityRate",
   "priceToSalesRate",
   "netProfitMarginRate",
-  "country",
   "market",
-  "stockSymbol",
   "industry",
 ];
 
