@@ -1,8 +1,8 @@
 // ==============================|| THEME CONFIG  ||============================== //
 
 const config = {
-  defaultPath: '/dashboard/default',
-  fontFamily: `'Public Sans', sans-serif`,
+  defaultPath: '/stocks',
+  fontFamily: `'Roboto', sans-serif`,
   i18n: 'en',
   miniDrawer: false,
   container: true,
@@ -12,7 +12,7 @@ const config = {
 };
 
 export default config;
-export const drawerWidth = 260;
+export const drawerWidth = 200;
 
 export const twitterColor = '#1DA1F2';
 export const facebookColor = '#3b5998';

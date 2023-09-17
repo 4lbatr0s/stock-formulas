@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Divider, List, Grid, Stack } from '@mui/material';
 import MainCard from 'components/MainCard';
 import markets from './market-button/market-button-items/market-button-items';
@@ -9,12 +9,22 @@ import StocksTable from './stocks-table/index';
 import ScriptHelper from 'utils/helpers/ScriptHelper';
 import { fetchStockInformationsQuery } from 'store/query/StockQueries';
 import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
+import { useQuery } from '@tanstack/react-query';
+import Loader from 'components/Loader';
 
 const Stocks = () => {
-  const [activeMarket, setActiveMarket] = useState(markets[0].queryValue); // Initialize to the queryValue of the first market button
+  const [activeMarket, setActiveMarket] = useState(markets[0].queryValue);
   const [industry, setIndustry] = useState('');
-  const [rows, setRows] = useState([]);
+  const {
+    data: rows,
+    isLoading,
+    error
+  } = useQuery(['stocksArray', activeMarket, industry.query], async () => {
+    const newQuery = ScriptHelper.queryBuilder(activeMarket, industry.query || '');
+    const response = await fetchStockInformationsQuery(newQuery);
+    return response.data;
+  });
+
   const handleActiveMarketChange = (newMarket) => {
     setActiveMarket(newMarket);
   };
@@ -23,12 +33,8 @@ const Stocks = () => {
     setIndustry(newIndustry);
   };
 
-  const handleRows = (values) => {
-    setRows(values);
-  };
-
-  // Function to check if a market button is selected
   const isMarketSelected = (marketValue) => activeMarket === marketValue;
+
   const renderMarketButtons = () =>
     markets.map((marketItem) => (
       <Grid
@@ -38,30 +44,22 @@ const Stocks = () => {
         xs={12}
         sm={3}
         sx={{ mt: { xs: 2, sm: 0 } }}
-        onClick={() => handleActiveMarketChange(marketItem.queryValue)} // Pass the queryValue here
+        onClick={() => handleActiveMarketChange(marketItem.queryValue)}
       >
         <MarketButton
           title={marketItem.title}
           svgIcon={marketItem.icon}
           secondaryTitle={marketItem.secondaryTitle}
           altText={marketItem.altText}
-          height={{ xs: isMarketSelected(marketItem.queryValue) ? 120 : 100, sm: 60 }}
-          isActive={activeMarket === marketItem.queryValue}
+          height={{
+            xs: isMarketSelected(marketItem.queryValue) ? 120 : 100,
+            sm: 60
+          }}
+          isActive={isMarketSelected(marketItem.queryValue)}
         />
         <Divider sx={{ margin: '0 15px' }} orientation="vertical" />
       </Grid>
     ));
-
-  // Update the query whenever market or industry changes
-  useEffect(() => {
-    const newQuery = ScriptHelper.queryBuilder(activeMarket, industry.query || '');
-    const fetchStocks = async () => {
-      const results = await fetchStockInformationsQuery(newQuery);
-      console.log('IT WORKED:', results);
-      handleRows(results?.data);
-    };
-    fetchStocks();
-  }, [activeMarket, industry]);
 
   return (
     <>
@@ -96,16 +94,21 @@ const Stocks = () => {
             alignItems: 'center'
           }}
         >
-          {rows.length > 0 ? (
-            <Stack spacing={2} useFlexGap flexWrap="wrap" direction="row" divider={<Divider orientation="vertical" flexItem />} />
-          ) : (
-            // You can render a loading indicator or placeholder here while the data is being fetched.
+          {isLoading ? (
             <Box sx={{ display: 'flex' }}>
-              <CircularProgress />
+              <Loader />
             </Box>
-          )}{' '}
+          ) : error ? (
+            <Box sx={{ color: 'red' }}>Error: {error.message}</Box>
+          ) : rows && rows.length > 0 ? (
+            <Stack spacing={2} useFlexGap flexWrap="wrap" direction="row" divider={<Divider orientation="vertical" flexItem />}>
+              {/* Display the stock data here */}
+            </Stack>
+          ) : (
+            <Box sx={{ color: 'gray' }}>No data available.</Box>
+          )}
         </List>
-        {rows.length > 0 && <StocksTable rows={rows} />}
+        {rows && rows.length > 0 && <StocksTable rows={rows} />}
       </MainCard>
     </>
   );

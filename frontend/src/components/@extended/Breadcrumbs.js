@@ -7,11 +7,10 @@ import MuiBreadcrumbs from '@mui/material/Breadcrumbs';
 import { Grid, Typography } from '@mui/material';
 
 // project imports
-import MainCard from '../MainCard';
 
 // ==============================|| BREADCRUMBS ||============================== //
 
-const Breadcrumbs = ({ navigation, title, ...others }) => {
+const Breadcrumbs = ({ navigation }) => {
   const location = useLocation();
   const [main, setMain] = useState();
   const [item, setItem] = useState();
@@ -73,24 +72,17 @@ const Breadcrumbs = ({ navigation, title, ...others }) => {
     // main
     if (item.breadcrumbs !== false) {
       breadcrumbContent = (
-        <MainCard border={false} sx={{ mb: 3, bgcolor: 'transparent' }} {...others} content={false}>
-          <Grid container direction="column" justifyContent="flex-start" alignItems="flex-start" spacing={1}>
-            <Grid item>
-              <MuiBreadcrumbs aria-label="breadcrumb">
-                <Typography component={Link} to="/" color="textSecondary" variant="h6" sx={{ textDecoration: 'none' }}>
-                  Home
-                </Typography>
-                {mainContent}
-                {itemContent}
-              </MuiBreadcrumbs>
-            </Grid>
-            {title && (
-              <Grid item sx={{ mt: 2 }}>
-                <Typography variant="h5">{item.title}</Typography>
-              </Grid>
-            )}
+        <Grid container direction="column" justifyContent="flex-start" alignItems="flex-start" spacing={1} mb={1}>
+          <Grid item>
+            <MuiBreadcrumbs aria-label="breadcrumb">
+              <Typography component={Link} to="/" color="textSecondary" variant="h6" sx={{ textDecoration: 'none' }}>
+                Home
+              </Typography>
+              {mainContent}
+              {itemContent}
+            </MuiBreadcrumbs>
           </Grid>
-        </MainCard>
+        </Grid>
       );
     }
   }

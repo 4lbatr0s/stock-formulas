@@ -9,7 +9,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { useTheme } from '@mui/material/styles';
 import SimpleBar from '../../../../node_modules/simplebar-react/dist/simplebar-react';
-import { Paper } from '../../../../node_modules/@mui/material/index';
+import { Paper, Tooltip } from '../../../../node_modules/@mui/material/index';
 
 const namesToLabels = {
   stockSymbol: 'Symbol',
@@ -73,18 +73,32 @@ export default function SortableTable({ rows }) {
   const symbolCellStyle = {
     '&:hover': {
       backgroundImage: `linear-gradient(to right, ${theme.palette.primary[700]}, ${theme.palette.primary[200]})`,
-      borderRadius: '25px 0 0 25px',  // Set border radius for each corner
+      borderRadius: '25px 0 0 25px', // Set border radius for each corner
       cursor: 'pointer',
       fontSize: '16px',
       transition: 'background-image 0.3s, font-size 0.3s, transform 0.3s ease-in-out'
     }
   };
-  
+
+  const tableHeaderStyle = {
+    backgroundColor: theme.palette.primary.lighter,
+    p: 1,
+    borderRadius: 5,
+    display: 'flex',
+    justifyContent: 'center',
+    '&:hover': {
+      backgroundImage: `linear-gradient(to right, ${theme.palette.primary[700]}, ${theme.palette.primary[200]})`,
+      cursor: 'pointer',
+      color: 'black',
+      transform: 'scale(1.1)',
+      transition: 'background-image 0.3s, font-size 0.3s, transform 0.3s ease-in-out',
+    }
+  };
 
   const tableRowStyles = {
     '&:hover': {
       backgroundColor: theme.palette.primary[200],
-      transition: 'background-color 0.3s, transform 0.3s ease-in-out',
+      transition: 'background-color 0.3s, transform 0.3s ease-in-out'
     }
   };
 
@@ -105,27 +119,23 @@ export default function SortableTable({ rows }) {
             <TableRow>
               {filteredHeaders.map((headCell) => (
                 <TableCell key={headCell}>
-                  <TableSortLabel
-                    sx={{
-                      backgroundColor: theme.palette.primary.lighter,
-                      p: 1,
-                      display: 'flex',
-                      justifyContent: 'center',
-                      borderRadius: 5
-                    }}
-                    active={orderBy === headCell}
-                    direction={orderBy === headCell ? order : 'asc'}
-                    onClick={() => handleRequestSort(headCell)}
-                  >
-                    {namesToLabels[headCell] || headCell}
-                  </TableSortLabel>
+                  <Tooltip title="hello" followCursor>
+                    <TableSortLabel
+                      sx={tableHeaderStyle}
+                      active={orderBy === headCell}
+                      direction={orderBy === headCell ? order : 'asc'}
+                      onClick={() => handleRequestSort(headCell)}
+                    >
+                      {namesToLabels[headCell] || headCell}
+                    </TableSortLabel>
+                  </Tooltip>
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredRows.map((row, index) => (
-              <TableRow key={index}  sx={tableRowStyles} tabIndex={-1}>
+              <TableRow key={index} sx={tableRowStyles} tabIndex={-1}>
                 {filteredHeaders.map((key) => (
                   <TableCell sx={key === 'stockSymbol' && symbolCellStyle} key={key}>
                     {typeof row[key] === 'number' ? row[key].toFixed(3) : row[key] ? row[key] : 'N/A'}

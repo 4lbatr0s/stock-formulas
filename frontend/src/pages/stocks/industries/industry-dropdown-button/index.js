@@ -12,6 +12,7 @@ const IndustryDropdownButton = ({ ...props }) => {
     p: props.padding || 2,
     width: props.width || 'auto',
     height: props.height || 'auto',
+    maxHeight:'500px',
     maxWidth: props.maxWidth || 'none',
     display: 'flex',
     alignItems: 'center',

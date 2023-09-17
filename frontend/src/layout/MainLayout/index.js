@@ -7,13 +7,14 @@ import { useTheme } from '@mui/material/styles';
 import { Box, Toolbar, useMediaQuery } from '@mui/material';
 
 // project import
-import Drawer from './Drawer';
+// import NewsDrawer from './Drawer/NewsDrawer';
 import Header from './Header';
 import navigation from 'menu-items';
 import Breadcrumbs from 'components/@extended/Breadcrumbs';
 
 // types
 import { openDrawer } from 'store/reducers/menu';
+import MainDrawer from './Drawer/index';
 
 // ==============================|| MAIN LAYOUT ||============================== //
 
@@ -25,17 +26,18 @@ const MainLayout = () => {
   const { drawerOpen } = useSelector((state) => state.menu);
 
   // drawer toggler
-  const [open, setOpen] = useState(drawerOpen);
+  const [open, setOpen] = useState(false);
   const handleDrawerToggle = () => {
-    setOpen(!open);
-    dispatch(openDrawer({ drawerOpen: !open }));
+    const updatedOpen = !open;
+    setOpen(updatedOpen);
+    dispatch(openDrawer({ drawerOpen: updatedOpen })); // Dispatch action to update the state in the store.
   };
+ 
 
   // set media wise responsive drawer
   useEffect(() => {
     setOpen(!matchDownLG);
     dispatch(openDrawer({ drawerOpen: !matchDownLG }));
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchDownLG]);
 
@@ -47,8 +49,8 @@ const MainLayout = () => {
   return (
     <Box sx={{ display: 'flex', width: '100%' }}>
       <Header open={open} handleDrawerToggle={handleDrawerToggle} />
-      <Drawer open={open} handleDrawerToggle={handleDrawerToggle} />
-      <Box  component="main" sx={{  width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+      <MainDrawer open={open} handleDrawerToggle={handleDrawerToggle} />
+      <Box component="main" sx={{ width: '100%', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
         <Toolbar />
         <Breadcrumbs navigation={navigation} title />
         <Outlet />
