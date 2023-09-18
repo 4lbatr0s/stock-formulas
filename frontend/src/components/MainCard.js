@@ -52,7 +52,6 @@ const MainCard = forwardRef(
             boxShadow: boxShadow ? shadow || theme.customShadows.z1 : 'inherit'
           },
           '& pre': {
-            m: 0,
             p: '16px !important',
             fontFamily: theme.typography.fontFamily,
             fontSize: '0.75rem'
