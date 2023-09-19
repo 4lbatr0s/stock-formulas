@@ -10,6 +10,7 @@ import DrawerHeader from './DrawerHeader';
 import MiniDrawerStyled from './MiniDrawerStyled';
 import { drawerWidth } from 'config';
 import NewsDrawerContent from './NewsDrawerContent/index';
+import SimpleBarScroll from 'components/third-party/SimpleBar';
 
 // ==============================|| MAIN LAYOUT - DRAWER ||============================== //
 
@@ -29,7 +30,7 @@ const MainDrawer = ({ open, handleDrawerToggle, window }) => {
       {!matchDownMD ? (
         <MiniDrawerStyled variant="permanent" open={open}>
           {drawerHeader}
-          {newsContent}
+          <SimpleBarScroll>{open && newsContent}</SimpleBarScroll>
         </MiniDrawerStyled>
       ) : (
         <Drawer
@@ -50,7 +51,7 @@ const MainDrawer = ({ open, handleDrawerToggle, window }) => {
           }}
         >
           {open && drawerHeader}
-          {open && newsContent}
+          <SimpleBarScroll>{open && newsContent}</SimpleBarScroll>
         </Drawer>
       )}
     </Box>

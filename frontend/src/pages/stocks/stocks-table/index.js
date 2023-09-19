@@ -8,8 +8,8 @@ import TableRow from '@mui/material/TableRow';
 import TablePagination from '@mui/material/TablePagination';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { useTheme } from '@mui/material/styles';
-import SimpleBar from '../../../../node_modules/simplebar-react/dist/simplebar-react';
 import { Paper, Tooltip } from '../../../../node_modules/@mui/material/index';
+import SimpleBarScroll from 'components/third-party/SimpleBar';
 
 const namesToLabels = {
   stockSymbol: 'Symbol',
@@ -103,9 +103,9 @@ export default function SortableTable({ rows }) {
   };
 
   return (
-    <SimpleBar style={{ maxHeight: '100%', width: '100%' }}>
+    <SimpleBarScroll>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 15, 25, 50]}
+        rowsPerPageOptions={[5, 10, 15, 25, 50, 100]}
         component="div"
         count={rows.length}
         rowsPerPage={rowsPerPage}
@@ -160,6 +160,6 @@ export default function SortableTable({ rows }) {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </SimpleBar>
+    </SimpleBarScroll>
   );
 }

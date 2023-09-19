@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 // ==============================|| STATISTICS - ECOMMERCE CARD  ||============================== //
 
-const TunnelNewsCard = ({ id, title, image, imageAlt }) => {
+const TunnelNewsCard = ({ id, headline, image, imageAlt = 'news-image' }) => {
   const theme = useTheme();
   return (
     <Box my={1}>
@@ -40,7 +40,7 @@ const TunnelNewsCard = ({ id, title, image, imageAlt }) => {
               <Stack spacing={0.25} direction="column">
                 <Grid item>
                   <Typography variant="h5" sx={{ textWrap: 'wrap' }}>
-                    {title}
+                    {headline}
                   </Typography>
                 </Grid>
               </Stack>
@@ -54,7 +54,7 @@ const TunnelNewsCard = ({ id, title, image, imageAlt }) => {
 
 TunnelNewsCard.propTypes = {
   color: PropTypes.string,
-  title: PropTypes.string,
+  headline: PropTypes.string,
   image: PropTypes.string,
   hoverText: PropTypes.string
 };

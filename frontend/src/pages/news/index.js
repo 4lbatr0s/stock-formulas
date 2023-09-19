@@ -8,8 +8,8 @@ export default function News() {
 
   const getNewsCard = () => {
     const newsId = pathname.split('/').pop();
-    const { id, title, image, imageAlt, symbols } = fakeNews.find((fn) => fn.id == newsId);
-    return <NewsCard id={id} title={title} image={image} imageAlt={imageAlt} symbols={symbols} />;
+    const { id, headline, imageAlt, symbols, content } = fakeNews.find((fn) => fn.id == newsId);
+    return <NewsCard id={id} headline={headline} content={content} imageAlt={imageAlt} symbols={symbols} />;
   };
 
   return <>{getNewsCard()}</>;
