@@ -10,6 +10,10 @@ const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
 // render - stocks
 const Stocks = Loadable(lazy(() => import('../pages/stocks')));
 
+//render -stock-details
+
+const StockDetails = Loadable(lazy(() => import('../pages/stock-detail')));
+
 // render - news
 const News = Loadable(lazy(() => import('../pages/news')));
 
@@ -40,6 +44,10 @@ const MainRoutes = {
     {
       path: 'color',
       element: <Color />
+    },
+    {
+      path: 'stock/:id',
+      element: <StockDetails />
     },
     {
       path: 'news/:id',

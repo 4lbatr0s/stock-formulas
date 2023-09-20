@@ -1,8 +1,8 @@
 import { Button as MuiButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import { Box, Divider, Stack, Typography } from '../../../../node_modules/@mui/material/index';
-
+import { Box, Divider, Stack, Tooltip, Typography } from '../../../../node_modules/@mui/material/index';
+import { useNavigate } from "react-router-dom";
 // Custom styled Button using the provided Button function
 const StyledButton = styled(MuiButton)(({ theme }) => {
   const disabledStyle = {
@@ -26,6 +26,11 @@ const StyledButton = styled(MuiButton)(({ theme }) => {
 });
 
 const SymbolCard = ({ symbol }) => {
+  const navigate = useNavigate();
+  const handleButtonClick = () => {
+    return navigate(`/stock/${symbol}`);
+  };
+
   return (
     <Stack direction="column">
       <Box sx={{ flexDirection: 'column', flexWrap: 'wrap' }} my={1}>
@@ -33,9 +38,11 @@ const SymbolCard = ({ symbol }) => {
       </Box>
       <Divider />
       <Box sx={{ flexDirection: 'column', flexWrap: 'wrap' }} my={1}>
-        <StyledButton variant="contained" color="primary">
-          {symbol}
-        </StyledButton>
+        <Tooltip title="Go to stock details">
+          <StyledButton variant="contained" color="primary" onClick={handleButtonClick}>
+            {symbol}
+          </StyledButton>
+        </Tooltip>
       </Box>
     </Stack>
   );

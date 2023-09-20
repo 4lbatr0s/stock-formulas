@@ -19,7 +19,7 @@ const NewsCard = ({ headline, content, imageAlt = 'news-image', symbols }) => {
 
   const returnSymbolCards = (symbols) => {
     return symbols.reduce((acc, symbol) => {
-      acc.push(<SymbolCard symbol={symbol} />);
+      acc.push(<SymbolCard key={symbol} symbol={symbol} />);
       return acc;
     }, []);
   };
@@ -41,7 +41,7 @@ const NewsCard = ({ headline, content, imageAlt = 'news-image', symbols }) => {
                 />
               </Grid>
               <Grid item xs={12} md={3}>
-                <MainCard>
+                <MainCard sx={{ border: '10px solid #91d5ff' }}>
                   <Stack direction="column">{returnSymbolCards(symbols)}</Stack>
                 </MainCard>
               </Grid>
