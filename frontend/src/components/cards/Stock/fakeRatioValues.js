@@ -1,8 +1,5 @@
 const fakeRatioValues = [
   {
-    _id: {
-      $oid: '64dbf80dbbbe9c622da999bc'
-    },
     ratioLink: 'https://www.investing.com/equities/tesla-motors',
     assetTurnoverTTM: {
       values: ['1.18', '0.85']
@@ -56,7 +53,7 @@ const fakeRatioValues = [
     lTDebtToEquityMRQ: {
       values: ['0.99%', '29.14']
     },
-    market: 'S&P 500',
+    markSet: 'S&P 500',
     netIncomeEmployeeTTM: {
       values: ['95.35K', '1.13M']
     },
