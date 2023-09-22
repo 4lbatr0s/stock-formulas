@@ -3,7 +3,6 @@ import yfinance as yf
 from flask_caching import Cache
 from flask_cors import CORS
 import threading
-import pandas_datareader as pdr
 import news_service
 import sentiment_service
 

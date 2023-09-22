@@ -10,15 +10,14 @@ import MainCard from 'components/MainCard';
 // assets
 import { Box, CardMedia, Tooltip } from '../../../../node_modules/@mui/material/index';
 
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
-
+import { Link } from '../../../../node_modules/@mui/material/index';
 // ==============================|| STATISTICS - ECOMMERCE CARD  ||============================== //
 
 const TunnelNewsCard = ({ id, headline, image, imageAlt = 'news-image' }) => {
   const theme = useTheme();
   return (
     <Box my={1}>
-      <Link to={`/news/${id}`}>
+      <Link color="inherit" underline="none" href={`/news/${id}`}>
         <MainCard
           sx={{
             backgroundColor: theme.palette.primary.lighter,

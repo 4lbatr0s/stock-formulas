@@ -8,6 +8,7 @@ import fakeRatioValues from './fakeRatioValues';
 import labelToNames from './ratio/ratio-key-value/labelToNames';
 import { useTheme } from '@mui/material/styles';
 import { Link } from '../../../../node_modules/react-router-dom/dist/index';
+import { Tooltip } from '../../../../node_modules/@mui/material/index';
 
 const StockCard = ({ symbol }) => {
   const theme = useTheme();
@@ -36,11 +37,11 @@ const StockCard = ({ symbol }) => {
     alignItems: 'center'
   }));
 
-  const valuesNotToInclude = ['updatedAt', 'ratioLink', 'createdAt', 'industry', 'stockSymbol'];
+  const valuesNotToInclude = ['updatedAt', 'ratioLink', 'createdAt', 'industry', 'stockSymbol', 'country'];
 
   const renderRatioKeysAndValues = () => {
     const sortedKeys = Object.keys(fakeRatioValues[0]) // Assuming all objects have the same keys
-      .filter((key) => !(key in valuesNotToInclude)) // Exclude '_id' and 'ratioLink'
+      .filter((key) => !valuesNotToInclude.includes(key)) // Exclude '_id' and 'ratioLink'
       .sort(); // Sort the keys alphabetically
 
     const result = sortedKeys.map((key, index) => {
@@ -48,7 +49,17 @@ const StockCard = ({ symbol }) => {
         let value;
         const values = item[key].values;
         if (item[key]) {
-          value = values ? values[0] || values[1] || 'N/A' : 'N/A';
+          value = values
+            ? values[0]
+              ? values[0] === '-'
+                ? 'N/A'
+                : values[0]
+              : values[1]
+              ? values[1] === '-'
+                ? 'N/A'
+                : values[1]
+              : 'N/A'
+            : 'N/A';
         } else {
           value = 'N/A';
         }
@@ -87,23 +98,25 @@ const StockCard = ({ symbol }) => {
               <StockCardHeaderType my={1} variant="h5">
                 {'For More Information:'}
               </StockCardHeaderType>
-              <StockCardHeaderType
-                sx={{
-                  '&:hover': {
-                    backgroundColor: theme.palette.primary[200],
-                    padding: 2,
-                    borderRadius: 5,
-                    cursor: 'pointer'
-                  }
-                }}
-                component={Link}
-                my={1}
-                variant="h6"
-                to={fakeRatioValues[0]?.ratioLink}
-                target="_blank"
-              >
-                {fakeRatioValues[0]?.ratioLink}
-              </StockCardHeaderType>
+              <Tooltip title={'Go to website'}>
+                <StockCardHeaderType
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: theme.palette.primary[200],
+                      padding: 2,
+                      borderRadius: 5,
+                      cursor: 'pointer'
+                    }
+                  }}
+                  component={Link}
+                  my={1}
+                  variant="h6"
+                  to={fakeRatioValues[0]?.ratioLink}
+                  target="_blank"
+                >
+                  {fakeRatioValues[0]?.ratioLink}
+                </StockCardHeaderType>
+              </Tooltip>
             </MoreInformationContainer>
           </Grid>
           <Grid item xs={3}>

@@ -23,9 +23,9 @@ const RatioKeyValueCard = ({ ratioKey, ratioValue, theme }) => {
           {ratioValue && (
             <Typography
               sx={{
-                padding:0.20,
-                borderRadius:2,
-                backgroundColor: theme.palette.primary[200]
+                padding: 0.2,
+                borderRadius: 2,
+                backgroundColor: ratioValue === 'N/A' ? theme.palette.error.main : theme.palette.primary[200]
               }}
               variant="h5"
             >
