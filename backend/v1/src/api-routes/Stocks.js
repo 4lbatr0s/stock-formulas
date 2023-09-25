@@ -20,6 +20,7 @@ router.get('/get-stock-ratios-from-investing', StocksController.getStockRatiosFr
 router.get('/multiple/stock-symbols', StocksController.getAllStockSymbolsFromInvesting)
 
 
+
 //TEST
 router.route('/multiple/create-ticker-documents').post(StocksController.createTickerDocuments)
 router.route('/single/wss').post(StocksController.webSocketMock)

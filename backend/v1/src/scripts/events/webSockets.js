@@ -6,6 +6,8 @@ import ScrappingHelper from "../utils/helpers/ScrappingHelper.js";
 import News from "../../models/News.js";
 import TickerService from "../../services/TickerService.js";
 import UrlHelper from "../utils/helpers/UrlHelper.js";
+import redisClient from "../../config/caching/redisConfig.js";
+import Caching from "../utils/constants/Caching.js";
 
 const configureWebSockets = (app) => {
   const server = http.createServer(app);
@@ -47,7 +49,7 @@ const configureWebSockets = (app) => {
         const finalData = { mergedText, symbols };
         await saveNewsToDatabase(finalData);
         console.log(`New data arrived: ${event.data}`);
-        broadcastNewsData(event.data);
+        broadcastNewsWithSentimentAnalysis(event.data);
       } catch (error) {
         console.error("Error occurred while processing news data:", error);
       }
@@ -101,6 +103,7 @@ const configureWebSockets = (app) => {
       UrlHelper.getSentimentAnalysisForFinancialText(),
       { text: newsItem.mergedText } // Pass the news item as a string
     );
+    console.log("result:", result);
     const { news, sentiment, score } = result.data[0]; // Assuming the result contains properties like news, sentiment, and score
     const newsItemData = {
       summary: news,
@@ -110,18 +113,25 @@ const configureWebSockets = (app) => {
         sentimentScore: score,
       },
     };
-    broadcastNewsWithSentimentAnalysis(newsItemData);
     const newsItemModel = new News(newsItemData);
     await NewsService.saveItem(newsItemModel);
     const tickerUpdatePromises = [];
+
+    // the for loop below creates a ticker if it does not exist in the db and updates the news sentiment score.
+    const allStockSymbols = JSON.parse(
+      await redisClient.get(Caching.SYMBOLS.ALL_STOCK_SYMBOLS)
+    );
     if (Array.isArray(newsItemData.symbols)) {
       for (const symbol of newsItemData.symbols) {
-        tickerUpdatePromises.push(
-          TickerService.updateTickerFields(
-            symbol,
-            newsItemData.semanticAnalysis.sentimentScore
-          )
-        );
+        if (allStockSymbols.includes(symbol)) {
+          tickerUpdatePromises.push(
+            TickerService.updateTickerFields(
+              symbol,
+              newsItemData.semanticAnalysis.sentimentScore
+            )
+          );
+          //when sentiment analysis job is finished, send the news item data to the frontend.
+        }
       }
     } else if (newsItemData.symbols) {
       tickerUpdatePromises.push(
@@ -130,6 +140,11 @@ const configureWebSockets = (app) => {
           newsItemData.semanticAnalysis.sentimentScore
         )
       );
+    }
+    if (
+      newsItemData.symbols.some((symbol) => allStockSymbols.includes(symbol))
+    ) {
+      broadcastNewsWithSentimentAnalysis(newsItemData);
     }
     await Promise.all(tickerUpdatePromises);
   };

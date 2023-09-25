@@ -3,7 +3,6 @@ import redisClient from '../../config/caching/redisConfig.js';
 import Caching from '../utils/constants/Caching.js';
 import ApiHelper from '../utils/helpers/ApiHelper.js';
 import UrlHelper from '../utils/helpers/UrlHelper.js';
-import investingCom from '../utils/constants/InvestingCom.js';
 
 const executeStockSymbols = async () => {
   try {
@@ -104,9 +103,9 @@ const initialJob = async () => {
   console.log('Sending request INITIAL...');
   try {
     // await getStockRatiosFromInvesting();
-    await executeStockSymbols();
-    await getFinancialDataForSP500AndBIST100();
-    await getNewsForStocks();
+    // await executeStockSymbols();
+    // await getFinancialDataForSP500AndBIST100();
+    // await getNewsForStocks();
   } catch (error) {
     console.error(error);
   }
@@ -133,7 +132,7 @@ const initialJob = async () => {
 // });
 
 const jobStarter = async () => {
-  //await initialJob();
+  await initialJob();
   // quoteDataJobEveryFifteenMinutes.start();
   // financialDataJobEverHour.start();
 };

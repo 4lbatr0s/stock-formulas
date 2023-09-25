@@ -517,20 +517,20 @@ class StockService extends BaseService {
       console.log("Method triggered: getAllStockSymbolsFromInvesting");
       const allRoutes = [];
       const browser = await puppeteer.launch(restrictionConfig);
-      const page1 = await browser.newPage();
-      const page2 = await browser.newPage();
+      const sp500Page = await browser.newPage();
+      const bistAllPage = await browser.newPage();
       const [sp500Routes, bistAllRoutes] = await Promise.all([
         this.scrapeInvestingForRatioUrls(
-          page1,
+          sp500Page,
           investingCom.COUNTRIES.UNITED_STATES,
-          "Dow Jones Industrial Average"
+          investingCom.MARKETS.SP_500
         ),
-      ]);
-      this.scrapeInvestingForRatioUrls(
-        page2,
+        this.scrapeInvestingForRatioUrls(
+        bistAllPage,
         investingCom.COUNTRIES.TURKEY,
         investingCom.MARKETS.BIST_ALL_SHARES
       ),
+      ]);
         await browser.close();
       allRoutes.push(...sp500Routes, ...bistAllRoutes);
       await this.getStockSymbolsFromInvesting(allRoutes);
