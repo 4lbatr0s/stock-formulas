@@ -10,7 +10,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import { useTheme } from '@mui/material/styles';
 import { Paper, Tooltip } from '../../../../node_modules/@mui/material/index';
 import SimpleBarScroll from 'components/third-party/SimpleBar';
-
+import { useNavigate } from 'react-router-dom';
 const namesToLabels = {
   stockSymbol: 'Symbol',
   priceToEarningRate: 'P/E',
@@ -31,6 +31,12 @@ const namesToLabels = {
 };
 
 export default function SortableTable({ rows }) {
+  const navigate = useNavigate();
+
+  const goToStockPageHandler = (symbol) => {
+    return navigate(`/stock/${symbol}`);
+  };
+
   const theme = useTheme();
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('calories');
@@ -91,7 +97,7 @@ export default function SortableTable({ rows }) {
       cursor: 'pointer',
       color: 'black',
       transform: 'scale(1.1)',
-      transition: 'background-image 0.3s, font-size 0.3s, transform 0.3s ease-in-out',
+      transition: 'background-image 0.3s, font-size 0.3s, transform 0.3s ease-in-out'
     }
   };
 
@@ -137,7 +143,7 @@ export default function SortableTable({ rows }) {
             {filteredRows.map((row, index) => (
               <TableRow key={index} sx={tableRowStyles} tabIndex={-1}>
                 {filteredHeaders.map((key) => (
-                  <TableCell sx={key === 'stockSymbol' && symbolCellStyle} key={key}>
+                  <TableCell sx={key === 'stockSymbol' && symbolCellStyle} key={key} onClick = {() => goToStockPageHandler(row?.stockSymbol)}>
                     {typeof row[key] === 'number' ? row[key].toFixed(3) : row[key] ? row[key] : 'N/A'}
                   </TableCell>
                 ))}

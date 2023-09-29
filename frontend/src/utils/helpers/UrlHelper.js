@@ -1,4 +1,4 @@
-import urlConstants from "utils/constants/url";
+import urlConstants from 'utils/constants/url';
 
 class UrlHelper {
   constructor() {
@@ -7,6 +7,10 @@ class UrlHelper {
 
   getCalculatedRatiosUrl(query) {
     return `${this.baseUrl}${urlConstants.getCalculatedRatios}${query}`;
+  }
+
+  getStocksData(stockSymbol) {
+    return `${this.baseUrl}${urlConstants.getStocksData}/${stockSymbol}`;
   }
 }
 

@@ -15,6 +15,7 @@ import Loader from 'components/Loader';
 const Stocks = () => {
   const [activeMarket, setActiveMarket] = useState(markets[0].queryValue);
   const [industry, setIndustry] = useState('');
+  
   const {
     data: rows,
     isLoading,

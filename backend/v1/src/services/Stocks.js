@@ -1,3 +1,5 @@
+"use strict";
+
 import axios from "axios";
 import ApiError from "../errors/ApiError.js";
 import ApiHelper from "../scripts/utils/helpers/ApiHelper.js";
@@ -19,68 +21,11 @@ import PuppeteerManagerBuilder from "../scripts/utils/managers/puppeteer/Puppete
 import { restrictionConfig } from "../config/puppeteer.js";
 import {
   propertiesToGetFromDB,
-  sentimentAnalysis,
 } from "../scripts/utils/constants/Calculations.js";
 import investingCom from "../scripts/utils/constants/InvestingCom.js";
 import puppeteer from "puppeteer";
-
 class StockService extends BaseService {
-  async getSP500Concurrent() {
-    try {
-      const responses = await ApiHelper.getStockInfoAsync(
-        UrlHelper.getYahooBatchUrl()
-      );
-      const results = await StockHelper.getAskPropertiesFromYfinance(responses);
-      CalculationHelper.allOverallValues(results);
-      console.log(results.length);
-      await redisClient.set(Caching.UNSORTED_STOCKS, JSON.stringify(results));
-      await redisClient.set(Caching.SP_500, JSON.stringify(responses));
-      return {
-        fromCache: false,
-        data: responses,
-      };
-    } catch (error) {
-      throw new ApiError(error?.message, error?.statusCode);
-    }
-  }
-
-  async getBIST100Concurrent(req) {
-    try {
-      const bist100Symbols = JSON.parse(
-        await redisClient.get(Caching.SYMBOLS.BISTHUND_SYMBOLS)
-      ).join(",");
-      const responses = await ApiHelper.getStockInfoAsync(
-        UrlHelper.getYFinanceBist100Url(bist100Symbols)
-      );
-
-      const results = await StockHelper.getAskPropertiesFromYfinance(responses);
-      CalculationHelper.allOverallValues(results);
-
-      await redisClient.set(Caching.BIST_100_UNSORTED, JSON.stringify(results));
-      await redisClient.set(
-        Caching.BIST_100_DETAILED_FINANCIALS,
-        JSON.stringify(responses)
-      );
-
-      const options = RequestHelper.setOptions(req);
-      const responseManipulation = StockExtensions.manipulationChaining(
-        results,
-        options
-      );
-      const paginatedResult = PagedList.ToPagedList(
-        responseManipulation,
-        req?.query.pageNumber,
-        req?.query.pageSize
-      );
-      return {
-        fromCache: false,
-        data: paginatedResult,
-      };
-    } catch (error) {
-      throw new ApiError(error?.message, error?.statusCode);
-    }
-  }
-
+  
   async getSingleStockInfoFromFinnhub(req) {
     try {
       const result = await ApiHelper.getStockInfoAsyncFinnhub(
@@ -192,67 +137,11 @@ class StockService extends BaseService {
     }
   }
 
-  async scrapSP500Symbols() {
-    try {
-      const result = await ScrappingHelper.scrapSP500Symbols();
-      delete result["BRK.B"];
-      return result;
-    } catch (error) {
-      throw new ApiError(error?.message, error?.statusCode);
-    }
-  }
-
-  async scrapBIST100Symbols() {
-    try {
-      const result = await ScrappingHelper.scrapBIST100Symbols();
-      return result;
-    } catch (error) {
-      throw new ApiError(error?.message, error?.statusCode);
-    }
-  }
-
   async scrapeInvestingForRatios(companyName) {
     try {
       return await ScrappingHelper.scrapeInvestingForRatios(companyName);
     } catch (error) {
       throw new ApiError(error?.message, error?.statusCode);
-    }
-  }
-
-  async scrapRatioValues(goto) {
-    // Use a random user agent to avoid 403 errors
-    const userAgents = [
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
-      "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.157 Safari/537.36",
-    ];
-    const userAgent = userAgents[Math.floor(Math.random() * userAgents.length)];
-
-    const headers = {
-      "User-Agent": userAgent,
-    };
-
-    try {
-      // Make HTTP request to page
-      const { data } = await axios.get(
-        `http://www.investing.com/equities/${goto}`,
-        { headers }
-      );
-
-      // Load HTML and parse with cheerio
-      const $ = cheerio.load(data);
-
-      // Extract ratio values into an object
-      const ratios = {};
-      $("tr.reportsTabRow").each((i, elem) => {
-        const key = $(elem).find("td:first-child").text().trim();
-        const value = $(elem).find("td:last-child").text().trim();
-        ratios[key] = value;
-      });
-
-      return ratios;
-    } catch (err) {
-      throw new ApiError(err?.message, err?.statusCode);
     }
   }
 
@@ -549,6 +438,18 @@ class StockService extends BaseService {
     );
     return routes;
   }
+
+  async getStocksAllValues(symbol) {
+    try {
+      const result = await InvestingScrapingModel.findOne({stockSymbol:symbol});
+      return result;
+    } catch (error) {
+      throw new ApiError(error?.message, error?.statusCode);
+    }
+  }
 }
+
+
+
 
 export default new StockService();

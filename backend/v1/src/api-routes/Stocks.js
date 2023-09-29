@@ -11,14 +11,15 @@ router.get('/multiple/all-news', StocksController.getNewsForAllStocks);
 router.get('/single/finnhub/:stockSymbol', StocksController.getSingleStockInfoFromFinnhub);
 // web scrapping
 router.get('/scrap-investing/:companyName', StocksController.scrapeInvestingForRatios);
-router.get('/scrap-ratio-routes-from-investing/:countryName/:marketName', StocksController.scrapRatioRoutesFromInvesting);
-router.get('/scrap-ratio-values-from-investing/:companyName', StocksController.scrapRatioValues);
 
 // investing
 router.get('/multiple/get-calculated-ratios/:marketName', redisCaching, StocksController.getCalculatedStockJsons);
 router.get('/get-stock-ratios-from-investing', StocksController.getStockRatiosFromInvesting);
-router.get('/multiple/stock-symbols', StocksController.getAllStockSymbolsFromInvesting)
+router.get('/multiple/stock-symbols', StocksController.getAllStockSymbolsFromInvesting);
 
+//db 
+
+router.get('/:stockSymbol', StocksController.getStocksAllValues);
 
 
 //TEST

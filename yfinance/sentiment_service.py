@@ -47,6 +47,7 @@ def sentiment_analysis_generate_text(text):
             'score': score,
             'news': news
         }
+        print("result_object:", result_object)
         output.append(result_object)
 
     return output

@@ -4,13 +4,24 @@ import { Grid, Box, Stack, Card, Typography } from '@mui/material';
 import StockPriceChart from './chart/price/index';
 import { styled } from '@mui/material/styles';
 import RatioKeyValueCard from './ratio/ratio-key-value/index';
-import fakeRatioValues from './fakeRatioValues';
 import labelToNames from './ratio/ratio-key-value/labelToNames';
 import { useTheme } from '@mui/material/styles';
-import { Link } from '../../../../node_modules/react-router-dom/dist/index';
-import { Tooltip } from '../../../../node_modules/@mui/material/index';
+import { Link } from 'react-router-dom';
+import { CircularProgress, Tooltip } from '../../../../node_modules/@mui/material/index';
+import { fetchStocksData } from 'store/query/StockQueries';
+import { useQuery } from '@tanstack/react-query';
 
 const StockCard = ({ symbol }) => {
+  const {
+    data: stock,
+    isError,
+    isLoading
+  } = useQuery(['stockData'], async () => {
+    const response = await fetchStocksData(symbol);
+    console.log('RESPONSE DATA: ', response);
+    return response;
+  });
+
   const theme = useTheme();
   const StockCardHeaderType = styled(Typography)({
     color: 'black',
@@ -37,43 +48,26 @@ const StockCard = ({ symbol }) => {
     alignItems: 'center'
   }));
 
-  const valuesNotToInclude = ['updatedAt', 'ratioLink', 'createdAt', 'industry', 'stockSymbol', 'country'];
+  const valuesNotToInclude = ['updatedAt', 'ratioLink', 'createdAt', 'industry', 'stockSymbol', 'country', '_id', 'ratioLink', 'market'];
 
-  const renderRatioKeysAndValues = () => {
-    const sortedKeys = Object.keys(fakeRatioValues[0]) // Assuming all objects have the same keys
-      .filter((key) => !valuesNotToInclude.includes(key)) // Exclude '_id' and 'ratioLink'
-      .sort(); // Sort the keys alphabetically
-
-    const result = sortedKeys.map((key, index) => {
-      const components = fakeRatioValues.map((item, itemIndex) => {
-        let value;
-        const values = item[key].values;
-        if (item[key]) {
-          value = values
-            ? values[0]
-              ? values[0] === '-'
-                ? 'N/A'
-                : values[0]
-              : values[1]
-              ? values[1] === '-'
-                ? 'N/A'
-                : values[1]
-              : 'N/A'
-            : 'N/A';
-        } else {
-          value = 'N/A';
-        }
-        return <RatioKeyValueCard theme={theme} key={`${key}-${itemIndex}`} ratioKey={labelToNames[key]} ratioValue={value} />;
+  const renderRatioKeysAndValues = (stock) => {
+    const result = Object.keys(stock)
+      .filter((key) => !valuesNotToInclude.includes(key))
+      .map((key) => {
+        const value = stock[key]?.values?.[0] && stock[key]?.values?.[0] !== '-' ? stock[key].values[0] : 'N/A';
+        return <RatioKeyValueCard theme={theme} key={key} ratioKey={labelToNames[key]} ratioValue={value} />;
       });
-
-      return <React.Fragment key={index}>{components}</React.Fragment>;
-    });
 
     return result;
   };
 
-  return (
-    <MainCard>
+  const conditionalRendering = (isLoading, isError) => {
+    if (isLoading) {
+      return <CircularProgress />;
+    } else if (isError) {
+      return <div>Error fetching stock data</div>;
+    }
+    return (
       <Stack>
         <Grid container spacing={3} sx={{ display: 'flex', justifyContent: 'center' }}>
           <Grid item xs={8}>
@@ -91,7 +85,7 @@ const StockCard = ({ symbol }) => {
               <Grid>
                 {/* Adjusted width for sm */}
                 <StockCardHeaderType variant="h5">Ratios</StockCardHeaderType>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>{renderRatioKeysAndValues()}</Box>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>{renderRatioKeysAndValues(stock)}</Box>
               </Grid>
             </ValuesContainer>
             <MoreInformationContainer>
@@ -111,10 +105,10 @@ const StockCard = ({ symbol }) => {
                   component={Link}
                   my={1}
                   variant="h6"
-                  to={fakeRatioValues[0]?.ratioLink}
+                  to={stock?.ratioLink}
                   target="_blank"
                 >
-                  {fakeRatioValues[0]?.ratioLink}
+                  {stock?.ratioLink}
                 </StockCardHeaderType>
               </Tooltip>
             </MoreInformationContainer>
@@ -128,8 +122,10 @@ const StockCard = ({ symbol }) => {
           </Grid>
         </Grid>
       </Stack>
-    </MainCard>
-  );
+    );
+  };
+
+  return <MainCard sx={{ display: 'flex', justifyContent: 'center' }}>{conditionalRendering(isLoading, isError)}</MainCard>;
 };
 
 export default StockCard;

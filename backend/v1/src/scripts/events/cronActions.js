@@ -1,8 +1,10 @@
+// @ts-nocheck
 import StockService from '../../services/Stocks.js';
 import redisClient from '../../config/caching/redisConfig.js';
 import Caching from '../utils/constants/Caching.js';
 import ApiHelper from '../utils/helpers/ApiHelper.js';
 import UrlHelper from '../utils/helpers/UrlHelper.js';
+import ApiError from '../../errors/ApiError.js';
 
 const executeStockSymbols = async () => {
   try {

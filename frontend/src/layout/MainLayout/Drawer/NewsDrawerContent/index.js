@@ -7,7 +7,7 @@ const FinancialNewsDrawerContent = () => {
   const renderDummyNews = () => {
     return fakeNews.reduce((acc, news) => {
       acc.push(<TunnelNewsCard key={news.id} id={news.id} image={genericNewsImage} headline={news.headline} imageAlt="QuantumFin" />);
-      return acc;
+      return acc; 
     }, []);
   };
   return <Stack direction="column">{renderDummyNews()}</Stack>;
