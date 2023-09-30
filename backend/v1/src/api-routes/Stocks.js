@@ -18,7 +18,6 @@ router.get('/get-stock-ratios-from-investing', StocksController.getStockRatiosFr
 router.get('/multiple/stock-symbols', StocksController.getAllStockSymbolsFromInvesting);
 
 //db 
-
 router.get('/:stockSymbol', StocksController.getStocksAllValues);
 
 

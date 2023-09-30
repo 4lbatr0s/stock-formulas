@@ -8,19 +8,33 @@ import labelToNames from './ratio/ratio-key-value/labelToNames';
 import { useTheme } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 import { CircularProgress, Tooltip } from '../../../../node_modules/@mui/material/index';
-import { fetchStocksData } from 'store/query/StockQueries';
+import { fetchStocksData, fetchStocksNews } from 'store/query/StockQueries';
 import { useQuery } from '@tanstack/react-query';
+import SimpleBarScroll from 'components/third-party/SimpleBar';
+import StockDetailNewsCard from '../news/StockDetailNewsCard';
 
 const StockCard = ({ symbol }) => {
   const {
     data: stock,
-    isError,
-    isLoading
-  } = useQuery(['stockData'], async () => {
+    isError: isErrorStockData,
+    isLoading: isLoadingStockData
+  } = useQuery(['stockData', symbol], async () => {
     const response = await fetchStocksData(symbol);
     console.log('RESPONSE DATA: ', response);
     return response;
   });
+
+  const {
+    data: stockNews,
+    isError: isErrorStockNews,
+    isLoading: isLoadingStockNews
+  } = useQuery(['stockNews', symbol], async () => {
+    const response = await fetchStocksNews(symbol);
+    console.log('RESPONSE DATA: ', response);
+    return response;
+  });
+
+  console.log(`stockNews:${stockNews}\nisError:${isErrorStockNews}\nisLoadingStockNews:${isLoadingStockNews}`);
 
   const theme = useTheme();
   const StockCardHeaderType = styled(Typography)({
@@ -51,14 +65,39 @@ const StockCard = ({ symbol }) => {
   const valuesNotToInclude = ['updatedAt', 'ratioLink', 'createdAt', 'industry', 'stockSymbol', 'country', '_id', 'ratioLink', 'market'];
 
   const renderRatioKeysAndValues = (stock) => {
-    const result = Object.keys(stock)
-      .filter((key) => !valuesNotToInclude.includes(key))
-      .map((key) => {
-        const value = stock[key]?.values?.[0] && stock[key]?.values?.[0] !== '-' ? stock[key].values[0] : 'N/A';
-        return <RatioKeyValueCard theme={theme} key={key} ratioKey={labelToNames[key]} ratioValue={value} />;
-      });
+    if (stock) {
+      const result = Object.keys(stock)
+        .filter((key) => !valuesNotToInclude.includes(key))
+        .map((key) => {
+          const value = stock[key]?.values?.[0] && stock[key]?.values?.[0] !== '-' ? stock[key].values[0] : 'N/A';
+          return <RatioKeyValueCard theme={theme} key={key} ratioKey={labelToNames[key]} ratioValue={value} />;
+        });
 
-    return result;
+      return result;
+    }
+  };
+
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength) + '...';
+    }
+    return text;
+  };
+
+  const renderStockNews = (news, isLoadingStockNews, isErrorStockNews) => {
+    if (isLoadingStockNews) {
+      return <CircularProgress />;
+    } else if (isErrorStockNews) {
+      return <div>Error fetching stock data</div>;
+    } else if (news && news.length === 0) {
+      return <div>No News</div>;
+    } else if (news) {
+      return news.map((newsItem, index) => (
+        <Link key={index} to={`/news/${newsItem._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <StockDetailNewsCard news={newsItem?.summary ? truncateText(newsItem.summary, 100) : 'N/A'} />
+        </Link>
+      ));
+    }
   };
 
   const conditionalRendering = (isLoading, isError) => {
@@ -118,6 +157,9 @@ const StockCard = ({ symbol }) => {
               <StockCardHeaderType my={1} variant="h5">
                 {`News About ${symbol}`}
               </StockCardHeaderType>
+              <SimpleBarScroll>
+                <Box px={0.5}>{renderStockNews(stockNews)}</Box>
+              </SimpleBarScroll>
             </NewsContainer>
           </Grid>
         </Grid>
@@ -125,7 +167,9 @@ const StockCard = ({ symbol }) => {
     );
   };
 
-  return <MainCard sx={{ display: 'flex', justifyContent: 'center' }}>{conditionalRendering(isLoading, isError)}</MainCard>;
+  return (
+    <MainCard sx={{ display: 'flex', justifyContent: 'center' }}>{conditionalRendering(isLoadingStockData, isErrorStockData)}</MainCard>
+  );
 };
 
 export default StockCard;

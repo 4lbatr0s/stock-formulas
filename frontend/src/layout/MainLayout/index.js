@@ -19,14 +19,6 @@ import MainDrawer from './Drawer/index';
 // ==============================|| MAIN LAYOUT ||============================== //
 
 const MainLayout = () => {
-    const wss = new WebSocket('ws://localhost:5001');
-  wss.onopen = () => {
-    console.log('connected to the wss on port 5001');
-  };
-
-  wss.onmessage = (message) => {
-    console.log(`received message: ${message}`);
-  }
 
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));

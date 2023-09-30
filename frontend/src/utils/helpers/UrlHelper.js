@@ -12,6 +12,13 @@ class UrlHelper {
   getStocksData(stockSymbol) {
     return `${this.baseUrl}${urlConstants.getStocksData}/${stockSymbol}`;
   }
+
+  getStocksNews(stockSymbol) {
+    return `${this.baseUrl}${urlConstants.getStocksNews}/${stockSymbol}`;
+  }
+  getNewsById(newsId) {
+    return `${this.baseUrl}${urlConstants.getNewsById}/${newsId}`;
+  }
 }
 
 export default new UrlHelper();

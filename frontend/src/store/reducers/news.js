@@ -14,6 +14,9 @@ const news = createSlice({
   initialState,
   reducers: {
     addNews(state, action) {
+      if(state.news.length>10) {
+        state.news.pop();
+      }
       state.news.push(action.payload);
     },
     removeNews(state) {
@@ -24,4 +27,4 @@ const news = createSlice({
 
 export default news.reducer;
 
-export const { openNewsDrawer } = news.actions;
+export const { openNewsDrawer, addNews, removeNews } = news.actions;

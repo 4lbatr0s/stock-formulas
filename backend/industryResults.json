@@ -1,1 +1,101 @@
-"Automobiles & Auto Parts"
+[
+    {
+        "semanticAnalysis": {
+            "sentiment": "positive",
+            "sentimentScore": 0.9993317723274231
+        },
+        "_id": "64eba229626547b7d63225f7",
+        "summary": "Nvidia-Backed Open-Source AI Startup Reaches $4.5B Valuation with Tech Titans' Support. Nvidia Corp (NASDAQ: NVDA) backed open-source AI firm Hugging Face raised $235 million at a $4.5 billion valuation from some of . ",
+        "symbols": [
+            "AMD"
+        ],
+        "createdAt": "2023-08-27T19:21:13.969Z",
+        "updatedAt": "2023-08-27T19:21:13.969Z"
+    },
+    {
+        "semanticAnalysis": {
+            "sentiment": "positive",
+            "sentimentScore": 0.9976567029953003
+        },
+        "_id": "64eba229626547b7d63225f8",
+        "summary": "10 Information Technology Stocks Whale Activity In Today's Session.  . ",
+        "symbols": [
+            "AMD"
+        ],
+        "createdAt": "2023-08-27T19:21:13.969Z",
+        "updatedAt": "2023-08-27T19:21:13.969Z"
+    },
+    {
+        "semanticAnalysis": {
+            "sentiment": "negative",
+            "sentimentScore": -0.9983758926391602
+        },
+        "_id": "64eba229626547b7d63225fb",
+        "summary": "This Is What Whales Are Betting On Advanced Micro Devices.  . ",
+        "symbols": [
+            "AMD"
+        ],
+        "createdAt": "2023-08-27T19:21:13.969Z",
+        "updatedAt": "2023-08-27T19:21:13.969Z"
+    },
+    {
+        "semanticAnalysis": {
+            "sentiment": "positive",
+            "sentimentScore": 0.9996767044067383
+        },
+        "_id": "64eba229626547b7d63225fa",
+        "summary": "New AMD Radeon RX 7800 XT And Radeon RX 7700 XT Graphics Cards Deliver High-Performance, Visually Stunning 1440p Gaming Experiences And Superior Performance-Per-Dollar. . ",
+        "symbols": [
+            "AMD"
+        ],
+        "createdAt": "2023-08-27T19:21:13.969Z",
+        "updatedAt": "2023-08-27T19:21:13.969Z"
+    },
+    {
+        "semanticAnalysis": {
+            "sentiment": "positive",
+            "sentimentScore": 0.9987506866455078
+        },
+        "_id": "64eba229626547b7d63225f9",
+        "summary": "What's Going On With AMD Stock Friday?. Advanced Micro Devices, Inc (NASDAQ: AMD) stock continues to pique investor curiosity as Wall Street eagerly awaits the launch of its Radeon RX 7800 and RX 7700 . ",
+        "symbols": [
+            "AMD"
+        ],
+        "createdAt": "2023-08-27T19:21:13.969Z",
+        "updatedAt": "2023-08-27T19:21:13.969Z"
+    },
+    {
+        "semanticAnalysis": {
+            "sentiment": "positive",
+            "sentimentScore": 0.9991750121116638
+        },
+        "_id": "6515e0a28d4112b5df7b1f30",
+        "summary": "Richmond Fed President Barkin Says Very Hard To Imagine Inflation Easing A Lot While Growth Is Very Strong Bloomberg TV Bloomberg TV",
+        "symbols": [
+            "AMD",
+            "MSFT",
+            "NVDA"
+        ],
+        "createdAt": "2023-09-28T20:22:58.759Z",
+        "updatedAt": "2023-09-28T20:22:58.759Z"
+    },
+    {
+        "semanticAnalysis": {
+            "sentiment": "negative",
+            "sentimentScore": -0.6291715502738953
+        },
+        "_id": "6515f02f83642ef7fad0c558",
+        "summary": "FTX Founder Sam BankmanFried Denied Bail To Remain In Jail Throughout Trial A federal judge on Thursday declared that FTX founder Sam BankmanFried must stay incarcerated throughout his trial proceedings A federal judge on Thursday declared that FTX founder Sam BankmanFried must stay incarcerated throughout his trial proceedings Judge Lewis A Kaplan expressed skepticism over the defenses arguments stating Theyre not going in cold here Coindesk reported This development comes as the cryptocurrency world gears up for Benzingas Future of Digital Assets conference on Nov 14 where such highprofile cases are likely to be a topic of discussion Mark Cohen the primary attorney for BankmanFried voiced concerns about the limited time hed have to consult with his client before the trials commencement He emphasized that now was the appropriate time to request his clients release Despite these efforts BankmanFrieds legal team has been unsuccessful in securing his release having been denied twice already Also Read Binance CEO Denies Owning CommEx But Russian Customers Will Notice Similarities They made another attempt this week suggesting stringent conditions for his release such as constant supervision and a ban on using any electronic devices The prosecution countered these proposals in a recent document asserting that the defense hasnt sufficiently demonstrated the need for a temporary release Prosecutors further questioned the feasibility of the suggested supervision plan for BankmanFried during his potential release Read Next Gemini Withdrew 282M From Genesis Global Months Before Bankruptcy Filing Report Meet and engage with transformative Digital Asset and Crypto business leaders and investors at Benzingas exclusive event Future of Digital Assets Tickets are flying get yours Photo via Shutterstock",
+        "symbols": [
+            "AMD",
+            "AMZN",
+            "GOOG",
+            "INTC",
+            "MSFT",
+            "NVDA",
+            "QCOM"
+        ],
+        "createdAt": "2023-09-28T21:29:19.795Z",
+        "updatedAt": "2023-09-28T21:29:19.795Z"
+    }
+]

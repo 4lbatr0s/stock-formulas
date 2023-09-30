@@ -163,6 +163,7 @@ const configureWebSockets = (app) => {
   server.listen(port, () => {
     console.log(`wss server listening on port ${port}`);
   });
+
 };
 
 export default configureWebSockets;
