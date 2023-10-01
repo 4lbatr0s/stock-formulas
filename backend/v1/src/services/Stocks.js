@@ -420,7 +420,7 @@ class StockService extends BaseService {
         investingCom.MARKETS.BIST_ALL_SHARES
       ),
       ]);
-        await browser.close();
+      await browser.close();
       allRoutes.push(...sp500Routes, ...bistAllRoutes);
       await this.getStockSymbolsFromInvesting(allRoutes);
       console.log("Method done: getAllStockSymbolsFromInvesting");

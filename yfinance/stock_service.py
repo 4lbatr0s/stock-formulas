@@ -5,6 +5,11 @@ from flask_cors import CORS
 import threading
 import news_service
 import sentiment_service
+import yfinance as yf
+import json
+import schedulers
+import redis_utility as ru
+import threading
 
 app = Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE': 'simple', 'CACHE_TIMEOUT':3600})
@@ -157,6 +162,61 @@ def get_stock_news_sentiments():
     news = request_body.get("text")
     print("news", news)
     return sentiment_service.sentiment_analysis_generate_text(news)
+
+# @app.route('/current-price', methods=['POST'])
+# @cache.cached(timeout=3600)
+# def get_stock_news_sentiments():
+#     request_body = request.json
+#     news = request_body.get("text")
+#     print("news", news)
+#     return sentiment_service.sentiment_analysis_generate_text(news)
+
+
+@app.route('/get-historical-data/<ticker>', methods=['POST', 'GET'])
+@cache.cached(timeout=3600)
+def get_historical_data_by_ticker(ticker):
+    args = request.args
+    return get_historical_data(ticker, time=args.get('period'))
+
+
+@app.route('/get-all-historical-data', methods=['POST', 'GET'])
+@cache.cached(timeout=3600)
+def get_all_historical_data():
+    args = request.args
+    return set_historical_data_for_all_stocks(time=args.get('period'))
+    
+def get_historical_data(stock, dictionary, time="1d"):
+    print('doing for:', stock)
+    TICKER = yf.Ticker(stock)
+    historical_data = TICKER.history(time)  
+    # Reset the index to include the 'Date' column in the JSON
+    historical_data.reset_index(inplace=True)
+    historical_data_json = historical_data.to_json(orient='records', date_format='iso')
+    dictionary[stock] = historical_data_json
+
+
+def set_historical_data_for_all_stocks(time = "1d"):
+    stock_symbols = ru.get_value('ALL_STOCK_SYMBOLS')
+    all_historical_data = {}
+    threads = []
+    for stock in stock_symbols[:5]:
+        thread = threading.Thread(target=get_historical_data, args=(stock, all_historical_data, time,))
+        threads.append(thread)
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    ru.set_key_value('HISTORICAL_DATA_FOR_ALL_STOCKS', all_historical_data)
+    return all_historical_data
+
+
+
+@app.route("/redis-value")
+def get_redis_data():
+    key = request.args.get('key')
+    values = ru.get_value(key)
+    return values
+
 
 
 if __name__ == '__main__':
