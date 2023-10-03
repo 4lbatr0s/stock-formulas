@@ -99,6 +99,16 @@ class StockController {
     }
   }
 
+  async getHistoricalDataByStock (req, res, next) {
+    try {
+      const stockSymbol = req.params?.stockSymbol; 
+      const result = await StockService.getHistoricalDataByStock(stockSymbol);
+      return res.status(httpStatus.OK).send(result);
+    } catch (error) {
+      return next(new ApiError(error?.message, error?.statusCode));
+    }
+  }
+
   async createTickerDocuments(req, res, next) {
     try {
       const result = await StockService.createTickerDocuments();
@@ -107,6 +117,7 @@ class StockController {
       return next(new ApiError(error?.message, error?.statusCode));
     }
   }
+
 
   async webSocketMock(req, res, next) {
     try {

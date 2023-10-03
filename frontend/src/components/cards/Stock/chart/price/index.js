@@ -30,7 +30,7 @@ const areaChartOptions = {
 
 // ==============================|| INCOME AREA CHART ||============================== //
 
-const StockPriceChart = ({ slot, height }) => {
+const StockPriceChart = ({ slot, height, historicalData }) => {
   const theme = useTheme();
 
   const { primary, secondary } = theme.palette.text;
@@ -43,33 +43,18 @@ const StockPriceChart = ({ slot, height }) => {
       ...prevState,
       colors: [theme.palette.primary.main, theme.palette.primary[700]],
       xaxis: {
-        categories:
-          slot === 'month'
-            ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-            : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        categories: historicalData.map((item) => item.date), // Use dates as categories
         labels: {
           style: {
-            colors: [
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary,
-              secondary
-            ]
+            colors: [secondary],
+            rotate: 0 // Rotate labels for better visibility
           }
         },
         axisBorder: {
           show: true,
           color: line
         },
-        tickAmount: slot === 'month' ? 11 : 7
+        tickAmount: historicalData.length // Set tick amount based on data length
       },
       yaxis: {
         labels: {
@@ -85,28 +70,20 @@ const StockPriceChart = ({ slot, height }) => {
         theme: 'light'
       }
     }));
-  }, [primary, secondary, line, theme, slot]);
+  }, [primary, secondary, line, theme, slot, historicalData]);
 
   const [series, setSeries] = useState([
     {
-      name: 'Page Views',
+      name: 'Price',
       data: [0, 86, 28, 115, 48, 210, 136]
-    },
-    {
-      name: 'Sessions',
-      data: [0, 43, 14, 56, 24, 105, 68]
     }
   ]);
 
   useEffect(() => {
     setSeries([
       {
-        name: 'Page Views',
-        data: slot === 'month' ? [76, 85, 101, 98, 87, 105, 91, 114, 94, 86, 115, 35] : [31, 40, 28, 51, 42, 109, 100]
-      },
-      {
-        name: 'Sessions',
-        data: slot === 'month' ? [110, 60, 150, 35, 60, 36, 26, 45, 65, 52, 53, 41] : [11, 32, 45, 32, 34, 52, 41]
+        name: 'Price $',
+        data: historicalData.map((item) => item?.close)
       }
     ]);
   }, [slot]);

@@ -20,6 +20,9 @@ router.get('/multiple/stock-symbols', StocksController.getAllStockSymbolsFromInv
 //db 
 router.get('/:stockSymbol', StocksController.getStocksAllValues);
 
+//cache
+router.get('/historical-data/:stockSymbol', StocksController.getHistoricalDataByStock)
+
 
 //TEST
 router.route('/multiple/create-ticker-documents').post(StocksController.createTickerDocuments)

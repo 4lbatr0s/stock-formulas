@@ -19,13 +19,10 @@ import TickerService from "./TickerService.js";
 import InvestingScrapingModel from "../models/InvestingScrapping.js";
 import PuppeteerManagerBuilder from "../scripts/utils/managers/puppeteer/PuppeteerManager.js";
 import { restrictionConfig } from "../config/puppeteer.js";
-import {
-  propertiesToGetFromDB,
-} from "../scripts/utils/constants/Calculations.js";
+import { propertiesToGetFromDB } from "../scripts/utils/constants/Calculations.js";
 import investingCom from "../scripts/utils/constants/InvestingCom.js";
 import puppeteer from "puppeteer";
 class StockService extends BaseService {
-  
   async getSingleStockInfoFromFinnhub(req) {
     try {
       const result = await ApiHelper.getStockInfoAsyncFinnhub(
@@ -415,10 +412,10 @@ class StockService extends BaseService {
           investingCom.MARKETS.SP_500
         ),
         this.scrapeInvestingForRatioUrls(
-        bistAllPage,
-        investingCom.COUNTRIES.TURKEY,
-        investingCom.MARKETS.BIST_ALL_SHARES
-      ),
+          bistAllPage,
+          investingCom.COUNTRIES.TURKEY,
+          investingCom.MARKETS.BIST_ALL_SHARES
+        ),
       ]);
       await browser.close();
       allRoutes.push(...sp500Routes, ...bistAllRoutes);
@@ -441,15 +438,49 @@ class StockService extends BaseService {
 
   async getStocksAllValues(symbol) {
     try {
-      const result = await InvestingScrapingModel.findOne({stockSymbol:symbol});
+      const result = await InvestingScrapingModel.findOne({
+        stockSymbol: symbol,
+      });
       return result;
     } catch (error) {
       throw new ApiError(error?.message, error?.statusCode);
     }
   }
+
+  handleHistoricalDataDate(dateString){
+    let date = new Date(dateString);
+    let year = date.getFullYear();
+    let month = date.getMonth();
+    if(month<10) month = `0${month}`;
+    let day = date.getDay();
+    if(day<10) day = `0${day}`;
+    return `${year}-${month}-${day}`
+  }
+
+  async getHistoricalDataByStock(symbol) {
+    try {
+      const historicalDataForAll = JSON.parse(await redisClient.get(Caching.HISTORICAL_DATA_FOR_ALL_STOCKS));
+      
+      if (!historicalDataForAll || !historicalDataForAll[symbol]) {
+        return []; // Return an empty array if data is not available
+      }
+  
+      // Parse the data and format dates to "MM-DD-YYYY" with dashes
+      const formattedData = JSON.parse(historicalDataForAll[symbol]).map(item => {
+        const dateParts = new Date(item?.Date).toLocaleDateString('en-US').split('/');
+        const formattedDate = `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`;
+        return {
+          date: this.handleHistoricalDataDate(item?.Date),
+          close: Number(parseFloat(item?.Close).toFixed(2)),
+        };
+      });
+  
+      return formattedData;
+    } catch (error) {
+      throw new ApiError(error?.message, error?.statusCode);
+    }
+  }
+  
 }
-
-
-
 
 export default new StockService();

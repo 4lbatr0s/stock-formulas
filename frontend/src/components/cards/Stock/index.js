@@ -8,7 +8,7 @@ import labelToNames from './ratio/ratio-key-value/labelToNames';
 import { useTheme } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 import { CircularProgress, Tooltip } from '../../../../node_modules/@mui/material/index';
-import { fetchStocksData, fetchStocksNews } from 'store/query/StockQueries';
+import { fetchHistoricalData, fetchStocksData, fetchStocksNews } from 'store/query/StockQueries';
 import { useQuery } from '@tanstack/react-query';
 import SimpleBarScroll from 'components/third-party/SimpleBar';
 import StockDetailNewsCard from '../news/StockDetailNewsCard';
@@ -30,6 +30,16 @@ const StockCard = ({ symbol }) => {
     isLoading: isLoadingStockNews
   } = useQuery(['stockNews', symbol], async () => {
     const response = await fetchStocksNews(symbol);
+    console.log('RESPONSE DATA: ', response);
+    return response;
+  });
+
+  const {
+    data: historicalData,
+    isError: isErrorhistoricalData,
+    isLoading: isLoadinghistoricalData
+  } = useQuery(['historicalData', symbol], async () => {
+    const response = await fetchHistoricalData(symbol);
     console.log('RESPONSE DATA: ', response);
     return response;
   });
@@ -100,6 +110,19 @@ const StockCard = ({ symbol }) => {
     }
   };
 
+  const renderHistoricalData = (historicalData, isLoadinghistoricalData, isErrorhistoricalData) => {
+    if (isLoadinghistoricalData) {
+      return <CircularProgress />;
+    } else if (isErrorhistoricalData) {
+      return <div>Error fetching historical data</div>;
+    } else if (historicalData && historicalData.length === 0) {
+      return <div>No historical data. </div>;
+    } else if (historicalData) {
+      console.log(`Historical data for: ${stock}: ${historicalData}`);
+      return <StockPriceChart height={200} historicalData={historicalData} />;
+    }
+  };
+
   const conditionalRendering = (isLoading, isError) => {
     if (isLoading) {
       return <CircularProgress />;
@@ -114,11 +137,9 @@ const StockCard = ({ symbol }) => {
               <StockCardHeaderType my={1} variant="h5">{`${symbol} Chart`}</StockCardHeaderType>
               <Grid>
                 {' '}
-                {/* Adjusted width for sm */}
                 <Box sx={{ maxWidth: '100%' }}>
                   {' '}
-                  {/* Adjusted maxWidth */}
-                  <StockPriceChart height={200} />
+                  {renderHistoricalData(historicalData, isLoadinghistoricalData, isErrorhistoricalData)}
                 </Box>
               </Grid>
               <Grid>

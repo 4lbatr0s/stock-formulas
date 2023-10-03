@@ -188,7 +188,8 @@ def get_all_historical_data():
 def get_historical_data(stock, dictionary, time="1d"):
     print('doing for:', stock)
     TICKER = yf.Ticker(stock)
-    historical_data = TICKER.history(time)  
+    historical_data = TICKER.history(time, interval="1mo")
+    historical_data = historical_data.sort_values('Date', ascending=True)
     # Reset the index to include the 'Date' column in the JSON
     historical_data.reset_index(inplace=True)
     historical_data_json = historical_data.to_json(orient='records', date_format='iso')

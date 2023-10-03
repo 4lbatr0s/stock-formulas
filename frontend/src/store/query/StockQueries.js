@@ -36,3 +36,12 @@ export const fetchNewsById = async (newsId) => {
     throw new Error(error?.message, error?.statusCode);
   }
 };
+
+export const fetchHistoricalData = async (stockSymbol) => {
+  try {
+    const response = await AxiosHelper.getAsync(UrlHelper.getHistoricalDataByStock(stockSymbol));
+    return response;
+  } catch (error) {
+    throw new Error(error?.message, error?.statusCode);
+  }
+};

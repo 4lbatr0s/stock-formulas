@@ -19,6 +19,9 @@ class UrlHelper {
   getNewsById(newsId) {
     return `${this.baseUrl}${urlConstants.getNewsById}/${newsId}`;
   }
+  getHistoricalDataByStock(stockSymbol) {
+    return `${this.baseUrl}${urlConstants.getHistoricalDataByStock}/${stockSymbol}`;
+  }
 }
 
 export default new UrlHelper();
