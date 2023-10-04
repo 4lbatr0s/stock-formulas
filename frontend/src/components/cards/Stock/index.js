@@ -137,7 +137,9 @@ const StockCard = ({ symbol }) => {
               <StockCardHeaderType my={1} variant="h5">{`${symbol} Chart`}</StockCardHeaderType>
               <Grid>
                 {' '}
-                <Box sx={{ maxWidth: '100%' }}>
+                <Box
+                  sx={{ maxWidth: '100%', }}
+                >
                   {' '}
                   {renderHistoricalData(historicalData, isLoadinghistoricalData, isErrorhistoricalData)}
                 </Box>
