@@ -12,6 +12,7 @@ import Caching from "../utils/constants/Caching.js";
 const configureWebSockets = (app) => {
   const server = http.createServer(app);
   const wss = new WebSocketServer({ server });
+  const fakeRealTimeStockWSS = new WebSocketServer({ port: 7373 });
   let newsWebSocket = null; // Track the WebSocket connection
   const connectToNewsWebSocket = () => {
     newsWebSocket = new WebSocket(process.env.ALPACA_WSS_STREAM_URL);
@@ -103,7 +104,6 @@ const configureWebSockets = (app) => {
       UrlHelper.getSentimentAnalysisForFinancialText(),
       { text: newsItem.mergedText } // Pass the news item as a string
     );
-    console.log("result:", result);
     const { news, sentiment, score } = result.data[0]; // Assuming the result contains properties like news, sentiment, and score
     const newsItemData = {
       summary: news,
@@ -121,7 +121,10 @@ const configureWebSockets = (app) => {
     const allStockSymbols = JSON.parse(
       await redisClient.get(Caching.SYMBOLS.ALL_STOCK_SYMBOLS)
     );
-    if (Array.isArray(newsItemData.symbols)) {
+    if (
+      Array.isArray(newsItemData.symbols) &&
+      newsItemData.symbols.length > 0
+    ) {
       for (const symbol of newsItemData.symbols) {
         if (allStockSymbols.includes(symbol)) {
           tickerUpdatePromises.push(
@@ -133,13 +136,6 @@ const configureWebSockets = (app) => {
           //when sentiment analysis job is finished, send the news item data to the frontend.
         }
       }
-    } else if (newsItemData.symbols) {
-      tickerUpdatePromises.push(
-        TickerService.updateTickerFields(
-          newsItemData.symbols,
-          newsItemData.semanticAnalysis.sentimentScore
-        )
-      );
     }
     if (
       newsItemData.symbols.some((symbol) => allStockSymbols.includes(symbol))
@@ -157,13 +153,35 @@ const configureWebSockets = (app) => {
     });
   };
 
+  const broadcastFakeRealTimeStockData = (data) => {
+    fakeRealTimeStockWSS.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(data);
+      }
+    });
+  };
+
   connectToNewsWebSocket();
+
+  setInterval(() => {
+    let fakeData = {
+      "T": "t",
+      "i": 96921,
+      "S": "TSLA",
+      "x": "D",
+      "p": (Math.random()*100) + 100,
+      "s": 1,
+      "t": "2021-02-22T15:51:44.208Z",
+      "c": ["@", "I"],
+      "z": "C"
+    }
+    broadcastFakeRealTimeStockData(JSON.stringify(fakeData));
+  }, 3000);
 
   const port = process.env.WSS_PORT || 8080;
   server.listen(port, () => {
     console.log(`wss server listening on port ${port}`);
   });
-
 };
 
 export default configureWebSockets;

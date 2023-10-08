@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -13,6 +13,7 @@ import NewsDrawerContent from './NewsDrawerContent/index';
 import SimpleBarScroll from 'components/third-party/SimpleBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNews } from 'store/reducers/news';
+import configureNewsWSS from 'websockets/stocks/news/index';
 
 // ==============================|| MAIN LAYOUT - DRAWER ||============================== //
 
@@ -21,15 +22,11 @@ const MainDrawer = ({ open, handleDrawerToggle, window }) => {
 
   const { news } = useSelector((state) => state.news);
 
-  const wss = new WebSocket('ws://localhost:5001');
-  wss.onopen = () => {
-    console.log('connected to the wss on port 5001');
-  };
-
-  wss.onmessage = (event) => {
-    console.log(`received message: ${event.data}`);
-    dispatch(addNews(event.data));
-  };
+  useEffect(() => {
+    configureNewsWSS((data) => {
+      dispatch(addNews(data));
+    });
+  }, []);
 
   const theme = useTheme();
   const matchDownMD = useMediaQuery(theme.breakpoints.down('lg'));

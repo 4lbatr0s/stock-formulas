@@ -15,26 +15,24 @@ import Breadcrumbs from 'components/@extended/Breadcrumbs';
 // types
 import { openDrawer } from 'store/reducers/menu';
 import MainDrawer from './Drawer/index';
-import connectToStockWSS from 'websockets/realTimeStock';
+import configureStockWSS from 'websockets/stocks/current-price/realTimeStock';
 
 // ==============================|| MAIN LAYOUT ||============================== //
 
 const MainLayout = () => {
-
-
   const theme = useTheme();
   const matchDownLG = useMediaQuery(theme.breakpoints.down('lg'));
   const dispatch = useDispatch();
 
   const { drawerOpen } = useSelector((state) => state.menu);
 
- 
+  // websocket
+  useEffect(() => {
+    (async () => {
+      configureStockWSS(dispatch);
+    })();
+  }, []);
 
-  //websocket
-  useEffect(()=> {
-  connectToStockWSS();
-  }, [])
- 
   // drawer toggler
   const [open, setOpen] = useState(false);
   const handleDrawerToggle = () => {
@@ -42,15 +40,13 @@ const MainLayout = () => {
     setOpen(updatedOpen);
     dispatch(openDrawer({ drawerOpen: updatedOpen })); // Dispatch action to update the state in the store.
   };
- 
+
   // set media wise responsive drawer
   useEffect(() => {
     setOpen(!matchDownLG);
     dispatch(openDrawer({ drawerOpen: !matchDownLG }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchDownLG]);
-
-
 
   useEffect(() => {
     if (open !== drawerOpen) setOpen(drawerOpen);

@@ -12,8 +12,17 @@ import { fetchHistoricalData, fetchStocksData, fetchStocksNews } from 'store/que
 import { useQuery } from '@tanstack/react-query';
 import SimpleBarScroll from 'components/third-party/SimpleBar';
 import StockDetailNewsCard from '../news/StockDetailNewsCard';
+import { useSelector } from 'react-redux';
 
 const StockCard = ({ symbol }) => {
+  let {
+    currentPrices: currentPrices
+  } = useSelector((state) => state.stock);
+
+  const getCurrentPriceForStock = (stockSymbol) => {
+    return currentPrices[stockSymbol];
+  };
+
   const {
     data: stock,
     isError: isErrorStockData,
@@ -129,20 +138,21 @@ const StockCard = ({ symbol }) => {
     } else if (isError) {
       return <div>Error fetching stock data</div>;
     }
+
     return (
       <Stack>
         <Grid container spacing={3} sx={{ display: 'flex', justifyContent: 'center' }}>
           <Grid item xs={8}>
             <ValuesContainer>
-              <StockCardHeaderType my={1} variant="h5">{`${symbol} Chart`}</StockCardHeaderType>
+              <Grid>
+                <StockCardHeaderType my={1} variant="h5">{`${symbol} Chart`}</StockCardHeaderType>
+                <Box>
+                  <Typography>{getCurrentPriceForStock(symbol)}</Typography>
+                </Box>
+              </Grid>
               <Grid>
                 {' '}
-                <Box
-                  sx={{ maxWidth: '100%', }}
-                >
-                  {' '}
-                  {renderHistoricalData(historicalData, isLoadinghistoricalData, isErrorhistoricalData)}
-                </Box>
+                <Box sx={{ maxWidth: '100%' }}> {renderHistoricalData(historicalData, isLoadinghistoricalData, isErrorhistoricalData)}</Box>
               </Grid>
               <Grid>
                 {/* Adjusted width for sm */}

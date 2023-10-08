@@ -6,4 +6,4 @@ const urlConstants = {
   getNewsById: '/news/single',
   getHistoricalDataByStock: '/stocks/historical-data'
 };
-export default urlConstants;
+export default Object.freeze(urlConstants);
