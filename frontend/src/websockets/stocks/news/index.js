@@ -6,7 +6,6 @@ const connectToNewsWSS = (callback) => {
     newsWSS.onopen = () => {
       console.log('Connected to realtime-news wss');
       newsWSS.onmessage = async (event) => {
-        console.log('Message received from newsWSS:', event.data);
         callback(event.data);
       };
     };

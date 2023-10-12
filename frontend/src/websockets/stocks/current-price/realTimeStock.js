@@ -7,7 +7,6 @@ const connectToStockWSS = (dispatch = null) => {
     // stockWSS = new WebSocket(`${process.env.REACT_APP_ALPACA_WSS_STREAM_URL}${process.env.REACT_APP_ALPACA_REAL_TIME_STOCK_SOURCE}`);
     stockWSS = new WebSocket(`ws://localhost:7373`);
     stockWSS.onopen = () => {
-      console.log('Connected to alpaca real-time stock wss');
       const authMessage = JSON.stringify({
         action: process.env.REACT_APP_ALPACA_ACTION,
         key: process.env.REACT_APP_ALPACA_KEY,
@@ -23,7 +22,6 @@ const connectToStockWSS = (dispatch = null) => {
 
       stockWSS.onmessage = async (event) => {
         let parsedData = JSON.parse(event.data);
-        console.log('Message received from stockWSS:', event.data);
         await updateCurrentPrice(parsedData?.S, parsedData?.p, dispatch);
       };
     };

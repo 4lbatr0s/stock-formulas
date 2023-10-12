@@ -9,10 +9,33 @@ import UrlHelper from "../utils/helpers/UrlHelper.js";
 import redisClient from "../../config/caching/redisConfig.js";
 import Caching from "../utils/constants/Caching.js";
 
+let stockSymbol;
+const setStockSymbol = (value) => {
+  stockSymbol = value;
+};
+
 const configureWebSockets = (app) => {
   const server = http.createServer(app);
   const wss = new WebSocketServer({ server });
   const fakeRealTimeStockWSS = new WebSocketServer({ port: 7373 });
+  const currentPriceByStockSymbolWSS = new WebSocketServer({ port: 5080 });
+
+  currentPriceByStockSymbolWSS.on("connection", (socket) => {
+    console.log("New client connected to currentPriceByStockSymbolWSS.");
+
+    socket.on("message", (event) => {
+      const message = JSON.parse(event.toString()); // Convert Buffer to string
+      console.log("Received message from client:", message);
+
+      try {
+        const parsedSymbol = message;
+        setStockSymbol(parsedSymbol);
+      } catch (error) {
+        console.error("Error parsing message as JSON:", error);
+      }
+    });
+  });
+
   let newsWebSocket = null; // Track the WebSocket connection
   const connectToNewsWebSocket = () => {
     newsWebSocket = new WebSocket(process.env.ALPACA_WSS_STREAM_URL);
@@ -153,29 +176,82 @@ const configureWebSockets = (app) => {
     });
   };
 
-  const broadcastFakeRealTimeStockData = (data) => {
-    fakeRealTimeStockWSS.clients.forEach((client) => {
+  const broadCastCurrentPriceByStockSymbol = (data) => {
+    console.log("BROADCAST NE CALISTI BEEE");
+    currentPriceByStockSymbolWSS.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(data);
+        console.log("broadcast data:", data);
+        client.send(JSON.stringify(data));
       }
     });
+  };
+
+  const broadcastFakeRealTimeStockData = (data, symbol) => {
+    console.log("broadcastFakeRealTimeStockData worked");
+    let dataToSend = JSON.stringify(data);
+    fakeRealTimeStockWSS.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(dataToSend);
+      }
+    });
+    if (symbol) {
+      let singularStockData = data.find((stock) => stock?.S === symbol);
+      if (singularStockData) {
+        broadCastCurrentPriceByStockSymbol(singularStockData);
+      }
+    }
   };
 
   connectToNewsWebSocket();
 
   setInterval(() => {
-    let fakeData = {
-      "T": "t",
-      "i": 96921,
-      "S": "TSLA",
-      "x": "D",
-      "p": (Math.random()*100) + 100,
-      "s": 1,
-      "t": "2021-02-22T15:51:44.208Z",
-      "c": ["@", "I"],
-      "z": "C"
-    }
-    broadcastFakeRealTimeStockData(JSON.stringify(fakeData));
+    let fakeData = [
+      {
+        T: "t",
+        i: 96921,
+        S: "TSLA",
+        x: "D",
+        p: Math.random() * 100 + 100,
+        s: 1,
+        t: "2021-02-22T15:51:44.208Z",
+        c: ["@", "I"],
+        z: "C",
+      },
+      {
+        T: "t",
+        i: 96921,
+        S: "AMZN",
+        x: "D",
+        p: Math.random() * 100 + 100,
+        s: 1,
+        t: "2021-02-22T15:51:44.208Z",
+        c: ["@", "I"],
+        z: "C",
+      },
+      {
+        T: "t",
+        i: 96921,
+        S: "MSFT",
+        x: "D",
+        p: Math.random() * 100 + 100,
+        s: 1,
+        t: "2021-02-22T15:51:44.208Z",
+        c: ["@", "I"],
+        z: "C",
+      },
+      {
+        T: "t",
+        i: 96921,
+        S: "GOOGL",
+        x: "D",
+        p: Math.random() * 100 + 100,
+        s: 1,
+        t: "2021-02-22T15:51:44.208Z",
+        c: ["@", "I"],
+        z: "C",
+      },
+    ];
+    broadcastFakeRealTimeStockData(fakeData, stockSymbol);
   }, 3000);
 
   const port = process.env.WSS_PORT || 8080;

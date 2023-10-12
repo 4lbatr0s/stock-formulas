@@ -1,5 +1,5 @@
 import MainCard from 'components/MainCard';
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Grid, Box, Stack, Card, Typography } from '@mui/material';
 import StockPriceChart from './chart/price/index';
 import { styled } from '@mui/material/styles';
@@ -12,34 +12,60 @@ import { fetchHistoricalData, fetchStocksData, fetchStocksNews } from 'store/que
 import { useQuery } from '@tanstack/react-query';
 import SimpleBarScroll from 'components/third-party/SimpleBar';
 import StockDetailNewsCard from '../news/StockDetailNewsCard';
-import { useSelector } from 'react-redux';
+
+// Custom hook to manage WebSocket logic
+const useWebSocket = (symbol, setCurrentPrice) => {
+  const socket = useRef(null);
+
+  useEffect(() => {
+    const backendWebSocketURL = 'ws://localhost:5080';
+    socket.current = new WebSocket(backendWebSocketURL);
+
+    socket.current.onopen = () => {
+      socket.current.send(JSON.stringify(symbol));
+      console.log('Connection is established from frontend!');
+    };
+
+    socket.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setCurrentPrice(data?.p);
+    };
+
+    return () => {
+      // Clean up the WebSocket on component unmount
+      if (socket.current) {
+        socket.current.close();
+      }
+    };
+  }, [symbol, setCurrentPrice]);
+};
 
 const StockCard = ({ symbol }) => {
-  let {
-    currentPrices: currentPrices
-  } = useSelector((state) => state.stock);
+  const [currentPrice, setCurrentPrice] = useState('N/A');
 
-  const getCurrentPriceForStock = (stockSymbol) => {
-    return currentPrices[stockSymbol];
-  };
-
+  // const backendWebSocketURL = 'ws://localhost:5080';
+  // const socket = new WebSocket(backendWebSocketURL);
+  // socket.onopen = () => {
+  //   socket.send(JSON.stringify(symbol));
+  //   console.log('DATA BEING SENT: ', JSON.stringify(symbol));
+  //   console.log('Connection is Establisted from frontend!!!!!!');
+  //   socket.onmessage = (event) => {
+  //     const data = JSON.parse(event.data);
+  //     setCurrentPrice(data);
+  //   };
+  // };
+  useWebSocket(symbol, setCurrentPrice);
   const {
     data: stock,
     isError: isErrorStockData,
     isLoading: isLoadingStockData
   } = useQuery(['stockData', symbol], async () => {
     const response = await fetchStocksData(symbol);
-    console.log('RESPONSE DATA: ', response);
     return response;
   });
 
-  const {
-    data: stockNews,
-    isError: isErrorStockNews,
-    isLoading: isLoadingStockNews
-  } = useQuery(['stockNews', symbol], async () => {
+  const { data: stockNews } = useQuery(['stockNews', symbol], async () => {
     const response = await fetchStocksNews(symbol);
-    console.log('RESPONSE DATA: ', response);
     return response;
   });
 
@@ -49,11 +75,8 @@ const StockCard = ({ symbol }) => {
     isLoading: isLoadinghistoricalData
   } = useQuery(['historicalData', symbol], async () => {
     const response = await fetchHistoricalData(symbol);
-    console.log('RESPONSE DATA: ', response);
     return response;
   });
-
-  console.log(`stockNews:${stockNews}\nisError:${isErrorStockNews}\nisLoadingStockNews:${isLoadingStockNews}`);
 
   const theme = useTheme();
   const StockCardHeaderType = styled(Typography)({
@@ -127,8 +150,7 @@ const StockCard = ({ symbol }) => {
     } else if (historicalData && historicalData.length === 0) {
       return <div>No historical data. </div>;
     } else if (historicalData) {
-      console.log(`Historical data for: ${stock}: ${historicalData}`);
-      return <StockPriceChart height={200} historicalData={historicalData} />;
+      return <StockPriceChart height={180} historicalData={historicalData} />;
     }
   };
 
@@ -138,22 +160,27 @@ const StockCard = ({ symbol }) => {
     } else if (isError) {
       return <div>Error fetching stock data</div>;
     }
-
     return (
       <Stack>
+        <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+          <Grid item>
+            <StockCardHeaderType my={1} variant="h4">{`${symbol} Chart`}</StockCardHeaderType>
+          </Grid>
+          <Grid item sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ marginRight: '2px' }}>
+              {'Current Price:'}
+            </Typography>
+            <MainCard sx={{ backgroundColor:`${theme.palette.secondary[200]}`, border: `5px solid ${theme.palette.primary[400]} !important`, borderRadius: 10, marginLeft:1 }}>
+              <Typography variant="h5">{`${parseFloat(currentPrice).toFixed(3)}$`}</Typography>
+            </MainCard>
+          </Grid>
+        </Grid>
+        <Grid>
+          <Box sx={{ maxWidth: '100%' }}> {renderHistoricalData(historicalData, isLoadinghistoricalData, isErrorhistoricalData)}</Box>
+        </Grid>
         <Grid container spacing={3} sx={{ display: 'flex', justifyContent: 'center' }}>
           <Grid item xs={8}>
             <ValuesContainer>
-              <Grid>
-                <StockCardHeaderType my={1} variant="h5">{`${symbol} Chart`}</StockCardHeaderType>
-                <Box>
-                  <Typography>{getCurrentPriceForStock(symbol)}</Typography>
-                </Box>
-              </Grid>
-              <Grid>
-                {' '}
-                <Box sx={{ maxWidth: '100%' }}> {renderHistoricalData(historicalData, isLoadinghistoricalData, isErrorhistoricalData)}</Box>
-              </Grid>
               <Grid>
                 {/* Adjusted width for sm */}
                 <StockCardHeaderType variant="h5">Ratios</StockCardHeaderType>
@@ -199,6 +226,14 @@ const StockCard = ({ symbol }) => {
       </Stack>
     );
   };
+
+  // useEffect(() => {
+  //   // Connect to the WebSocket on the backend and send the stock symbol
+
+  //   return () => {
+  //     socket.close();
+  //   };
+  // }, [symbol]);
 
   return (
     <MainCard sx={{ display: 'flex', justifyContent: 'center' }}>{conditionalRendering(isLoadingStockData, isErrorStockData)}</MainCard>
