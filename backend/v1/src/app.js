@@ -22,7 +22,7 @@ events(); // TIP: includes events.on's, on's should come before emits(they're in
 croneJobs();
 const app = express();
 appConfig(app);
-configureWebSockets(app);
+configureWebSockets();
 app.use('/uploads', express.static(path.join(__dirname, './', 'uploads')));
 
 loadRoutes(app); // import route usings from another module.

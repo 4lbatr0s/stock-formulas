@@ -8,15 +8,14 @@ import TickerService from "../../services/TickerService.js";
 import UrlHelper from "../utils/helpers/UrlHelper.js";
 import redisClient from "../../config/caching/redisConfig.js";
 import Caching from "../utils/constants/Caching.js";
-
+import configurecurrentPriceWSS from "../../websockets/current-price-receiver/index.js";
 let stockSymbol;
 const setStockSymbol = (value) => {
   stockSymbol = value;
 };
 
-const configureWebSockets = (app) => {
-  const server = http.createServer(app);
-  const wss = new WebSocketServer({ server });
+const configureWebSockets = () => {
+  const wss = new WebSocketServer({port: process.env.WSS_PORT});
   const fakeRealTimeStockWSS = new WebSocketServer({ port: 7373 });
   const currentPriceByStockSymbolWSS = new WebSocketServer({ port: 5080 });
 
@@ -254,10 +253,7 @@ const configureWebSockets = (app) => {
     broadcastFakeRealTimeStockData(fakeData, stockSymbol);
   }, 3000);
 
-  const port = process.env.WSS_PORT || 8080;
-  server.listen(port, () => {
-    console.log(`wss server listening on port ${port}`);
-  });
+  // configurecurrentPriceWSS();
 };
 
 export default configureWebSockets;
