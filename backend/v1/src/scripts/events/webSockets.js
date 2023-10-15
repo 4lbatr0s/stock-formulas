@@ -15,7 +15,8 @@ const setStockSymbol = (value) => {
 };
 
 const configureWebSockets = () => {
-  const wss = new WebSocketServer({port: process.env.WSS_PORT});
+
+  const newsSenderWSS = new WebSocketServer({port: process.env.WSS_PORT});
   const fakeRealTimeStockWSS = new WebSocketServer({ port: 7373 });
   const currentPriceByStockSymbolWSS = new WebSocketServer({ port: 5080 });
 

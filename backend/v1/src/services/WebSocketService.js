@@ -1,14 +1,16 @@
 import webSocketConstants from "../scripts/utils/constants/Websockets";
+import WebSocket, { WebSocketServer } from "ws";
 
 class WebSocketService {
-    constructor(url) {
+    constructor(port, url) {
       this.url = url;
+      this.port = port;
       this.websocket = null;
       this.eventHandlers = {};
     }
   
     connect() {
-      this.websocket = new WebSocket(this.url);
+      this.websocket = new WebSocketServer({port:this.port});
       this.websocket.onopen = this.handleOpen;
       this.websocket.onclose = this.handleClose;
       this.websocket.onerror = this.handleError;
