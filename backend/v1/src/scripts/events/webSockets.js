@@ -9,49 +9,30 @@ import UrlHelper from "../utils/helpers/UrlHelper.js";
 import redisClient from "../../config/caching/redisConfig.js";
 import Caching from "../utils/constants/Caching.js";
 import configurecurrentPriceWSS from "../../websockets/current-price-receiver/index.js";
+import { broadcastNewsWithSentimentAnalysis } from "../../websockets/news-sender-with-sentiment-analysis/helpers.js";
+import loadWebsockets from "../../websockets/index.js";
+import { broadcastFakeRealTimeStockData } from "../../websockets/fake-realtime-stock/helpers.js";
+import fakeRealTimeStockSchema from "../../websockets/fake-realtime-stock/schemas.js";
+import { onConnection as onConnectionCurrentStockPriceBySymbol } from "../../websockets/current-price-by-stock-symbol/helpers.js";
+
 let stockSymbol;
 const setStockSymbol = (value) => {
   stockSymbol = value;
 };
 
 const configureWebSockets = () => {
-
-  const newsSenderWSS = new WebSocketServer({port: process.env.WSS_PORT});
-  const fakeRealTimeStockWSS = new WebSocketServer({ port: 7373 });
-  const currentPriceByStockSymbolWSS = new WebSocketServer({ port: 5080 });
-
-  currentPriceByStockSymbolWSS.on("connection", (socket) => {
-    console.log("New client connected to currentPriceByStockSymbolWSS.");
-
-    socket.on("message", (event) => {
-      const message = JSON.parse(event.toString()); // Convert Buffer to string
-      console.log("Received message from client:", message);
-
-      try {
-        const parsedSymbol = message;
-        setStockSymbol(parsedSymbol);
-      } catch (error) {
-        console.error("Error parsing message as JSON:", error);
-      }
-    });
-  });
-
+  loadWebsockets();
+  onConnectionCurrentStockPriceBySymbol();
+  
   let newsWebSocket = null; // Track the WebSocket connection
   const connectToNewsWebSocket = () => {
     newsWebSocket = new WebSocket(process.env.ALPACA_WSS_STREAM_URL);
     newsWebSocket.onopen = () => {
       console.log("Connected to the news WebSocket.");
-      const authMessage = JSON.stringify({
-        action: process.env.ALPACA_ACTION,
-        key: process.env.ALPACA_KEY,
-        secret: process.env.ALPACA_SECRET,
-      });
+      const authMessage = JSON.stringify();
       newsWebSocket.send(authMessage);
 
-      const subscriptionMessage = JSON.stringify({
-        action: "subscribe",
-        news: ["*"],
-      });
+      const subscriptionMessage = JSON.stringify();
       newsWebSocket.send(subscriptionMessage);
     };
     newsWebSocket.onmessage = async (event) => {
@@ -168,89 +149,10 @@ const configureWebSockets = () => {
     await Promise.all(tickerUpdatePromises);
   };
 
-  const broadcastNewsWithSentimentAnalysis = (data) => {
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(data);
-      }
-    });
-  };
-
-  const broadCastCurrentPriceByStockSymbol = (data) => {
-    console.log("BROADCAST NE CALISTI BEEE");
-    currentPriceByStockSymbolWSS.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        console.log("broadcast data:", data);
-        client.send(JSON.stringify(data));
-      }
-    });
-  };
-
-  const broadcastFakeRealTimeStockData = (data, symbol) => {
-    console.log("broadcastFakeRealTimeStockData worked");
-    let dataToSend = JSON.stringify(data);
-    fakeRealTimeStockWSS.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(dataToSend);
-      }
-    });
-    if (symbol) {
-      let singularStockData = data.find((stock) => stock?.S === symbol);
-      if (singularStockData) {
-        broadCastCurrentPriceByStockSymbol(singularStockData);
-      }
-    }
-  };
-
   connectToNewsWebSocket();
-
+ 
   setInterval(() => {
-    let fakeData = [
-      {
-        T: "t",
-        i: 96921,
-        S: "TSLA",
-        x: "D",
-        p: Math.random() * 100 + 100,
-        s: 1,
-        t: "2021-02-22T15:51:44.208Z",
-        c: ["@", "I"],
-        z: "C",
-      },
-      {
-        T: "t",
-        i: 96921,
-        S: "AMZN",
-        x: "D",
-        p: Math.random() * 100 + 100,
-        s: 1,
-        t: "2021-02-22T15:51:44.208Z",
-        c: ["@", "I"],
-        z: "C",
-      },
-      {
-        T: "t",
-        i: 96921,
-        S: "MSFT",
-        x: "D",
-        p: Math.random() * 100 + 100,
-        s: 1,
-        t: "2021-02-22T15:51:44.208Z",
-        c: ["@", "I"],
-        z: "C",
-      },
-      {
-        T: "t",
-        i: 96921,
-        S: "GOOGL",
-        x: "D",
-        p: Math.random() * 100 + 100,
-        s: 1,
-        t: "2021-02-22T15:51:44.208Z",
-        c: ["@", "I"],
-        z: "C",
-      },
-    ];
+    let fakeData = fakeRealTimeStockSchema.MOCK.QUOTES;
     broadcastFakeRealTimeStockData(fakeData, stockSymbol);
   }, 3000);
 

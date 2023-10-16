@@ -11,7 +11,7 @@ import ApiError from './errors/ApiError.js';
 import Messages from './scripts/utils/constants/Messages.js';
 import croneJobs from './scripts/events/cronActions.js';
 import appConfig from './config/app.js';
-import configureWebSockets from './scripts/events/webSockets.js';
+import loadWebsockets from './websockets/index.js';
 
 const __filename = fileURLToPath(import.meta.url);// get all name
 const __dirname = path.dirname(__filename); // get dir name from it.
@@ -22,7 +22,7 @@ events(); // TIP: includes events.on's, on's should come before emits(they're in
 croneJobs();
 const app = express();
 appConfig(app);
-configureWebSockets();
+loadWebsockets();
 app.use('/uploads', express.static(path.join(__dirname, './', 'uploads')));
 
 loadRoutes(app); // import route usings from another module.

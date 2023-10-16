@@ -2,16 +2,16 @@ import webSocketConstants from "../scripts/utils/constants/Websockets";
 import WebSocket, { WebSocketServer } from "ws";
 
 class WebSocketService {
-    constructor(port, url) {
-      this.url = url;
+    constructor(options) {
+      const {port, host} = options;
       this.port = port;
+      this.host = url;
       this.websocket = null;
       this.eventHandlers = {};
     }
-    //deneme
   
     connect() {
-      this.websocket = new WebSocketServer({port:this.port});
+      this.websocket = new WebSocketServer({port:this.port, host:this.host});
       this.websocket.onopen = this.handleOpen;
       this.websocket.onclose = this.handleClose;
       this.websocket.onerror = this.handleError;

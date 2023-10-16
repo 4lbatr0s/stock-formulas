@@ -1,3 +1,10 @@
-import WebSocketService from "../../services/WebSocketService";
+// helpers.js
+import newsSenderWSS from "./index"; // Import the index.js file in the same folder
 
-const newsSenderWSS = new WebSocketService(process.env.NEWS_WITH_ANALYSIS_WSS_PORT);
+export const broadcastNewsWithSentimentAnalysis = (data) => {
+  newsSenderWSS.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
+    }
+  });
+};
