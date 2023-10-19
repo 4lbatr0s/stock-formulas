@@ -1,9 +1,8 @@
 // helpers.js
-import newsSenderWSS from "./index"; // Import the index.js file in the same folder
-
-export const broadcastNewsWithSentimentAnalysis = (data) => {
-  newsSenderWSS.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
+export const broadcastNewsWithSentimentAnalysis = (parameters) => {
+  const { socket, data } = parameters; 
+  socket.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN && data) {
       client.send(data);
     }
   });

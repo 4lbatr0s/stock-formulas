@@ -1,6 +1,3 @@
-// index.js
-import WebSocketService from "../../services/WebSocketService";
+import startCurrentPriceBySymbolWss from "./helpers.js";
 
-const currentPriceByStockSymbolWSS = new WebSocketService({ port:5080 });
-
-export default currentPriceByStockSymbolWSS;
+export default startCurrentPriceBySymbolWss;

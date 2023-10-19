@@ -18,10 +18,7 @@ const NewsCard = ({ headline, content, imageAlt = 'news-image', symbols }) => {
   }
 
   const returnSymbolCards = (symbols) => {
-    return symbols.reduce((acc, symbol) => {
-      acc.push(<SymbolCard key={symbol} symbol={symbol} />);
-      return acc;
-    }, []);
+    return <SymbolCard symbols={symbols} />;
   };
 
   return (

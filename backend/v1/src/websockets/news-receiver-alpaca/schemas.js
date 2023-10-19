@@ -1,8 +1,8 @@
 const schemas = {
     AUTHENTICATION:{
-        action: process.env.ALPACA_ACTION,
-        key: process.env.ALPACA_KEY,
-        secret: process.env.ALPACA_SECRET,
+        action: 'auth',
+        key: 'PKGGZMTM0Y0KM4LLM83Q',
+        secret: 'MWfygTzjYtGMI8KoiSslxxmchZdyBoLUDWeZUQNj',
     },
     SUBSCRIPTION:{
         action: "subscribe",

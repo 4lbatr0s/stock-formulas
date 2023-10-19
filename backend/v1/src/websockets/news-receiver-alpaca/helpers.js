@@ -1,112 +1,179 @@
 import axios from "axios";
-import newsWebSocket from ".";
-import webSocketConstants from "../../scripts/utils/constants/Websockets";
-import schemas from "./schemas";
-import UrlHelper from "../../scripts/utils/helpers/UrlHelper";
-import News from "../../models/News";
-import NewsService from "../../services/NewsService";
-import redisClient from "../../config/caching/redisConfig";
-import Caching from "../../scripts/utils/constants/Caching";
-import TickerService from "../../services/TickerService";
-import { broadcastNewsWithSentimentAnalysis } from "../news-sender-with-sentiment-analysis/helpers";
+import newsWebSocket from "./index.js";
+import webSocketConstants from "../../scripts/utils/constants/Websockets.js";
+import schemas from "./schemas.js";
+import UrlHelper from "../../scripts/utils/helpers/UrlHelper.js";
+import News from "../../models/News.js";
+import NewsService from "../../services/NewsService.js";
+import redisClient from "../../config/caching/redisConfig.js";
+import Caching from "../../scripts/utils/constants/Caching.js";
+import TickerService from "../../services/TickerService.js";
+import { broadcastNewsWithSentimentAnalysis } from "../news-sender-with-sentiment-analysis/helpers.js";
+import WebSocket, { WebSocketServer } from "ws";
+
+const checkIfNewsOrNot = (receivedMessage) => {
+  let receivedSingle = receivedMessage?.T === "n";
+  let receivedMultiple = receivedMessage[0]?.T === "n";
+  return receivedSingle || receivedMultiple;
+};
 
 const mergeText = (parameters) => {
-    const {headline, summary, content, symbols} = parameters;
-    const mergedText = headline
-        .concat(". ")
-        .concat(summary)
-        .concat(". ")
-        .concat(content);
-    return {mergedText, symbols};
-}
+  const { headline, summary, content, symbols } = parameters[0];
+  const mergedText = headline
+    .concat(". ")
+    .concat(summary)
+    .concat(". ")
+    .concat(content);
+  return { mergedText, symbols };
+};
 
 const sendAxiosPostReq = async (newsItem) => {
-    return await axios.post(UrlHelper.getSentimentAnalysisForFinancialText(), {text:newsItem?.mergedText});
-}
+  var result = await axios.post(
+    UrlHelper.getSentimentAnalysisForFinancialText(),
+    {
+      text: newsItem?.mergedText,
+    }
+  );
+  return result.data;
+};
 
 const createNewsToSave = (parameters) => {
-    const newsItemToSave = {
-        summary: parameters?.news,
-        symbols: parameters?.newsItem,
-        semanticAnalysis:{
-            sentiment: parameters?.sentiment,
-            sentimentScore: parameters?.sentimentScore, 
-        },
-    }
-    return new News(newsItemToSave);
-}
+  const newsItemToSave = {
+    summary: parameters?.news,
+    symbols: parameters?.newsItem,
+    semanticAnalysis: {
+      sentiment: parameters?.sentiment,
+      sentimentScore: parameters?.score,
+    },
+  };
+  return new News(newsItemToSave);
+};
 
 const saveNewsToDatabase = async (newsItem) => {
-    const result = await sendAxiosPostReq(newsItem);
-    const { news, sentiment, score } = result.data[0];
-    const newsItemToSave = createNewsToSave({news, sentiment, score, newsItem});
-    NewsService.saveItem(newsItemToSave);
-    return newsItemToSave;
-}
+  const result = await sendAxiosPostReq(newsItem);
+  const { news, sentiment, score } = result[0];
+  const newsItemToSave = createNewsToSave({ news, sentiment, score, newsItem });
+  NewsService.saveItem(newsItemToSave);
+  return newsItemToSave;
+};
 
-const checkIfSymbolInCacheAndUpdateTicker = async (newsItemToSave, tickerUpdatePromises) => {
-    let allStockSymbols = JSON.parse(await redisClient.get(Caching.SYMBOLS.ALL_STOCK_SYMBOLS));
-    for (const symbol of newsItemToSave.symbols){
-        if(allStockSymbols.includes(symbol)){
-            tickerUpdatePromises.push(TickerService.updateTickerFields(symbol, newsItemToSave.semanticAnalysis.sentimentScore))
-        }
+const checkIfSymbolInCacheAndUpdateTicker = async (
+  newsItemToSave,
+  tickerUpdatePromises
+) => {
+  let allStockSymbols = JSON.parse(
+    await redisClient.get(Caching.SYMBOLS.ALL_STOCK_SYMBOLS)
+  );
+  for (const symbol of newsItemToSave.symbols) {
+    const symbolString = String(symbol); // Convert to string
+    if (allStockSymbols.includes(symbolString)) {
+      tickerUpdatePromises.push(
+        TickerService.updateTickerFields(
+          symbol,
+          newsItemToSave.semanticAnalysis.sentimentScore
+        )
+      );
     }
-}
+  }
+};
 
 const updateTickerFields = async (newsItemToSave) => {
-    const tickerUpdatePromises = [];
-    const allStockSymbols = JSON.parse(await redisClient.get(Caching.SYMBOLS.ALL_STOCK_SYMBOLS));
-    if (Array.isArray(newsItemToSave.symbols) && newsItemToSave.symbols.length > 0) {
-      checkIfSymbolInCacheAndUpdateTicker(newsItemToSave, tickerUpdatePromises);
-    }
-    return Promise.all(tickerUpdatePromises);
-  };
+  const tickerUpdatePromises = [];
+  const allStockSymbols = JSON.parse(
+    await redisClient.get(Caching.SYMBOLS.ALL_STOCK_SYMBOLS)
+  );
+  if (
+    Array.isArray(newsItemToSave.symbols) &&
+    newsItemToSave.symbols.length > 0
+  ) {
+    await checkIfSymbolInCacheAndUpdateTicker(
+      newsItemToSave,
+      tickerUpdatePromises
+    );
+  }
+  return Promise.all(tickerUpdatePromises);
+};
 
-const broadCastNews = async (newsItemData) =>{
-    const allStockSymbols = JSON.parse(await redisClient.get(Caching.SYMBOLS.ALL_STOCK_SYMBOLS));
-    if(newsItemData.symbols.some((symbol) => allStockSymbols.includes(symbol))){
-        broadcastNewsWithSentimentAnalysis(newsItemData);
-    }
-}
+const broadCastNews = async (newsItemData, sendNewsToClientSocket) => {
+  const allStockSymbols = JSON.parse(
+    await redisClient.get(Caching.SYMBOLS.ALL_STOCK_SYMBOLS)
+  );
+  if (newsItemData.symbols.some((symbol) => allStockSymbols.includes(symbol))) {
+    broadcastNewsWithSentimentAnalysis({ socket:sendNewsToClientSocket, data: newsItemData });
+  }
+};
 
 const isConnectionError = (error) => {
-    if(error && error.code){
-        return error.code === webSocketConstants.ERROR.CODES.REFUSED || error.code ==== webSocketConstants.ERROR.CODES.RESET
-    }
-    return false;
-}
+  if (error && error.code) {
+    return (
+      error.code === webSocketConstants.ERROR.CODES.REFUSED ||
+      error.code === webSocketConstants.ERROR.CODES.RESET
+    );
+  }
+  return false;
+};
 
+let reconnectTimeout;
 
-const createEventListeners = () => {
-    newsWebSocket.addEventListener(webSocketConstants.EVENTS.OPEN, async () => {
-        const authReq = JSON.stringify(schemas.AUTHENTICATION);
-        newsWebSocket.send(authReq);
-        const subReq = JSON.stringify(schemas.SUBSCRIPTION);
-        newsWebSocket.send(subReq);
-    });
+const startWebSocket = (sendNewsToClientSocket) => {
+  const name = "News Receiver";
+  const alpacaUrl = "wss://stream.data.alpaca.markets/v1beta1/news";
+  const newsWebSocket = new WebSocket(alpacaUrl);
+  const time = 5000; // delay
+  let reconnectAttempts = 0;
+  const maxReconnectAttempts = 5; // You can adjust this value
 
-    newsWebSocket.addEventListener(webSocketConstants.EVENTS.MESSAGE, async (event)=> {
-        const newsItem = mergeText(event.data);
-        const newsItemToSave = saveNewsToDatabase(newsItem)
+  // Register the event listeners outside of the "open" handler
+  newsWebSocket.on("open", async () => {
+    console.log(`${name} worked on open`);
+    const authenticationData = JSON.stringify(schemas.AUTHENTICATION);
+    newsWebSocket.send(authenticationData);
+    const subscriptionData = JSON.stringify(schemas.SUBSCRIPTION);
+    newsWebSocket.send(subscriptionData);
+  });
+
+  newsWebSocket.on("message", async (event) => {
+    console.log(`${name} worked on message`);
+    try {
+      const parsedData = JSON.parse(event.toString());
+      console.log();
+      if (checkIfNewsOrNot(parsedData)) {
+        const newsItem = mergeText(parsedData);
+        const newsItemToSave = await saveNewsToDatabase(newsItem);
+        newsItemToSave.symbols = newsItem.symbols;
         await updateTickerFields(newsItemToSave);
-        await broadCastNews(newsItemToSave);
-    });
+        await broadCastNews(newsItemToSave, sendNewsToClientSocket);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  });
 
-    newsWebSocket.addEventListener(webSocketConstants.EVENTS.ERROR, async (event)=> {
-        if(isConnectionError(event)){
-            const time = 5
-            webSocketConstants.MESSAGES.retryingConnection(time);
-            createEventListeners();
-        } else {
-            webSocketConstants.MESSAGES.closingTheConnection();
-            newsWebSocket.disconnect();
-        }
-    });
+  newsWebSocket.on("error", async (event) => {
+    console.log(`${name} worked on error`);
+    if (isConnectionError(event) && reconnectAttempts < maxReconnectAttempts) {
+      webSocketConstants.MESSAGES.retryingConnection(time);
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      reconnectTimeout = setTimeout(startWebSocket, time);
+      reconnectAttempts++;
+    } else {
+      webSocketConstants.MESSAGES.closingTheConnection();
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      // Optionally handle the case where the maximum reconnection attempts are reached
+    }
+  });
 
-    newsWebSocket.addEventListener(webSocketConstants.EVENTS.CLOSE, async (event)=> {
-        createEventListeners();
-    });
-}
+  newsWebSocket.on("close", () => {
+    console.log(`${name} worked on close`);
+    if (reconnectAttempts < maxReconnectAttempts) {
+      webSocketConstants.MESSAGES.retryingConnection(time);
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      reconnectTimeout = setTimeout(startWebSocket, time);
+      reconnectAttempts++;
+    } else {
+      // Optionally handle the case where the maximum reconnection attempts are reached
+    }
+  });
+};
 
-createEventListeners();
-
+export default startWebSocket;

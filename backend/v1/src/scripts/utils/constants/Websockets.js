@@ -19,10 +19,10 @@ const webSocketConstants = {
         SUB:'subscription'
     },
     MESSAGES:{
-        retryingConnection(second){
+        retryingConnection: (second) => {
             return `Retrying connection in ${second} seconds...`;
-        }
-        closingTheConnection(){
+        },
+        closingTheConnection: () => {
             return `WebSocket connection encountered an error. Closing the connection.`
         }
     }

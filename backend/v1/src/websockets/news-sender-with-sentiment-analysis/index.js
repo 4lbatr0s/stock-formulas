@@ -1,6 +1,11 @@
 // index.js
-import WebSocketService from "../../services/WebSocketService";
+import { WebSocketServer } from "ws";
+import { broadcastNewsWithSentimentAnalysis } from "./helpers.js";
 
-const newsSenderWSS = new WebSocketService({ port:process.env.NEWS_WITH_ANALYSIS_WSS_PORT });
+const startWebSocket = () => {
+    const portNumber = 5001; 
+    const newsSenderWSS = new WebSocketServer({ port:portNumber });
+    return newsSenderWSS;
+}
 
-export default newsSenderWSS;
+export default startWebSocket;
