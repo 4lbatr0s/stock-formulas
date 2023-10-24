@@ -23,8 +23,6 @@ const broadCastCurrentPriceByStockSymbol = (socket, data) => {
 };
 
 export const broadcastFakeRealTimeStockData = (currentPriceBySymbolSocket, data, symbol) => {
-  console.log("broadcastFakeRealTimeStockData worked");
-  console.log("symbol:", symbol);
   let dataToSend = JSON.stringify(data);
   sendFakeStockData(currentPriceBySymbolSocket, dataToSend);
   if (symbol) {

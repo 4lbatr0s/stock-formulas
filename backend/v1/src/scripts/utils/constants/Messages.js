@@ -10,8 +10,12 @@ const Messages = {
     STOCK_SYMBOL_NOT_FOUND: 'STOCK SYMBOL NOT FOUND',
     TOKEN_EXPIRED:'TOKEN IS EXPIRED',
     UNAUTHORIZED:'YOU ARE UNAUTHORIZED',
+    FORBIDDEN:'PERMISSION DENIED',
     USERNAME_IN_USE:'USERNAME ALREADY IN USE',
     EMAIL_IN_USE:'EMAIL ALREADY IN USE',
+    TOKEN_REQUIRED:'TOKEN IS REQURED',
+    TOKEN_NOT_IN_DB:'REFRESH TOKEN NOT RECOGNIZED',
+    RESIGN:'Refresh token was expired. Please make a new signin request',
     roleNotExist: (role) => {
       return `Failed! Role ${role} does not exist!`;
     }

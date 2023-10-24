@@ -1,17 +1,25 @@
 import httpStatus from "http-status";
-import UserService from "../services/Users";
-import Messages from "../scripts/utils/constants/Messages";
-import roles from "../scripts/utils/constants/Roles";
+import UserService from "../services/Users.js";
+import Messages from "../scripts/utils/constants/Messages.js";
+import roles from "../scripts/utils/constants/Roles.js";
 
 const checkDuplicateNameOrEmail = async (req, res, next) => {
   try {
-    const userByUsername = await UserService.findOne({ username: req.body.username });
+    const userByUsername = await UserService.findOne({
+      username: req.body.username,
+    });
     if (userByUsername) {
-      return res.status(httpStatus.BAD_REQUEST).send(Messages.ERROR.USERNAME_IN_USE);
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .send(Messages.ERROR.USERNAME_IN_USE);
     }
-    const userByEmail = await UserService.findOne({ username: req.body.username });
+    const userByEmail = await UserService.findOne({
+      username: req.body.username,
+    });
     if (userByEmail) {
-      return res.status(httpStatus.BAD_REQUEST).send(Messages.ERROR.EMAIL_IN_USE);
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .send(Messages.ERROR.EMAIL_IN_USE);
     }
     next();
   } catch (error) {

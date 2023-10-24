@@ -4,6 +4,7 @@ const createValidation = Joi.object({
   full_name: Joi.string().required().min(3),
   password: Joi.string().required().min(8),
   email: Joi.string().email().required().min(8),
+  roles: Joi.array().items(Joi.string()).min(1),
 }).unknown(true);
 
 const updateValidation = Joi.object({
@@ -24,6 +25,10 @@ const changePasswordValidation = Joi.object({
   password: Joi.string().required().min(8),
 }).unknown(true);
 
+const refreshTokenValidation = Joi.object({
+  refreshToken: Joi.string().required()
+}).unknown(true);
+
 export default {
-  createValidation, loginValidation, resetPasswordValidation, changePasswordValidation, updateValidation,
+  createValidation, loginValidation, resetPasswordValidation, changePasswordValidation, updateValidation, refreshTokenValidation
 };

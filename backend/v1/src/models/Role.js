@@ -1,11 +1,15 @@
-import Mongoose from 'mongoose';
+import { Schema, model } from "mongoose";
 
-
-const RoleSchema = Mongoose.Schema(
-    name:{
-        type:String,
-        unique:true
-    },{ timestamps: true, versionKey: false }
+const RoleSchema = new Schema(
+  {
+    name: {
+      type: String,
+      unique: true,
+    },
+  },
+  { timestamps: true, versionKey: false }
 );
 
-export default new Mongoose.model('Role', RoleSchema);
+const Role = model("Role", RoleSchema);
+
+export default Role;

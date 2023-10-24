@@ -7,13 +7,12 @@ import idChecker from '../middlewares/idChecker.js';
 
 const router = express.Router();
 
-router.route('/').post(validate(schemas.createValidation), UsersController.create);
-router.get('/', authenticate, UsersController.list);
+router.get('/', authenticate.verifyToken, UsersController.list);
 router.route('/login').post(validate(schemas.loginValidation), UsersController.login);
-router.route('/').patch(authenticate, validate(schemas.updateValidation), UsersController.update);
+router.route('/').patch(authenticate.verifyToken, validate(schemas.updateValidation), UsersController.update);
 router.route('/reset-password').post(validate(schemas.resetPasswordValidation), UsersController.resetPassword);
-router.route('/change-password').post(authenticate, validate(schemas.changePasswordValidation), UsersController.changePassword);
-router.route('/:id').delete(idChecker(), authenticate, UsersController.remove);
-router.route('/update-profile-image').post(authenticate, UsersController.updateProfileImage);
+router.route('/change-password').post(authenticate.verifyToken, validate(schemas.changePasswordValidation), UsersController.changePassword);
+router.route('/:id').delete(idChecker(), authenticate.verifyToken, UsersController.remove);
+router.route('/update-profile-image').post(authenticate.verifyToken, UsersController.updateProfileImage);
 
 export default router;

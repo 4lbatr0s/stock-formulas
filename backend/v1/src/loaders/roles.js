@@ -1,4 +1,4 @@
-import Role from "../models/Role";
+import Role from "../models/Role.js";
 
 function seedRoles() {
     Role.estimatedDocumentCount((err, count) => {

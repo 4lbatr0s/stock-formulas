@@ -1,8 +1,14 @@
 import httpStatus from 'http-status';
-import JWT, { TokenExpiredError } from 'jsonwebtoken';
-import Messages from '../scripts/utils/constants/Messages';
-
+import JWT from 'jsonwebtoken';
+import Messages from '../scripts/utils/constants/Messages.js';
+import UserService from '../services/Users.js';
+import Role from '../models/Role.js';
+import ApiError from '../errors/ApiError.js';
+import { roleEnum } from '../scripts/utils/constants/Roles.js';
+import { HttpStatusCode } from 'axios';
 // INFO: Middleware to analyze access token.
+
+const { TokenExpiredError } = JWT;
 
 const catchError = (err, res) => {
   if(err instanceof TokenExpiredError){
@@ -28,4 +34,32 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-export default verifyToken;
+const isAdmin = async (req, res, next) => {
+  try {
+    const user = UserService.find(req.user._id)
+    if(!user){
+      return res.status(httpStatus.NOT_FOUND).send({ error: Messages.ERROR.USER_NOT_FOUND });
+    }
+    const roles = await Role.find(
+      {
+        _id:{ $in: user.roles }
+      }
+    ).exec();
+    for(let role of roles){
+      if(role.name === roleEnum.ADMIN){
+        next();
+      }
+      else{
+        return res.status(HttpStatusCode.Forbidden).send({ error: Messages.ERROR.FORBIDDEN })
+      }
+    }
+  } catch (error) {
+    throw new ApiError(error?.message, error?.statusCode);
+  }
+}
+
+const authenticatationMiddleware = {
+  verifyToken, isAdmin
+}
+
+export default authenticatationMiddleware;

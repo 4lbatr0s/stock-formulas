@@ -19,7 +19,7 @@ class CommonHelper {
 
   createAccessToken(user) { // TIP: we should specify name for jwt.sign, otherwise throws error.
     const { password, ...others } = user._doc;
-    return JWT.sign({ name: user.full_name, ...others }, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: '1w' });
+    return JWT.sign({ name: user.full_name, ...others }, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: process.env.JWT_EPXIRATION });
   }
 
   createRefreshToken(user) {

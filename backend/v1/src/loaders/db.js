@@ -1,5 +1,5 @@
 import Mongoose from 'mongoose';
-import seedRoles from './roles';
+import seedRoles from './roles.js';
 
 const connectDB = async () => {
   console.log(process.env.DB_HOST, process.env.DB_PORT, process.env.DB_NAME);
