@@ -11,18 +11,20 @@ const FinancialNewsDrawerContent = ({ news }) => {
   };
 
   const renderDummyNews = () => {
-    return news.reduce((acc, news) => {
-      acc.push(
-        <TunnelNewsCard
-          key={news._id || Math.random()}
-          id={news._id || Math.random()}
-          image={genericNewsImage}
-          headline={truncateText(news?.summary || news, 50) || 'N/A'}
-          imageAlt="QuantumFin"
-        />
-      );
-      return acc;
-    }, []);
+    if (news && news.length > 0) {
+      return news.reduce((acc, news) => {
+        acc.push(
+          <TunnelNewsCard
+            key={news._id || Math.random()}
+            id={news._id || Math.random()}
+            image={genericNewsImage}
+            headline={truncateText(news?.summary || news, 50) || 'N/A'}
+            imageAlt="QuantumFin"
+          />
+        );
+        return acc;
+      }, []);
+    }
   };
   return <Stack direction="column">{renderDummyNews()}</Stack>;
 };

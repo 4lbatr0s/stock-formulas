@@ -1,4 +1,5 @@
 import Mongoose from 'mongoose';
+import seedRoles from './roles';
 
 const connectDB = async () => {
   console.log(process.env.DB_HOST, process.env.DB_PORT, process.env.DB_NAME);
@@ -7,7 +8,7 @@ const connectDB = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-
+    seedRoles();
     console.log('Connected to MongoDB');
 
     Mongoose.connection.on('error', (err) => {

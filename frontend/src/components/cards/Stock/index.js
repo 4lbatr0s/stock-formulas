@@ -1,5 +1,5 @@
 import MainCard from 'components/MainCard';
-import React, { useState, useRef, useEffect } from 'react';
+import React, {  memo, useMemo } from 'react';
 import { Grid, Box, Stack, Card, Typography } from '@mui/material';
 import StockPriceChart from './chart/price/index';
 import { styled } from '@mui/material/styles';
@@ -10,38 +10,20 @@ import { Link } from 'react-router-dom';
 import { CircularProgress, Tooltip } from '../../../../node_modules/@mui/material/index';
 import { fetchHistoricalData, fetchStocksData, fetchStocksNews } from 'store/query/StockQueries';
 import { useQuery } from '@tanstack/react-query';
-import SimpleBarScroll from 'components/third-party/SimpleBar';
 import StockDetailNewsCard from '../news/StockDetailNewsCard';
+import SimpleBarReact from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
 
-// Custom hook to manage WebSocket logic
-const useWebSocket = (symbol, setCurrentPrice) => {
-  const socket = useRef(null);
 
-  useEffect(() => {
-    const backendWebSocketURL = 'ws://localhost:5080';
-    socket.current = new WebSocket(backendWebSocketURL);
 
-    socket.current.onopen = () => {
-      socket.current.send(JSON.stringify(symbol));
-      console.log('Connection is established from frontend!');
-    };
 
-    socket.current.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setCurrentPrice(data?.p);
-    };
+const CurrentPrice = ({ currentPrice}) => (
+  <Typography variant="h5">{`${parseFloat(currentPrice).toFixed(3)}$`}</Typography>
+);
 
-    return () => {
-      // Clean up the WebSocket on component unmount
-      if (socket.current) {
-        socket.current.close();
-      }
-    };
-  }, [symbol, setCurrentPrice]);
-};
+const MemoizedCurrentPrice = memo(CurrentPrice);
 
-const StockCard = ({ symbol }) => {
-  const [currentPrice, setCurrentPrice] = useState('N/A');
+const StockCard = ({ symbol, currentPrice }) => {
 
   // const backendWebSocketURL = 'ws://localhost:5080';
   // const socket = new WebSocket(backendWebSocketURL);
@@ -54,7 +36,6 @@ const StockCard = ({ symbol }) => {
   //     setCurrentPrice(data);
   //   };
   // };
-  useWebSocket(symbol, setCurrentPrice);
   const {
     data: stock,
     isError: isErrorStockData,
@@ -85,7 +66,7 @@ const StockCard = ({ symbol }) => {
     marginLeft: 20
   });
 
-  const ValuesContainer = styled(Card)(({ theme }) => ({
+  const ValuesContainer = styled(Card)(() => ({
     border: `5px solid ${theme.palette.primary[400]}`,
     borderRadius: 10,
     marginBottom: 15
@@ -134,13 +115,18 @@ const StockCard = ({ symbol }) => {
     } else if (news && news.length === 0) {
       return <div>No News</div>;
     } else if (news) {
-      return news.map((newsItem, index) => (
-        <Link key={index} to={`/news/${newsItem._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <StockDetailNewsCard news={newsItem?.summary ? truncateText(newsItem.summary, 100) : 'N/A'} />
-        </Link>
-      ));
+      return (
+        <SimpleBarReact style={{ maxHeight: 500 }}>
+          {news.map((newsItem, index) => (
+            <Link key={index} to={`/news/${newsItem._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <StockDetailNewsCard news={newsItem?.summary ? truncateText(newsItem.summary, 100) : 'N/A'} />
+            </Link>
+          ))}
+        </SimpleBarReact>
+      );
     }
   };
+  
 
   const renderHistoricalData = (historicalData, isLoadinghistoricalData, isErrorhistoricalData) => {
     if (isLoadinghistoricalData) {
@@ -153,6 +139,7 @@ const StockCard = ({ symbol }) => {
       return <StockPriceChart height={180} historicalData={historicalData} />;
     }
   };
+  
 
   const conditionalRendering = (isLoading, isError) => {
     if (isLoading) {
@@ -160,8 +147,9 @@ const StockCard = ({ symbol }) => {
     } else if (isError) {
       return <div>Error fetching stock data</div>;
     }
+
     return (
-      <Stack>
+      <Stack overflow="visible">
         <Grid container sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
           <Grid item>
             <StockCardHeaderType my={1} variant="h4">{`${symbol} Chart`}</StockCardHeaderType>
@@ -170,8 +158,15 @@ const StockCard = ({ symbol }) => {
             <Typography variant="h5" sx={{ marginRight: '2px' }}>
               {'Current Price:'}
             </Typography>
-            <MainCard sx={{ backgroundColor:`${theme.palette.secondary[200]}`, border: `5px solid ${theme.palette.primary[400]} !important`, borderRadius: 10, marginLeft:1 }}>
-              <Typography variant="h5">{`${parseFloat(currentPrice).toFixed(3)}$`}</Typography>
+            <MainCard
+              sx={{
+                backgroundColor: `${theme.palette.secondary[200]}`,
+                border: `5px solid ${theme.palette.primary[400]} !important`,
+                borderRadius: 10,
+                marginLeft: 1
+              }}
+            >
+              <MemoizedCurrentPrice currentPrice={currentPrice} />
             </MainCard>
           </Grid>
         </Grid>
@@ -217,15 +212,19 @@ const StockCard = ({ symbol }) => {
               <StockCardHeaderType my={1} variant="h5">
                 {`News About ${symbol}`}
               </StockCardHeaderType>
-              <SimpleBarScroll>
-                <Box px={0.5}>{renderStockNews(stockNews)}</Box>
-              </SimpleBarScroll>
+              <Box px={0.5}>{renderStockNews(stockNews)}</Box>
             </NewsContainer>
           </Grid>
         </Grid>
       </Stack>
     );
   };
+
+    // Memoize the content that depends on currentPrice
+    const memoizedContent = useMemo(() => {
+      return conditionalRendering(isLoadingStockData, isErrorStockData);
+    }, [isLoadingStockData, isErrorStockData, currentPrice]);
+  
 
   // useEffect(() => {
   //   // Connect to the WebSocket on the backend and send the stock symbol
@@ -234,9 +233,8 @@ const StockCard = ({ symbol }) => {
   //     socket.close();
   //   };
   // }, [symbol]);
-
   return (
-    <MainCard sx={{ display: 'flex', justifyContent: 'center' }}>{conditionalRendering(isLoadingStockData, isErrorStockData)}</MainCard>
+    <MainCard sx={{ display: 'flex', justifyContent: 'center' }}>{memoizedContent}</MainCard>
   );
 };
 

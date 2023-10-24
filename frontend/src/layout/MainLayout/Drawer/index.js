@@ -12,7 +12,7 @@ import { drawerWidth } from 'config';
 import NewsDrawerContent from './NewsDrawerContent/index';
 import SimpleBarScroll from 'components/third-party/SimpleBar';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNews } from 'store/reducers/news';
+import { addNews,  } from 'store/reducers/news';
 import configureNewsWSS from 'websockets/stocks/news/index';
 
 // ==============================|| MAIN LAYOUT - DRAWER ||============================== //
@@ -24,7 +24,8 @@ const MainDrawer = ({ open, handleDrawerToggle, window }) => {
 
   useEffect(() => {
     configureNewsWSS((data) => {
-      dispatch(addNews(data));
+      const parsedData = JSON.parse(data);
+      dispatch(addNews(parsedData));
     });
   }, []);
 

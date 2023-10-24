@@ -12,9 +12,10 @@ import 'assets/third-party/apex-chart.css';
 
 // project import
 import App from './App';
-import { store } from 'store';
+import { store, persistor } from 'store';
 import reportWebVitals from './reportWebVitals';
 import { CssBaseline } from '../node_modules/@mui/material/index';
+import { PersistGate } from 'redux-persist/integration/react';
 
 // ==============================|| MAIN - REACT DOM RENDER  ||============================== //
 
@@ -22,10 +23,12 @@ const container = document.getElementById('root');
 const root = createRoot(container); // createRoot(container!) if you use TypeScript
 root.render(
   <ReduxProvider store={store}>
-    <BrowserRouter>
-      <CssBaseline />
-      <App />
-    </BrowserRouter>
+    <PersistGate loading={null} persistor={persistor}>
+      <BrowserRouter>
+        <CssBaseline />
+        <App />
+      </BrowserRouter>
+    </PersistGate>
   </ReduxProvider>
 );
 

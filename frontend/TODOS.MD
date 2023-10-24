@@ -1,18 +1,10 @@
-## News
-1. Solve problem with the news websocket handling.
-2. Solve the problem with saving news to db.
-
-## Websockets
-1. FakeData WSS Works
-2. NewsFetch WSS Works but does not save to db, control necessary [SAVES]
-3. NewsSenderWSS is not valid, should be controller too see if it works.[WORKS]
-4. All Websockets should be controller if they're working.[WORKS]
-5. Real time data should be implemented instead of fake data.[MONDAY]
+## NEWS
+1. Simplebar for the StockDetails should be implemented. [IMPLEMENTED, BUT IT RENDERS THE ENTIRE COMPONENT, SHOULD BE SOLVED ]
 
 ## USER PROFILE
 1. User Model should be created
 2. Access Token, Refresh Token logic should be implemented.
-3. Watchlist ca n be created.
+3. Watchlist can be created.
 
 ## BIST Real Time News
 1. Bist Real Time News Should Be Implemented.
