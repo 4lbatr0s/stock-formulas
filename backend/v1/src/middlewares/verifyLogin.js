@@ -1,10 +1,11 @@
+import ApiError from "../errors/ApiError.js";
 import Messages from "../scripts/utils/constants/Messages.js";
 import UserService from "../services/Users.js";
-
+import httpStatus from "http-status";
 const checkEmailExist = async (res, userEmail) => {
   const user = await UserService.findOne({ email: userEmail });
-  if (user) {
-    return res.status(404).send({ error: Messages.ERROR.EMAIL_IN_USE });
+  if (!user) {
+    return next(new ApiError(Messages.ERROR.EMAIL_NOT_FOUND, httpStatus.NOT_FOUND))
   }
 };
 

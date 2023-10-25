@@ -1,5 +1,6 @@
 import mongoose, { Schema, model } from "mongoose";
 import JWT from 'jsonwebtoken';
+import CommonHelper from "../scripts/utils/helpers/CommonHelper.js";
 
 const RefreshTokenSchema = new Schema({
     token: {
@@ -17,8 +18,8 @@ const RefreshTokenSchema = new Schema({
 // Define static methods within the schema definition like this:
 RefreshTokenSchema.statics.createToken = async function (user) {
     let expiredAt = new Date();
-    expiredAt.setSeconds(expiredAt.getSeconds() + process.env.JWT_REFRESH_EXPIRATION);
-    let _token = JWT.sign(user, process.env.REFRESH_TOKEN_SECRET_KEY)
+    expiredAt.setSeconds(expiredAt.getSeconds() + 24*60*60);
+    let _token = CommonHelper.createRefreshToken(user);
 
     let _object = new this({
         token: _token,

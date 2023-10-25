@@ -16,6 +16,7 @@ const Messages = {
     TOKEN_REQUIRED:'TOKEN IS REQURED',
     TOKEN_NOT_IN_DB:'REFRESH TOKEN NOT RECOGNIZED',
     RESIGN:'Refresh token was expired. Please make a new signin request',
+    EMAIL_NOT_FOUND:"EMAIL_NOT_FOUND",
     roleNotExist: (role) => {
       return `Failed! Role ${role} does not exist!`;
     }

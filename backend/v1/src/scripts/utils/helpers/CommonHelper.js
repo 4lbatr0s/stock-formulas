@@ -16,15 +16,19 @@ class CommonHelper {
     const secondHash = CryptoJS.HmacSHA256(password, firstHash).toString();
     return secondHash;
   }
+  
+  getPropertiesToIncludeInToken(user){
+    const { roles, name, full_name, _id, email} = user._doc;
+    const roleNames = roles.map(role => role.name);
+    return { roles, name, full_name, _id, email};
+  }
 
   createAccessToken(user) { // TIP: we should specify name for jwt.sign, otherwise throws error.
-    const { password, ...others } = user._doc;
-    return JWT.sign({ name: user.full_name, ...others }, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: process.env.JWT_EPXIRATION });
+    return JWT.sign(this.getPropertiesToIncludeInToken(user), process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: process.env.JWT_EPXIRATION });
   }
 
   createRefreshToken(user) {
-    const { password, ...others } = user._doc;
-    return JWT.sign({ name: user.full_name, ...others }, process.env.REFRESH_TOKEN_SECRET_KEY);
+    return JWT.sign({...this.getPropertiesToIncludeInToken(user)}, process.env.REFRESH_TOKEN_SECRET_KEY);
   }
 
   createPassword() {
