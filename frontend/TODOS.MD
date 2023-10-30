@@ -1,9 +1,11 @@
+# DOING
+- FINISH AUTHENTICATION LOGIC, IMPLEMENT IT WITH REACT QUERY INSTEAD OF RTK QUERY.
+
+
 ## NEWS
 1. Simplebar for the StockDetails should be implemented. [IMPLEMENTED, BUT IT RENDERS THE ENTIRE COMPONENT, SHOULD BE SOLVED ]
 
 ## USER PROFILE
-1. User Model should be created
-2. Access Token, Refresh Token logic should be implemented.
 3. Watchlist can be created.
 
 ## BIST Real Time News

@@ -24,11 +24,11 @@ class CommonHelper {
   }
 
   createAccessToken(user) { // TIP: we should specify name for jwt.sign, otherwise throws error.
-    return JWT.sign(this.getPropertiesToIncludeInToken(user), process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: process.env.JWT_EPXIRATION });
+    return JWT.sign(this.getPropertiesToIncludeInToken(user), process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn:process.env.JWT_EPXIRATION });
   }
 
   createRefreshToken(user) {
-    return JWT.sign({...this.getPropertiesToIncludeInToken(user)}, process.env.REFRESH_TOKEN_SECRET_KEY);
+    return JWT.sign({...this.getPropertiesToIncludeInToken(user)}, process.env.REFRESH_TOKEN_SECRET_KEY, {expiresIn: 7200});
   }
 
   createPassword() {

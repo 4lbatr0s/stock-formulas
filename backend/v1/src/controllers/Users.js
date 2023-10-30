@@ -31,6 +31,16 @@ class UsersController {
       return next(new ApiError(error?.message, error?.statusCode));
     }
   }
+  async getUserById(req, res, next) {
+    try {
+      const result = await UserService.find(req.params.userId);
+      delete result.password;
+      res.status(httpStatus.OK).send(result);
+    } catch (error) {
+      return next(new ApiError(error?.message, error?.statusCode));
+    }
+  }
+  
 
   async login(req, res, next) {
     try {

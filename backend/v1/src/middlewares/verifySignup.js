@@ -5,16 +5,8 @@ import roles from "../scripts/utils/constants/Roles.js";
 
 const checkDuplicateNameOrEmail = async (req, res, next) => {
   try {
-    const userByUsername = await UserService.findOne({
-      username: req.body.username,
-    });
-    if (userByUsername) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .send(Messages.ERROR.USERNAME_IN_USE);
-    }
     const userByEmail = await UserService.findOne({
-      username: req.body.username,
+      email: req.body.email,
     });
     if (userByEmail) {
       return res

@@ -14,10 +14,12 @@ const news = createSlice({
   initialState,
   reducers: {
     addNews(state, action) {
-      if (state.news.length >= 10) {
+      if (state.news?.length >= 10) {
         state.news.pop();
       }
-      state.news.push(action.payload);
+      if(state.news){
+        state.news.push(action.payload);
+      }
     },
     removeNews(state) {
       state.news.pop();

@@ -8,6 +8,7 @@ import idChecker from '../middlewares/idChecker.js';
 const router = express.Router();
 
 router.get('/', authenticate.verifyToken, UsersController.list);
+router.route('/:userId').post(idChecker(), authenticate.verifyToken, UsersController.getUserById);
 router.route('/login').post(validate(schemas.loginValidation), UsersController.login);
 router.route('/').patch(authenticate.verifyToken, validate(schemas.updateValidation), UsersController.update);
 router.route('/reset-password').post(validate(schemas.resetPasswordValidation), UsersController.resetPassword);

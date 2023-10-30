@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
+import { useNavigate } from 'react-router-dom';
 // material-ui
 import {
   Button,
@@ -28,10 +28,18 @@ import AnimateButton from 'components/@extended/AnimateButton';
 
 // assets
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import authActions from 'store/actions/authentication/authAction';
+import { useDispatch, useSelector } from 'react-redux';
+import { CircularProgress } from '../../../../node_modules/@mui/material/index';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
 const AuthLogin = () => {
+  //TODO: Put error here.
+  const { loading, userInfo } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+
   const [checked, setChecked] = React.useState(false);
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -42,6 +50,19 @@ const AuthLogin = () => {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
+
+  const submitForm = (data) => {
+    dispatch(authActions.loginUser(data));
+  };
+
+  const navigate = useNavigate();
+
+  // redirect authenticated user to profile screen
+  useEffect(() => {
+    if (userInfo) {
+      navigate('/stocks');
+    }
+  }, [navigate, userInfo]);
 
   return (
     <>
@@ -57,6 +78,7 @@ const AuthLogin = () => {
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
+            submitForm(values);
             setStatus({ success: false });
             setSubmitting(false);
           } catch (err) {
@@ -152,7 +174,7 @@ const AuthLogin = () => {
               <Grid item xs={12}>
                 <AnimateButton>
                   <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
-                    Login
+                    {loading ? <CircularProgress /> : 'Login'}
                   </Button>
                 </AnimateButton>
               </Grid>

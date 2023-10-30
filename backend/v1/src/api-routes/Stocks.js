@@ -1,6 +1,7 @@
 import express from 'express';
 import StocksController from '../controllers/Stocks.js';
 import redisCaching from '../middlewares/caching/redis.js';
+import authenticatationMiddleware from '../middlewares/authenticate.js';
 
 const router = express.Router();
 // alpaca

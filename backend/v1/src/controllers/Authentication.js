@@ -15,14 +15,15 @@ const __dirname = path.dirname(__filename); // get dir name from it.
 
 class AuthenticationController {
   async register(req, res, next) {
-    req.body.password = Helper.passwordToHash(req.body.password);
+    const hashedPassword = Helper.passwordToHash(req.body.password); 
+    req.body.password = hashedPassword;
     let roleNames = req.body.roles;
     try {
       const roles = await Role.find({ name: { $in: roleNames } });
       const roleIds = roles.map(role => role._id);
       const result = await UserService.add({
         full_name: req.body.full_name,
-        password: req.body.password,
+        password: hashedPassword,
         email: req.body.email,
         profile_image: req.body.profile_image,
         roles: roleIds,

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import authActions from 'store/actions/authentication/authAction';
 // material-ui
 import {
   Box,
@@ -29,12 +31,32 @@ import { strengthColor, strengthIndicator } from 'utils/password-strength';
 
 // assets
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { useSelector } from 'react-redux';
 
 // ============================|| FIREBASE - REGISTER ||============================ //
 
 const AuthRegister = () => {
   const [level, setLevel] = useState();
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
+  //TODO: Put error and loading here.
+  const { userInfo, success } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // redirect user to login page if registration was successful
+    if (success) navigate('/login');
+    // redirect authenticated user to profile screen
+    if (userInfo) navigate('/user-profile');
+  }, [navigate, userInfo, success]);
+
+  const submitForm = (data) => {
+    data.email = data.email.toLowerCase(); // Modify the email property
+    data.fullname = data.firstname.concat(' ').concat(data.lastname);
+    dispatch(authActions.registerUser(data));
+  };
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -71,6 +93,7 @@ const AuthRegister = () => {
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
+            submitForm(values);
             setStatus({ success: false });
             setSubmitting(false);
           } catch (err) {

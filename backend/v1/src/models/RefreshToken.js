@@ -8,7 +8,7 @@ const RefreshTokenSchema = new Schema({
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "user"
     },
     expiryDate: {
         type: Date
@@ -18,7 +18,7 @@ const RefreshTokenSchema = new Schema({
 // Define static methods within the schema definition like this:
 RefreshTokenSchema.statics.createToken = async function (user) {
     let expiredAt = new Date();
-    expiredAt.setSeconds(expiredAt.getSeconds() + 24*60*60);
+    expiredAt.setHours(expiredAt.getHours() + 24);
     let _token = CommonHelper.createRefreshToken(user);
 
     let _object = new this({
