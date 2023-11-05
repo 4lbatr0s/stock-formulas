@@ -30,15 +30,19 @@ class AxiosHelper {
       throw error;
     }
   }
+
   async authorizedGetAsync(url, params = {}) {
     try {
-      const response = await this.axiosInstance.get(url, {
-        params,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}` // Add authorization header
-        }
-      });
-      return response.data;
+      const userToken = localStorage.getItem('userToken');
+      if (userToken) {
+        const response = await this.axiosInstance.get(url, {
+          params,
+          headers: {
+            Authorization: `Bearer ${userToken})}` // Add authorization header
+          }
+        });
+        return response.data;
+      }
     } catch (error) {
       console.error('Authorized GET request error:', error);
       throw error;

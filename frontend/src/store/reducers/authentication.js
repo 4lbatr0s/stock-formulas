@@ -21,6 +21,13 @@ const authSlice = createSlice({
   reducers: {
     setCredentials(state, { payload }) {
       state.userInfo = payload;
+    },
+    logout(state) {
+      localStorage.removeItem('userToken');
+      state.loading = false;
+      state.userInfo = null;
+      state.userToken = null;
+      state.error = null;
     }
   },
   extraReducers: {
@@ -50,8 +57,25 @@ const authSlice = createSlice({
     [actions.registerUser.rejected]: (state, { payload }) => {
       state.loading = false;
       state.error = payload;
+    },
+    [actions.refreshToken.pending]: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    [actions.refreshToken.fulfilled]: (state, { payload }) => {
+      state.loading = false;
+      state.success = true; // registration successful
+      state.userInfo.accessToken = payload.accessToken;
+      state.userInfo.refreshToken = payload.refreshToken;
+      state.userToken = payload.accessToken;
+    },
+    [actions.refreshToken.rejected]: (state, { payload }) => {
+      state.loading = false;
+      state.error = payload;
+      state.userInfo = null;
+      state.userToken = null;
     }
   }
 });
-export const { setCredentials } = authSlice.actions;
+export const { setCredentials, logout } = authSlice.actions;
 export default authSlice.reducer;

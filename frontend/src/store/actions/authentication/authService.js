@@ -27,9 +27,22 @@ const userLogin = async ({ email, password }, { rejectWithValue }) => {
   }
 };
 
+const refreshToken = async ({ refreshToken }, { rejectWithValue }) => {
+  try {
+    return await AxiosHelper.postAsync(UrlHelper.refreshToken(), refreshToken);
+  } catch (error) {
+    if (error.response && error.response.data.message) {
+      return rejectWithValue(error.response.data.message);
+    } else {
+      return rejectWithValue(error.message);
+    }
+  }
+};
+
 const services = {
   registerUser,
-  userLogin
+  userLogin,
+  refreshToken
 };
 
 export default services;

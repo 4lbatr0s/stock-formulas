@@ -10,16 +10,42 @@ import HeaderContent from './HeaderContent';
 
 // assets
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { fetchUserDetails } from 'store/query/authentication';
+import { useQuery } from '@tanstack/react-query';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { setCredentials } from 'store/reducers/authentication';
+import { CircularProgress } from '@mui/material/index';
 
 // ==============================|| MAIN LAYOUT - HEADER ||============================== //
 
 const Header = ({ open, handleDrawerToggle }) => {
+  const dispatch = useDispatch();
 
   const theme = useTheme();
   const matchDownMD = useMediaQuery(theme.breakpoints.down('lg'));
 
   const iconBackColor = 'grey.100';
   const iconBackColorOpen = 'grey.200';
+
+  const { data: user, isLoading: userIsLoading } = useQuery(
+    ['userData'],
+    async () => {
+      const response = (await fetchUserDetails()) || null;
+      console.log('responsee babby:', response);
+      return response;
+    },
+    {
+      staleTime: 60000, // Set to Infinity to prevent automatic refetching
+      refetchInterval: 90000,
+    }
+  );
+
+  useEffect(() => {
+    if (user) dispatch(setCredentials(user));
+  }, [user, dispatch]);
+
+  console.log('user:', user);
 
   // common header
   const mainHeader = (
@@ -53,6 +79,7 @@ const Header = ({ open, handleDrawerToggle }) => {
     <>
       {!matchDownMD ? (
         <AppBarStyled open={open} {...appBar}>
+          {userIsLoading && <CircularProgress/> }
           {mainHeader}
         </AppBarStyled>
       ) : (

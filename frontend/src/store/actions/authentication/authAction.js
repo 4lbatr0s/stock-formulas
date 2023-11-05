@@ -4,10 +4,12 @@ import authServices from './authService';
 
 const registerUser = createAsyncThunk(thunkKeys.REGISTER, authServices.registerUser);
 const loginUser = createAsyncThunk(thunkKeys.LOGIN, authServices.userLogin);
+const refreshToken = createAsyncThunk(thunkKeys.REFRESH, authServices.refreshToken);
 
 const actions = {
   registerUser,
-  loginUser
+  loginUser,
+  refreshToken
 };
 
 export default actions;

@@ -19,8 +19,8 @@ class UrlHelper {
   getNewsById(newsId) {
     return `${this.baseUrl}${urlConstants.getNewsById}/${newsId}`;
   }
-  getUserById(userId){
-    return `${this.baseUrl}${urlConstants.getUsers}/${userId}`;
+  getUserDetails() {
+    return `${this.baseUrl}${urlConstants.getUserDetails}`;
   }
   getHistoricalDataByStock(stockSymbol) {
     return `${this.baseUrl}${urlConstants.getHistoricalDataByStock}/${stockSymbol}`;
@@ -30,6 +30,9 @@ class UrlHelper {
   }
   login() {
     return `${this.baseUrl}${urlConstants.login}`;
+  }
+  refreshToken() {
+    return `${this.baseUrl}${urlConstants.refreshToken}`;
   }
 }
 

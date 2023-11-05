@@ -7,6 +7,7 @@ const urlConstants = {
   getHistoricalDataByStock: '/stocks/historical-data',
   register: '/authentication/register',
   login: '/authentication/login',
-  getUsers:'/users'
+  getUserDetails: 'users/user-details',
+  refreshToken: '/token/refresh'
 };
 export default Object.freeze(urlConstants);

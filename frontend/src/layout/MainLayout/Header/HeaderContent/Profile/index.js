@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useRef, useState } from 'react';
-
+import avatar1 from 'assets/images/users/avatar-1.png';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -26,8 +26,10 @@ import ProfileTab from './ProfileTab';
 import SettingTab from './SettingTab';
 
 // assets
-import avatar1 from 'assets/images/users/avatar-1.png';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from 'store/reducers/authentication';
+import { useNavigate } from 'react-router-dom';
 
 // tab panel wrapper
 function TabPanel({ children, value, index, ...other }) {
@@ -54,10 +56,16 @@ function a11yProps(index) {
 // ==============================|| HEADER CONTENT - PROFILE ||============================== //
 
 const Profile = () => {
-  const theme = useTheme();
+  const { userInfo } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
 
+  const theme = useTheme();
+  const dispatch = useDispatch();
   const handleLogout = async () => {
-    // logout
+    //
+    dispatch(logout());
+    window.location.reload();
+    navigate('/stocks');
   };
 
   const anchorRef = useRef(null);
@@ -98,7 +106,7 @@ const Profile = () => {
       >
         <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
           <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
-          <Typography variant="subtitle1">John Doe</Typography>
+          <Typography variant="subtitle1">{userInfo && userInfo?.fullName}</Typography>
         </Stack>
       </ButtonBase>
       <Popper
