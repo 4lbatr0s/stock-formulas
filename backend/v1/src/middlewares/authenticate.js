@@ -32,11 +32,11 @@ const refreshToken = async (req, res) => {
 };
 
 
-const catchError = async (err, req, res) => {
+const catchError = async (err, req, res, next) => {
   if (err instanceof TokenExpiredError) {
       const accessToken = await refreshToken(req, res);
       req.headers.authorization = `Bearer ${accessToken}`;
-      return next(); // Continue to the next middleware or route with the new access token.
+      next();
   } else {
     throw new ApiError(Messages.ERROR.TOKEN_EXPIRED, httpStatus.UNAUTHORIZED);
   }
@@ -50,8 +50,7 @@ const verifyToken = (req, res, next) => {
     return next(new ApiError("YOU ARE NOT LOGGED IN", httpStatus.UNAUTHORIZED));
 
   JWT.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY, (error, user) => {
-    if (error) return catchError(error, req, res);
-
+    if (error) return catchError(error, req, res, next);
     req.user = user;
     next();
   });

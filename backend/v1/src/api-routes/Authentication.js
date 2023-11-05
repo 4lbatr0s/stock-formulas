@@ -10,5 +10,5 @@ import verifyLogin from '../middlewares/verifyLogin.js';
 const router = express.Router();
 router.route('/register').post(validate(schemas.createValidation), [verifySignup.checkDuplicateNameOrEmail, verifySignup.checkRoleExisted], AuthenticationController.register);
 router.route('/login').post(validate(schemas.loginValidation), verifyLogin.checkCredentials,  AuthenticationController.login);
-
+router.route('/logout').post(AuthenticationController.logout);
 export default router;

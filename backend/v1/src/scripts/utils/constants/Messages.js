@@ -1,4 +1,7 @@
 const Messages = {
+  SUCCESS:{
+    TOKEN_VALID:'TOKEN IS VALID',
+  },
   ERROR: {
     USER_NOT_FOUND: 'USER NOT FOUND!',
     WRONG_CREDENTIAL: 'WRONG CREDENTIALS!',
@@ -17,6 +20,8 @@ const Messages = {
     TOKEN_NOT_IN_DB:'REFRESH TOKEN NOT RECOGNIZED',
     RESIGN:'Refresh token was expired. Please make a new signin request',
     EMAIL_NOT_FOUND:"EMAIL_NOT_FOUND",
+    TOKEN_INVALID:"TOKEN IS NOT RECOGNIZED",
+    NOT_LOGGED_IN:"NOT LOGGED IN",
     roleNotExist: (role) => {
       return `Failed! Role ${role} does not exist!`;
     }

@@ -9,5 +9,6 @@ import verifyLogin from '../middlewares/verifyLogin.js';
 const router = express.Router();
 
 router.route('/refresh').post(validate(schemas.refreshTokenValidation), TokenController.refresh);
+router.route('/verify').post(TokenController.verify);
 
 export default router;

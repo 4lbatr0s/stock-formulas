@@ -22,6 +22,15 @@ class TokenController {
       return next(new ApiError(error?.message, error?.statusCode));
     }
   }
+  async verify(req, res, next) {
+    const { token: requestToken, key:secretKey } = req.body;
+    try {
+      const result = await TokenService.verify(requestToken, secretKey );
+      return res.status(httpStatus.CREATED).send(result);      
+    } catch (error) {
+      return next(new ApiError(error?.message, error?.statusCode));
+    }
+  }
 }
 
 export default new TokenController();

@@ -4,6 +4,9 @@ import RefreshToken from "../models/RefreshToken.js";
 import CommonHelper from "../scripts/utils/helpers/CommonHelper.js";
 import Messages from "../scripts/utils/constants/Messages.js";
 import JWT from "jsonwebtoken";
+
+const { TokenExpiredError } = JWT;
+
 class TokenService {
   async refresh(requestToken) {
     if (!requestToken) {
@@ -40,6 +43,22 @@ class TokenService {
       };
     } catch (error) {
       throw new ApiError(error?.message, error?.statusCode);
+    }
+  }
+
+  async verify(requestToken, secretKey) {
+    try {
+      // Verify the token
+      const decoded = JWT.verify(requestToken, secretKey);
+      // Token is valid; you can return the decoded payload or a custom result
+      return decoded;
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        // Token has expired
+        return false;
+      }
+      // Other token validation errors can be handled here
+      throw new Error(Messages.ERROR.TOKEN_INVALID); // Customize the error message as needed
     }
   }
 }

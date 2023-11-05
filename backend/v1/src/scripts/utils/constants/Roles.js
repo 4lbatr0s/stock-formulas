@@ -6,4 +6,6 @@ export const roleEnum = {
 
 const roles = [roleEnum.USER, roleEnum.ADMIN, roleEnum.MODERATOR];
 
+Object.freeze(roles);
+
 export default roles;
