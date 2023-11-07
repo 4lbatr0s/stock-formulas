@@ -31,6 +31,9 @@ class UrlHelper {
   login() {
     return `${this.baseUrl}${urlConstants.login}`;
   }
+  logout() {
+    return `${this.baseUrl}${urlConstants.logout}`;
+  }
   refreshToken() {
     return `${this.baseUrl}${urlConstants.refreshToken}`;
   }

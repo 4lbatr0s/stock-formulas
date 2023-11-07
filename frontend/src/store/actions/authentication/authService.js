@@ -39,10 +39,23 @@ const refreshToken = async ({ refreshToken }, { rejectWithValue }) => {
   }
 };
 
+const logOut = async ( { rejectWithValue }) => {
+  try {
+    return await AxiosHelper.postAsync(UrlHelper.logout());
+  } catch (error) {
+    if (error.response && error.response.data.message) {
+      return rejectWithValue(error.response.data.message);
+    } else {
+      return rejectWithValue(error.message);
+    }
+  }
+};
+
 const services = {
   registerUser,
   userLogin,
-  refreshToken
+  refreshToken,
+  logOut
 };
 
 export default services;
